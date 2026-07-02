@@ -75,7 +75,7 @@ export default function Sidebar() {
       </div>
 
       {/* NAVIGATION */}
-      <nav className="flex-1 p-4 space-y-2">
+      <nav className="flex-1 overflow-y-auto p-4 space-y-2">
 
         {/* TOP NAVIGATION */}
         {topItems.map((item) => (

@@ -118,8 +118,6 @@ export const ROLE_ROUTES = {
 
     "team",
 
-    "reports",
-
     "module",
 
     "prospects",
@@ -134,8 +132,6 @@ export const ROLE_ROUTES = {
 
   "Sales Agent": [
     "dashboard",
-
-    "reports",
 
     "module",
 

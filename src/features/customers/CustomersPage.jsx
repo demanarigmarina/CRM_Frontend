@@ -234,18 +234,21 @@ export default function CustomersPage() {
               )}
             </FilterPopover>
           }
-          actionButton={
-            permissions.canCreate && (
+              actionButton={
               <button
-                onClick={openCreateSidePane}
-                className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-md cursor-pointer"
+                type="button"
+                onClick={() => {
+                  setEditingProspect(null);
+                  setOpenForm(true);
+                }}
+                className="bg-red-500 hover:bg-red-600 text-white h-12 px-6 rounded-md cursor-pointer min-w-[175px]"
               >
-                <span className="flex items-center gap-2 text-sm">
-                  <FaPlus size={11} /> Add Customer
+                <span className="flex items-center justify-center gap-2 text-sm whitespace-nowrap font-medium">
+                  <FaPlus size={11} />
+                  Add Prospect
                 </span>
               </button>
-            )
-          }
+            }
         />
       </div>
 
