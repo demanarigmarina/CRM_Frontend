@@ -71,11 +71,6 @@ export const BASE_NAV = {
     label: "Quotations",
   },
 
-  deals: {
-    icon: createIcon(Handshake),
-    label: "Deals",
-  },
-
   tasks: {
     icon: createIcon(ListTodo),
     label: "Tasks",
@@ -107,7 +102,6 @@ export const ROLE_ROUTES = {
     "leads",
     "customers",
     "quotations",
-    "deals",
     "tasks",
     "meetings",
     "calls",
@@ -124,7 +118,6 @@ export const ROLE_ROUTES = {
     "leads",
     "customers",
     "quotations",
-    "deals",
     "tasks",
     "meetings",
     "calls",
@@ -139,7 +132,6 @@ export const ROLE_ROUTES = {
     "leads",
     "customers",
     "quotations",
-    "deals",
     "tasks",
     "meetings",
     "calls",

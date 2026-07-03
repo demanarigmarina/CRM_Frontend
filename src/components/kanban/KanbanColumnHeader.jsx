@@ -33,7 +33,7 @@ export default function KanbanColumnHeader({
   successStatus = null, // e.g. "Qualifed", "Closed Won", "Done" — column to highlight green
   onAdd = null, // if provided, renders the + button
   addLabel = null, // tooltip label for the + button
-  subtext = null, // optional line below the title (e.g. deal totals)
+  subtext = null, // optional line below the title
 }) {
   const isSuccess = successStatus && label === successStatus;
 

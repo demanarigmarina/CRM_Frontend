@@ -46,7 +46,7 @@ export const resolveAddressCodes = (province, city) => {
 /**
  * useFormBase - Shared form state management for all entity forms
  * 
- * Centralized hook used by Lead, Customer, User, and Deal forms
+ * Centralized hook used by Lead, Customer, User, and Quotation forms
  * Handles common form operations without duplicating code
  * 
  * Manages:

@@ -18,7 +18,7 @@ export default function Sidebar() {
 
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-  // Module is CLOSED by default
+  // Module is closed by default
   const [moduleOpen, setModuleOpen] = useState(false);
 
   const navItems = filterNavItems(getNavLinks(user?.role), user);
@@ -27,8 +27,8 @@ export default function Sidebar() {
     "prospects",
     "leads",
     "customers",
+    // "quotations",
     "quotations",
-    "deals",
     "tasks",
     "meetings",
     "calls",
@@ -55,7 +55,7 @@ export default function Sidebar() {
       } bg-white text-gray-900 flex flex-col transition-all duration-300 border-r border-gray-200`}
     >
       {/* HEADER */}
-      <div className="border-b-2 border-gray-200 h-[92px] relative flex items-center px-4">
+      <div className="border-b-2 border-gray-200 h-23 relative flex items-center px-4">
         <img
           src={isCollapsed ? logoOnly : logo}
           alt="CRM Logo"
@@ -66,7 +66,7 @@ export default function Sidebar() {
 
         <div
           onClick={() => setIsCollapsed((prev) => !prev)}
-          className={`absolute right-[-18px] bottom-[-18px] cursor-pointer bg-[#E7000B] border-4 border-gray-100 rounded-full p-1 flex items-center justify-center transition-transform duration-300 z-10 ${
+          className={`absolute -right-4.5 -bottom-4.5 cursor-pointer bg-[#E7000B] border-4 border-gray-100 rounded-full p-1 flex items-center justify-center transition-transform duration-300 z-10 ${
             isCollapsed ? "" : "rotate-180"
           }`}
         >
@@ -87,24 +87,34 @@ export default function Sidebar() {
         ))}
 
         {/* MODULE */}
-        {!isCollapsed && (
           <button
             type="button"
-            onClick={() => setModuleOpen((prev) => !prev)}
-            className="w-full flex items-center justify-between rounded-md px-4 py-3 hover:bg-gray-100 transition"
+            onClick={() => {
+              if (isCollapsed) {
+                setIsCollapsed(false);
+                setModuleOpen(true);
+              } else {
+                setModuleOpen((prev) => !prev);
+              }
+            }}
+            className={`w-full py-3 rounded-md hover:bg-gray-100 transition flex items-center ${
+              isCollapsed
+                ? "justify-center px-0"
+                : "justify-between px-4"
+            }`}
           >
             <div className="flex items-center gap-4">
               <Folder size={20} />
-              <span>Module</span>
+              {!isCollapsed && <span>Module</span>}
             </div>
 
-            {moduleOpen ? (
-              <ChevronDown size={18} />
-            ) : (
-              <ChevronRight size={18} />
-            )}
+            {!isCollapsed &&
+              (moduleOpen ? (
+                <ChevronDown size={18} />
+              ) : (
+                <ChevronRight size={18} />
+              ))}
           </button>
-        )}
 
         {/* MODULE ITEMS */}
         {moduleOpen &&

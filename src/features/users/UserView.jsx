@@ -11,7 +11,7 @@ import StatusBadge from "../../components/badge/StatusBadge";
 
 import UserLeadsTab from "./tabs/UserLeadsTab";
 import UserCustomersTab from "./tabs/UserCustomersTab";
-import UserDealsTab from "./tabs/UserDealsTab";
+import UserQuotationsTab from "./tabs/UserQuotationsTab";
 import UserTasksTab from "./tabs/UserTasksTab";
 
 import { buildFullAddress } from "../../utils/buildFullAddress";
@@ -19,7 +19,7 @@ import { formatDate, formatDateTime } from "../../utils/date";
 import { formatPhone } from "../../utils/format";
 import { getDisplayName } from "../../utils/name";
 
-const TABS = ["Overview", "Leads", "Customers", "Deals", "Tasks"];
+const TABS = ["Overview", "Leads", "Customers", "Quotations", "Tasks"];
 
 function TeamSection({ user }) {
   const role = user.role;
@@ -185,10 +185,10 @@ export default function UserView({ open, user, onClose, onEdit }) {
                 enabled={activeTab === "Customers"}
               />
             )}
-            {activeTab === "Deals" && (
-              <UserDealsTab
+            {activeTab === "Quotations" && (
+              <UserQuotationsTab
                 employeeId={user.employeeId}
-                enabled={activeTab === "Deals"}
+                enabled={activeTab === "Quotations"}
               />
             )}
             {activeTab === "Tasks" && (

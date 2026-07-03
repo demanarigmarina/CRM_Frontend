@@ -144,8 +144,8 @@ export default function TeamOverviewPage() {
               />
               <StatCard
                 icon={<Handshake size={18} />}
-                label="Deals"
-                value={stats.deals}
+                label="Quotations"
+                value={stats.quotations}
                 color="red"
                 loading={loading}
               />

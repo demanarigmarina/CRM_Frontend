@@ -7,7 +7,7 @@ import { useAuth } from "../../context/AuthContext";
 
 const TYPE_LABELS = {
   LEAD_ASSIGNED: "Lead",
-  DEAL_ASSIGNED: "Deal",
+  QUOTATION_ASSIGNED: "Quotation",
   CUSTOMER_ASSIGNED: "Customer",
   TASK_ASSIGNED: "Task",
   TASK_STATUS_CHANGED: "Task",

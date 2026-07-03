@@ -8,7 +8,7 @@ import { isTeamlessAgent, isTeamlessManager } from "../../utils/teamAccess";
 import KpiSection from "./components/KpiSection";
 import LeadFunnelChart from "./components/LeadFunnelChart";
 import MonthlyTrendsChart from "./components/MonthlyTrendsChart";
-import DealPipelineChart from "./components/DealPipelineChart";
+import QuotationPipelineChart from "./components/QuotationPipelineChart";
 import TaskBreakdownChart from "./components/TaskBreakdownChart";
 import LeadSourceChart from "./components/LeadSourceChart";
 import TopPerformersSection from "./components/TopPerformersSection";
@@ -92,7 +92,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Row 2 */}
-      <DealPipelineChart data={charts?.dealPipeline} loading={loading} />
+      <QuotationPipelineChart data={charts?.quotationPipeline} loading={loading} />
 
       {/* Row 3 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

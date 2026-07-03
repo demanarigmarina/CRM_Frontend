@@ -78,7 +78,7 @@ export const PERMISSIONS = {
       canUpdateStatus: true,
     },
   },
-  deals: {
+  quotations: {
     [ADMIN]: {
       canCreate: true,
       canEdit: true,

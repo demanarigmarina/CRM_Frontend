@@ -24,7 +24,7 @@ import { useTaskModal } from "./hooks/useTaskModal";
 import { useUsers } from "../users/hooks/useUsers";
 import { useLeads } from "../leads/hooks/useLeads";
 import { useCustomers } from "../customers/hooks/useCustomers";
-import { useDeals } from "../deals/hooks/useDeals";
+import { useQuotations } from "../quotations/hooks/useQuotations";
 
 import TaskKanban from "./TaskKanban";
 import TaskTable from "./TaskTable";
@@ -70,14 +70,15 @@ export default function TasksPage() {
     handleSelectChange,
   } = useTaskModal();
 
-  // Auto-open create modal when navigated here from Deal's "Add Task" button
-  useEffect(() => {
-    if (location.state?.openCreate) {
-      openCreate();
-      // Clear the state so a page refresh doesn't re-trigger it
-      window.history.replaceState({}, "");
-    }
-  }, []);
+  // Auto-open create modal when navigated
+useEffect(() => {
+  if (location.state?.openCreate) {
+    openCreate();
+
+    // Clear the state so a page refresh doesn't re-trigger it
+    window.history.replaceState({}, "");
+  }
+}, [location.state, openCreate]);
 
   const { users: assignableUsers = [] } = useUsers({
     skip: !permissions.canAssign,
@@ -86,7 +87,7 @@ export default function TasksPage() {
   });
   const { leads = [] } = useLeads();
   const { customers = [] } = useCustomers();
-  const { deals = [] } = useDeals();
+  const { quotations = [] } = useQuotations();
 
   const [view, setView] = useState("kanban");
   const [search, setSearch] = useState("");
@@ -304,7 +305,7 @@ export default function TasksPage() {
                 <Select
                   {...getSelectProps({ variant: "filter" })}
                   placeholder="All types"
-                  options={["Lead", "Customer", "Deal"].map((t) => ({
+                  options={["Lead", "Customer", "Quotation"].map((t) => ({
                     label: t,
                     value: t,
                   }))}
@@ -442,7 +443,7 @@ export default function TasksPage() {
         assignableUsers={assignableUsers}
         leads={leads}
         customers={customers}
-        deals={deals}
+        quotations={quotations}
         permissions={permissions}
         loading={submitting}
         onChange={handleChange}

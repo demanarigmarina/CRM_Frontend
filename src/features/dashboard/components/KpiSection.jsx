@@ -49,12 +49,12 @@ export default function KpiSection({ kpi, loading }) {
     },
     {
       icon: <DollarSign size={23} />,
-      label: "Open Deal Value",
-      tooltip: "Total value of all open deals",
-      value: loading ? null : formatCurrency(kpi?.deals.openValue ?? 0),
+      label: "Open Quotation Value",
+      tooltip: "Total value of all open quotations",
+      value: loading ? null : formatCurrency(kpi?.quotations?.openValue ?? 0),
       sub: loading
         ? null
-        : `${kpi?.deals.total ?? 0} deals · ${kpi?.deals.winRate ?? 0}% win rate`,
+        : `${kpi?.quotations?.total ?? 0} quotations · ${kpi?.quotations?.winRate ?? 0}% win rate`,
       color: "amber",
     },
     {

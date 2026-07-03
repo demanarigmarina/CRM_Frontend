@@ -9,7 +9,7 @@ export function useTeamOverview(teamId) {
   const [team, setTeam] = useState(null);
   const [stats, setStats] = useState({
     leads: 0,
-    deals: 0,
+    quotations: 0,
     tasks: 0,
     customers: 0,
   });
@@ -26,10 +26,10 @@ export function useTeamOverview(teamId) {
       const { data: teamData } = await api.get(`/api/teams/${teamId}`);
       setTeam(teamData);
 
-      const [leadsRes, dealsRes, tasksRes, customersRes] =
+      const [leadsRes, quotationsRes, tasksRes, customersRes] =
         await Promise.allSettled([
           api.get("/api/leads"),
-          api.get("/api/deals"),
+          api.get("/api/quotations"),
           api.get("/api/tasks"),
           api.get("/api/customers"),
         ]);
@@ -39,9 +39,9 @@ export function useTeamOverview(teamId) {
           leadsRes.status === "fulfilled"
             ? (leadsRes.value.data?.length ?? 0)
             : 0,
-        deals:
-          dealsRes.status === "fulfilled"
-            ? (dealsRes.value.data?.length ?? 0)
+        quotations:
+          quotationsRes.status === "fulfilled"
+            ? (quotationsRes.value.data?.length ?? 0)
             : 0,
         tasks:
           tasksRes.status === "fulfilled"

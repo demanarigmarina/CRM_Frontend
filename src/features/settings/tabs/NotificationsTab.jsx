@@ -49,13 +49,13 @@ function CustomRadio({ checked, onChange }) {
 const defaultPreferences = {
   emailTaskAssignment: true,
   emailTaskReminder: true,
-  emailDealUpdate: true,
+  emailQuotationUpdate: true,
   emailLeadUpdate: true,
   emailTeamMention: true,
   emailSystemAlert: true,
   inAppTaskAssignment: true,
   inAppTaskReminder: true,
-  inAppDealUpdate: true,
+  inAppQuotationUpdate: true,
   inAppLeadUpdate: true,
   inAppTeamMention: true,
   inAppSystemAlert: true,
@@ -66,7 +66,7 @@ const defaultPreferences = {
 const emailItems = [
   { key: "emailTaskAssignment", label: "Task Assignments", desc: "Get notified when a task is assigned to you" },
   { key: "emailTaskReminder", label: "Task Reminders", desc: "Receive reminders for upcoming task due dates" },
-  { key: "emailDealUpdate", label: "Deal Updates", desc: "Get notified when deal status changes" },
+  { key: "emailQuotationUpdate", label: "Quotation Updates", desc: "Get notified when quotation status changes" },
   { key: "emailLeadUpdate", label: "Lead Updates", desc: "Receive updates on lead status changes" },
   { key: "emailTeamMention", label: "Team Mentions", desc: "Get notified when mentioned by team members" },
   { key: "emailSystemAlert", label: "System Alerts", desc: "Important system notifications and updates" },
@@ -75,7 +75,7 @@ const emailItems = [
 const inAppItems = [
   { key: "inAppTaskAssignment", label: "Task Assignments", desc: "Get notified when a task is assigned to you" },
   { key: "inAppTaskReminder", label: "Task Reminders", desc: "Receive reminders for upcoming task due dates" },
-  { key: "inAppDealUpdate", label: "Deal Updates", desc: "Get notified when deal status changes" },
+  { key: "inAppQuotationUpdate", label: "Quotation Updates", desc: "Get notified when quotation status changes" },
   { key: "inAppLeadUpdate", label: "Lead Updates", desc: "Receive updates on lead status changes" },
   { key: "inAppTeamMention", label: "Team Mentions", desc: "Get notified when mentioned by team members" },
   { key: "inAppSystemAlert", label: "System Alerts", desc: "Important system notifications and updates" },
@@ -110,10 +110,10 @@ export default function NotificationsTab() {
     setPreferences((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setPreferences((prev) => ({ ...prev, [name]: value }));
-  };
+  // const handleInputChange = (e) => {
+  //   const { name, value } = e.target;
+  //   setPreferences((prev) => ({ ...prev, [name]: value }));
+  // };
 
   const handleSave = async () => {
     setSaving(true);

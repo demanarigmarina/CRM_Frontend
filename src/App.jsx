@@ -20,7 +20,6 @@ import AdminTeams from "./pages/admin/Teams";
 import AdminLeads from "./pages/admin/Leads";
 import AdminCustomers from "./pages/admin/Customers";
 import AdminQuotations from "./pages/admin/Quotations";
-import AdminDeals from "./pages/admin/Deals";
 import AdminReports from "./pages/admin/Reports";
 import AdminTasks from "./pages/admin/Tasks";
 import AdminProspects from "./pages/admin/Prospects";
@@ -34,7 +33,6 @@ import TeamOverview from "./pages/salesManager/TeamOverview";
 import SalesManagerLeads from "./pages/salesManager/Leads";
 import SalesManagerCustomers from "./pages/salesManager/Customers";
 import SalesManagerQuotations from "./pages/salesManager/Quotations";
-import SalesManagerDeals from "./pages/salesManager/Deals";
 import SalesManagerTasks from "./pages/salesManager/Tasks";
 import SalesManagerProspects from "./pages/salesManager/Prospects";
 import SalesManagerMeetings from "./pages/salesManager/Meetings";
@@ -47,7 +45,6 @@ import SalesAgentTeamRequired from "./pages/salesAgent/TeamRequired";
 import SalesAgentLeads from "./pages/salesAgent/Leads";
 import SalesAgentCustomers from "./pages/salesAgent/Customers";
 import SalesAgentQuotations from "./pages/salesAgent/Quotations";
-import SalesAgentDeals from "./pages/salesAgent/Deals";
 import SalesAgentTasks from "./pages/salesAgent/Tasks";
 import SalesAgentProspects from "./pages/salesAgent/Prospects";
 import SalesAgentMeetings from "./pages/salesAgent/Meetings";
@@ -82,7 +79,7 @@ function App() {
           <Route path="/admin/leads" element={<AdminLeads />} />
           <Route path="/admin/customers" element={<AdminCustomers />} />
           <Route path="/admin/quotations" element={<AdminQuotations />}/>
-          <Route path="/admin/deals" element={<AdminDeals />} />
+          <Route path="/admin/quotations" element={<AdminQuotations />} />
           <Route path="/admin/tasks" element={<AdminTasks />} />
           <Route path="/admin/prospects" element={<AdminProspects />} />
           <Route path="/admin/meetings" element={<AdminMeetings />} />
@@ -111,8 +108,8 @@ function App() {
             element={<SalesManagerQuotations />}
             />
             <Route
-              path="/sales-manager/deals"
-              element={<SalesManagerDeals />}
+              path="/sales-manager/quotations"
+              element={<SalesManagerQuotations />}
             />
             <Route
               path="/sales-manager/tasks"
@@ -165,8 +162,8 @@ function App() {
               element={<SalesAgentQuotations />}
              />
             <Route 
-            path="/sales-agent/deals"
-             element={<SalesAgentDeals />} 
+            path="/sales-agent/quotations"
+             element={<SalesAgentQuotations />} 
             />
             <Route
               path="/sales-agent/prospects"

@@ -16,7 +16,7 @@ const PILL_STYLES = {
   // Customer statuses
   Active: "bg-emerald-100 text-emerald-700",
   Inactive: "bg-gray-100 text-gray-500",
-  // Deal stages
+  // Quotation stages
   Prospecting: "bg-gray-100 text-gray-600",
   Qualification: "bg-yellow-100 text-yellow-700",
   Proposal: "bg-blue-100 text-blue-700",
@@ -86,7 +86,7 @@ function CustomerRow({ item, isLast }) {
   );
 }
 
-function DealRow({ item, isLast }) {
+function QuotationRow({ item, isLast }) {
   const customer = item.customer
     ? `${item.customer.firstName} ${item.customer.lastName}`
     : "—";
@@ -172,7 +172,7 @@ function Row({
 const RESOURCE_CONFIG = {
   leads: { icon: Magnet, label: "leads", RowComponent: LeadRow },
   customers: { icon: UserCheck, label: "customers", RowComponent: CustomerRow },
-  deals: { icon: Handshake, label: "deals", RowComponent: DealRow },
+  quotations: { icon: Handshake, label: "quotations", RowComponent: QuotationRow },
   tasks: { icon: ListTodo, label: "tasks", RowComponent: TaskRow },
 };
 

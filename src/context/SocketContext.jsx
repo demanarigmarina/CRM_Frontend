@@ -16,7 +16,7 @@ const SocketContext = createContext(null);
  * Events Available:
  *   - lead:created, lead:updated, lead:deleted
  *   - customer:created, customer:updated
- *   - deal:moved, deal:updated
+ *   
  *   - task:assigned, task:completed
  *   - notification:new
  *   - activity:created

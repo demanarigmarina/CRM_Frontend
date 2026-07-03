@@ -11,8 +11,8 @@ export function resolveNotificationTarget(notif, userRole) {
     case "LEAD_CONVERSION_APPROVED":
       return { path: `${prefix}/leads` };
 
-    case "DEAL_ASSIGNED":
-      return { path: `${prefix}/deals` };
+    case "QUOTATION_ASSIGNED":
+      return { path: `${prefix}/quotations` };
 
     case "CUSTOMER_ASSIGNED":
       return { path: `${prefix}/customers` };

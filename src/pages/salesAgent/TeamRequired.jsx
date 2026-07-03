@@ -15,7 +15,7 @@ export default function TeamRequired() {
         <p className="mt-2 text-sm text-gray-500 leading-6">
           Your account is not assigned to a sales team. Please contact an admin
           or sales manager to assign you to a team before accessing leads,
-          customers, deals, and other features.
+          customers, quotations, and other features.
         </p>
       </div>
     </div>

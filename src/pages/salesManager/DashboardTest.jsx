@@ -92,7 +92,7 @@ export default function SalesManagerDashboard() {
           <p className="mt-1 text-sm text-amber-700">
             You are not assigned as a manager of any sales team. Please contact
             an admin to assign you to a team before accessing leads, customers,
-            deals, and other features.
+            quotations, and other features.
           </p>
         </div>
       )}

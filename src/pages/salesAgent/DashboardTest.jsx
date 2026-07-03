@@ -87,7 +87,7 @@ export default function SalesAgentDashboard() {
           <p className="mt-1 text-sm text-amber-700">
             Your account is not assigned to a sales team. Please contact an
             admin or sales manager to assign you to a team before accessing
-            leads, customers, deals, and other features.
+            leads, customers, quotations, and other features.
           </p>
         </div>
       )}

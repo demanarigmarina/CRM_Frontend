@@ -40,7 +40,7 @@ const TASK_TYPE_ICON = {
 const RELATED_ICON = {
   Lead: Magnet,
   Customer: UserCheck,
-  Deal: Handshake,
+  Quotation: Handshake,
 };
 
 const getRelatedName = (task) => {
@@ -50,7 +50,7 @@ const getRelatedName = (task) => {
   if (type === "Lead" || type === "Customer") {
     return [ref.firstName, ref.lastName].filter(Boolean).join(" ") || "Unknown";
   }
-  if (type === "Deal") return ref.title || "Unknown";
+  if (type === "Quotation") return ref.title || "Unknown";
   return null;
 };
 

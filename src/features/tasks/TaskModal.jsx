@@ -50,7 +50,7 @@ import {
 
 const STATUSES = ["To Do", "In Progress", "Completed"];
 const REPEATS = ["None", "Daily", "Weekly", "Monthly"];
-const RELATED_TYPES = ["Lead", "Customer", "Deal"];
+const RELATED_TYPES = ["Lead", "Customer", "Quotation"];
 
 const PRIORITY_COLORS = {
   Low: "blue",
@@ -85,7 +85,7 @@ const TASK_TYPE_ICON = {
 const RELATED_TYPE_ICON = {
   Lead: Magnet,
   Customer: UserCheck,
-  Deal: Handshake,
+  Quotation: Handshake,
 };
 
 const getRelatedLabel = (task) => {
@@ -96,7 +96,7 @@ const getRelatedLabel = (task) => {
     const name = [ref.firstName, ref.lastName].filter(Boolean).join(" ");
     return name || "Unknown";
   }
-  if (type === "Deal") return ref.title || "Unknown";
+  if (type === "Quotation") return ref.title || "Unknown";
   return null;
 };
 
@@ -114,7 +114,7 @@ export default function TaskModal({
   assignableUsers = [],
   leads = [],
   customers = [],
-  deals = [],
+  quotations = [],
   permissions = {},
   loading = false,
   onChange,
@@ -147,14 +147,14 @@ export default function TaskModal({
         value: c._id,
       }));
     }
-    if (type === "Deal") {
-      return deals.map((d) => ({
-        label: d.title,
-        value: d._id,
+    if (type === "Quotation") {
+      return quotations.map((q) => ({
+        label: q.title,
+        value: q._id,
       }));
     }
     return [];
-  }, [formData.relatedToType, leads, customers, deals]);
+  }, [formData.relatedToType, leads, customers, quotations]);
 
   if (!open) return null;
 

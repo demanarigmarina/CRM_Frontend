@@ -17,7 +17,7 @@ export function useUserRecords(employeeId, resource, enabled) {
       const params = new URLSearchParams({ page: pageNum, limit: PAGE_SIZE });
       if (search) params.set("search", search);
       if (filter) {
-        const filterKey = resource === "deals" ? "stage" : "status";
+        const filterKey = resource === "quotations" ? "stage" : "status";
         params.set(filterKey, filter);
       }
       return params.toString();

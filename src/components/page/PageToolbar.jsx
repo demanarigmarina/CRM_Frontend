@@ -12,7 +12,7 @@ import { FiGrid, FiList } from "react-icons/fi";
  * @prop {React.ReactNode} filterSlot       - rendered <FilterPopover> (or null)
  * @prop {string}          [view]           - current view: "kanban" | "table"
  * @prop {(v) => void}     [onViewChange]   - called with "kanban" or "table" when toggled
- * @prop {React.ReactNode} [actionButton]   - e.g. <button>New Deal</button>
+ * @prop {React.ReactNode} [actionButton]   - 
  *
  */
 export default function PageToolbar({

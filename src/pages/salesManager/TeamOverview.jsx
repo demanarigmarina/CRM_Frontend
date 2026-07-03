@@ -1,5 +1,5 @@
 import TeamOverviewPage from "../../features/teams/TeamOverviewPage";
 
-export default function SalesManagerDeals() {
+export default function SalesManagerTeamOverview() {
   return <TeamOverviewPage />;
 }

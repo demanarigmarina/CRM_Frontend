@@ -8,11 +8,11 @@ export const SOCKET_EVENTS = {
   LEAD_CONVERSION_APPROVED: "lead.conversion.approved",
   LEAD_CONVERTED: "lead.converted",
 
-  // Deals
-  DEAL_CREATED: "deal.created",
-  DEAL_UPDATED: "deal.updated",
-  DEAL_STAGE_CHANGED: "deal.stage.changed",
-  DEAL_ASSIGNED: "deal.assigned",
+  // QUOTATIONS
+  QUOTATION_CREATED: "quotation.created",
+  QUOTATION_UPDATED: "quotation.updated",
+  QUOTATION_ASSIGNED: "quotation.assigned",
+  QUOTATION_STATUS_CHANGED: "quotation.status.changed",
 
   // Customers
   CUSTOMER_CREATED: "customer.created",

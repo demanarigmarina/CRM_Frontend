@@ -1,5 +1,5 @@
-import DealsPage from "../../features/deals/DealsPage";
+import QuotationsPage from "../../features/quotations/QuotationsPage";
 
-export default function SalesAgentDeals() {
-  return <DealsPage />;
+export default function SalesAgentQuotations() {
+  return <QuotationsPage />;
 }
