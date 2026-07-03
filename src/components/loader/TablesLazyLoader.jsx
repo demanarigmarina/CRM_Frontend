@@ -18,12 +18,12 @@ export default function LoaderTables({
 
   const isLoading = paginatedItems === "loading";
 
-  // const Bone = ({ className = "", style = {} }) => (
-  //   <div 
-  //     className={`animate-pulse bg-gray-200 rounded ${className}`} 
-  //     style={style}
-  //   />
-  // );
+  const Bone = ({ className = "", style = {} }) => (
+    <div 
+      className={`animate-pulse bg-gray-200 rounded ${className}`} 
+      style={style}
+    />
+  );
 
   const skeletonRows = Array.from({ length: rowsPerPage ?? 10 });
   const columnCount = headers?.length ?? 5;
