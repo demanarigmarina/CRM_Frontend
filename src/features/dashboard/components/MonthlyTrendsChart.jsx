@@ -18,14 +18,14 @@ const RANGES = [
 
 const parseLabelToDate = (label) => new Date(label);
 
-const mergeMonthlyData = (monthlyLeads = [], monthlyCustomers = []) => {
+const mergeMonthlyData = (monthlyLeads = [], monthlyClients = []) => {
   const map = new Map();
   monthlyLeads.forEach(({ month, leads }) => {
-    map.set(month, { month, leads, customers: 0 });
+    map.set(month, { month, leads, clients: 0 });
   });
-  monthlyCustomers.forEach(({ month, customers }) => {
-    if (map.has(month)) map.get(month).customers = customers;
-    else map.set(month, { month, leads: 0, customers });
+  monthlyClients.forEach(({ month, clients }) => {
+    if (map.has(month)) map.get(month).clients = clients;
+    else map.set(month, { month, leads: 0, clients });
   });
   return Array.from(map.values());
 };
@@ -47,7 +47,7 @@ const filterByRange = (data, range) => {
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-white border border-gray-100 rounded-md shadow-md px-3 py-2 text-sm min-w-[140px]">
+    <div className="bg-white border border-gray-100 rounded-md shadow-md px-3 py-2 text-sm min-w-35">
       <p className="font-semibold text-gray-700 mb-1.5">{label}</p>
       {payload.map((p) => (
         <div
@@ -84,14 +84,14 @@ function SkeletonLine() {
 
 export default function MonthlyTrendsChart({
   monthlyLeads,
-  monthlyCustomers,
+  monthlyClients,
   loading,
 }) {
   const [activeRange, setActiveRange] = useState(RANGES[1]); // default: 6m
 
   const allData = useMemo(
-    () => mergeMonthlyData(monthlyLeads, monthlyCustomers),
-    [monthlyLeads, monthlyCustomers],
+    () => mergeMonthlyData(monthlyLeads, monthlyClients),
+    [monthlyLeads, monthlyClients],
   );
 
   const visibleData = useMemo(
@@ -100,7 +100,7 @@ export default function MonthlyTrendsChart({
   );
 
   const isEmpty =
-    !loading && visibleData.every((r) => r.leads === 0 && r.customers === 0);
+    !loading && visibleData.every((r) => r.leads === 0 && r.clients === 0);
 
   return (
     <BaseCard>
@@ -109,7 +109,7 @@ export default function MonthlyTrendsChart({
           <p className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-1">
             Monthly Trends
           </p>
-          <p className="text-sm text-gray-500">Leads & customers over time</p>
+          <p className="text-sm text-gray-500">Leads & clients over time</p>
         </div>
 
         <div className="flex items-center bg-gray-100 rounded-md p-0.5 gap-0.5">
@@ -178,8 +178,8 @@ export default function MonthlyTrendsChart({
             />
             <Line
               type="monotone"
-              dataKey="customers"
-              name="Customers"
+              dataKey="clients"
+              name="Clients"
               stroke="#34d399"
               strokeWidth={2}
               dot={{ r: 3, fill: "#34d399" }}

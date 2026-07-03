@@ -136,7 +136,7 @@ export function useQuotations() {
     try {
       const payload = {
         title: formData.title,
-        customer: formData.customer,
+        client: formData.client,
         value: Number(formData.value),
         currency: formData.currency || "PHP",
         // probability: Number(formData.probability) || 0,
@@ -169,7 +169,7 @@ export function useQuotations() {
     try {
       const payload = {
         title: formData.title,
-        customer: formData.customer,
+        client: formData.client,
         value: Number(formData.value),
         currency: formData.currency || "PHP",
         // probability: Number(formData.probability) || 0,

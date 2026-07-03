@@ -93,7 +93,7 @@ export default function Prospects() {
       <div className="flex items-center justify-between mb-4">
         <PageHeader
           title="Prospects"
-          subtitle="Store client forms and track potential customers before they are contacted."
+          subtitle="Store client forms and track potential clients before they are contacted."
         />
 
         <PageToolbar
@@ -115,7 +115,7 @@ export default function Prospects() {
       setEditingProspect(null);
       setOpenForm(true);
     }}
-    className="bg-red-500 hover:bg-red-600 text-white h-12 px-6 rounded-md cursor-pointer min-w-[175px]"
+    className="bg-red-500 hover:bg-red-600 text-white h-12 px-6 rounded-md cursor-pointer min-w-43.75"
   >
     <span className="flex items-center justify-center gap-2 text-sm whitespace-nowrap font-medium">
       <FaPlus size={11} />

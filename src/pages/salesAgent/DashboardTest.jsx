@@ -48,17 +48,17 @@ export default function SalesAgentDashboard() {
   const isTeamless = isTeamlessAgent(user);
 
   const stats = useMemo(() => {
-    const active = leads.filter((l) => !l.convertedToCustomer);
+    const active = leads.filter((l) => !l.convertedToClient);
     const pendingRequest = leads.filter(
       (l) =>
         l.conversionRequested &&
         !l.conversionApproved &&
-        !l.convertedToCustomer,
+        !l.convertedToClient,
     );
     const readyToConvert = leads.filter(
-      (l) => l.conversionApproved && !l.convertedToCustomer,
+      (l) => l.conversionApproved && !l.convertedToClient,
     );
-    const converted = leads.filter((l) => l.convertedToCustomer);
+    const converted = leads.filter((l) => l.convertedToClient);
 
     return { active, pendingRequest, readyToConvert, converted };
   }, [leads]);
@@ -87,7 +87,7 @@ export default function SalesAgentDashboard() {
           <p className="mt-1 text-sm text-amber-700">
             Your account is not assigned to a sales team. Please contact an
             admin or sales manager to assign you to a team before accessing
-            leads, customers, quotations, and other features.
+            leads, clients, quotations, and other features.
           </p>
         </div>
       )}
@@ -180,7 +180,7 @@ export default function SalesAgentDashboard() {
                     </td>
 
                     <td className="py-2 text-xs text-gray-400">
-                      {lead.convertedToCustomer
+                      {lead.convertedToClient
                         ? "✅ Converted"
                         : lead.conversionApproved
                           ? "🟢 Ready to convert"

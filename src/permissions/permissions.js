@@ -35,7 +35,7 @@ export const PERMISSIONS = {
       canUpdateStatus: true,
     },
   },
-  customers: {
+  clients: {
     [ADMIN]: {
       canCreate: true,
       canEdit: true,

@@ -7,9 +7,9 @@ import { getDisplayName } from "../../utils/name";
  * ViewProfileHero
  *
  * The avatar + name + gender icon + subtitle + badge block shown at the
- * top of every view drawer (leads, customers, users).
+ * top of every view drawer.
  *
- * @prop {object}          record      - the data object (lead / customer / user)
+ * @prop {object}          record      - the data object (lead / client / user)
  * @prop {string}          subtitle    - line shown below the name (e.g. "Company · Industry")
  * @prop {React.ReactNode} badge       - status badge / status select rendered below subtitle
  *

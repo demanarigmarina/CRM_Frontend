@@ -35,7 +35,7 @@ const mockTasks = [
   },
   {
     _id: "2",
-    subject: "Update customer database",
+    subject: "Update client database",
     description: "Add new contact information",
     priority: "Medium",
     status: "To Do",

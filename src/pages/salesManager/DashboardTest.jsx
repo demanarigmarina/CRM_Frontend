@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useLeads } from "../../features/leads/hooks/useLeads";
-import { useCustomers } from "../../features/customers/hooks/useCustomers";
+import { useClients } from "../../features/clients/hooks/useClients";
 import { useTasks } from "../../hooks/useTasks";
 import { useAuth } from "../../context/AuthContext";
 import { NavLink } from "react-router-dom";
@@ -38,7 +38,7 @@ function StatCard({ icon, label, value, sub, to, color = "red" }) {
 export default function SalesManagerDashboard() {
   const { user } = useAuth();
   const { leads = [] } = useLeads();
-  const { customers = [] } = useCustomers();
+  const { clients = [] } = useClients();
   const { tasks = [] } = useTasks();
 
   const isTeamless = isTeamlessManager(user);
@@ -49,7 +49,7 @@ export default function SalesManagerDashboard() {
       (l) => l.status === "Pending Conversion",
     ).length;
 
-    const activeCustomers = customers.filter(
+    const activeClients = clients.filter(
       (c) => c.status === "Active",
     ).length;
 
@@ -64,11 +64,11 @@ export default function SalesManagerDashboard() {
     return {
       newLeads,
       pendingConversion,
-      activeCustomers,
+      activeClients,
       openTasks,
       overdueTasks,
     };
-  }, [leads, customers, tasks]);
+  }, [leads, clients, tasks]);
 
   return (
     <>
@@ -91,7 +91,7 @@ export default function SalesManagerDashboard() {
           </h2>
           <p className="mt-1 text-sm text-amber-700">
             You are not assigned as a manager of any sales team. Please contact
-            an admin to assign you to a team before accessing leads, customers,
+            an admin to assign you to a team before accessing leads, clients,
             quotations, and other features.
           </p>
         </div>
@@ -111,10 +111,10 @@ export default function SalesManagerDashboard() {
             />
             <StatCard
               icon={<TiGroupOutline size={22} />}
-              label="Total Customers"
-              value={customers.length}
-              sub={`${stats.activeCustomers} active`}
-              to="/sales-manager/customers"
+              label="Total Clients"
+              value={clients.length}
+              sub={`${stats.activeClients} active`}
+              to="/sales-manager/clients"
               color="blue"
             />
             <StatCard

@@ -54,7 +54,7 @@ export default function CardsLazyLoader({
                   {/* Value */}
                   <Bone className="h-4 w-24" />
 
-                  {/* Customer */}
+                  {/* Client */}
                   <Bone className="h-3 w-[55%]" />
 
                   {/* Footer */}

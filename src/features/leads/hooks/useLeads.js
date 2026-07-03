@@ -431,7 +431,7 @@ export function useLeads() {
   const approveLeadConversion = async (_id) => {
     const result = await Swal.fire({
       title: "Approve conversion?",
-      text: "The agent will be able to convert this lead to a customer.",
+      text: "The agent will be able to convert this lead to a client.",
       icon: "question",
       showCancelButton: true,
       confirmButtonColor: "#d97706",
@@ -475,7 +475,7 @@ export function useLeads() {
             ? {
                 ...l,
                 status: "Converted",
-                convertedToCustomer: true,
+                convertedToClient: true,
                 convertedAt: data.lead.convertedAt,
                 convertedBy: data.lead.convertedBy,
               }
@@ -485,7 +485,7 @@ export function useLeads() {
       Swal.fire({
         icon: "success",
         title: "Lead Converted!",
-        text: "Customer created successfully",
+        text: "Client created successfully",
         timer: 2000,
         showConfirmButton: false,
       });

@@ -18,7 +18,7 @@ import AdminIndex from "./pages/admin/Dashboard";
 import AdminUsers from "./pages/admin/Users";
 import AdminTeams from "./pages/admin/Teams";
 import AdminLeads from "./pages/admin/Leads";
-import AdminCustomers from "./pages/admin/Customers";
+import AdminClients from "./pages/admin/Clients";
 import AdminQuotations from "./pages/admin/Quotations";
 import AdminReports from "./pages/admin/Reports";
 import AdminTasks from "./pages/admin/Tasks";
@@ -31,7 +31,7 @@ import AdminSettings from "./pages/admin/Settings";
 import SalesManagerIndex from "./pages/salesManager/Dashboard";
 import TeamOverview from "./pages/salesManager/TeamOverview";
 import SalesManagerLeads from "./pages/salesManager/Leads";
-import SalesManagerCustomers from "./pages/salesManager/Customers";
+import SalesManagerClients from "./pages/salesManager/Clients";
 import SalesManagerQuotations from "./pages/salesManager/Quotations";
 import SalesManagerTasks from "./pages/salesManager/Tasks";
 import SalesManagerProspects from "./pages/salesManager/Prospects";
@@ -43,7 +43,7 @@ import SalesManagerSettings from "./pages/salesManager/Settings";
 import SalesAgentIndex from "./pages/salesAgent/Dashboard";
 import SalesAgentTeamRequired from "./pages/salesAgent/TeamRequired";
 import SalesAgentLeads from "./pages/salesAgent/Leads";
-import SalesAgentCustomers from "./pages/salesAgent/Customers";
+import SalesAgentClients from "./pages/salesAgent/Clients";
 import SalesAgentQuotations from "./pages/salesAgent/Quotations";
 import SalesAgentTasks from "./pages/salesAgent/Tasks";
 import SalesAgentProspects from "./pages/salesAgent/Prospects";
@@ -77,7 +77,7 @@ function App() {
           <Route path="/admin/users" element={<AdminUsers />} />
           <Route path="/admin/teams" element={<AdminTeams />} />
           <Route path="/admin/leads" element={<AdminLeads />} />
-          <Route path="/admin/customers" element={<AdminCustomers />} />
+          <Route path="/admin/clients" element={<AdminClients />} />
           <Route path="/admin/quotations" element={<AdminQuotations />}/>
           <Route path="/admin/quotations" element={<AdminQuotations />} />
           <Route path="/admin/tasks" element={<AdminTasks />} />
@@ -100,8 +100,8 @@ function App() {
               element={<SalesManagerLeads />}
             />
             <Route
-              path="/sales-manager/customers"
-              element={<SalesManagerCustomers />}
+              path="/sales-manager/clients"
+              element={<SalesManagerClients />}
             />
             <Route
             path="/sales-manager/quotations"
@@ -154,8 +154,8 @@ function App() {
              element={<SalesAgentLeads />} 
             />
             <Route
-              path="/sales-agent/customers"
-              element={<SalesAgentCustomers />}
+              path="/sales-agent/clients"
+              element={<SalesAgentClients />}
             />
            <Route
               path="/sales-agent/quotations"

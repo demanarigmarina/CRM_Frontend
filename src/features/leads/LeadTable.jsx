@@ -197,7 +197,7 @@ export default function LeadTable({
                 toneMap={STATUS_TONE}
                 disabled={
                   !permissions.canEdit ||
-                  lead.convertedToCustomer ||
+                  lead.convertedToClient ||
                   lead.status === "Lost"
                 }
                 onBeforeSelect={(newStatus) =>
@@ -211,16 +211,16 @@ export default function LeadTable({
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    if (!lead.convertedToCustomer) onEdit(lead);
+                    if (!lead.convertedToClient) onEdit(lead);
                   }}
-                  disabled={lead.convertedToCustomer}
+                  disabled={lead.convertedToClient}
                   className={`p-2 rounded-md transition-colors ${
-                    lead.convertedToCustomer
+                    lead.convertedToClient
                       ? "text-gray-300 cursor-not-allowed"
                       : "text-gray-400 hover:text-[#ef4444] cursor-pointer"
                   }`}
                   title={
-                    lead.convertedToCustomer
+                    lead.convertedToClient
                       ? "Converted leads cannot be edited"
                       : "Edit lead"
                   }
@@ -295,7 +295,7 @@ export default function LeadTable({
                 toneMap={STATUS_TONE}
                 disabled={
                   !permissions.canEdit ||
-                  lead.convertedToCustomer ||
+                  lead.convertedToClient ||
                   lead.status === "Lost"
                 }
                 onBeforeSelect={(newStatus) =>
@@ -309,16 +309,16 @@ export default function LeadTable({
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    if (!lead.convertedToCustomer) onEdit(lead);
+                    if (!lead.convertedToClient) onEdit(lead);
                   }}
-                  disabled={lead.convertedToCustomer}
+                  disabled={lead.convertedToClient}
                   className={`p-2 rounded-md transition-colors ${
-                    lead.convertedToCustomer
+                    lead.convertedToClient
                       ? "text-gray-300 cursor-not-allowed"
                       : "text-gray-400 hover:text-[#ef4444] cursor-pointer"
                   }`}
                   title={
-                    lead.convertedToCustomer
+                    lead.convertedToClient
                       ? "Converted leads cannot be edited"
                       : "Edit lead"
                   }

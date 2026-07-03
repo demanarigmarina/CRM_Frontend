@@ -8,7 +8,6 @@ import {
   User,
   Magnet,
   UserCheck,
-  Handshake,
   Phone,
   Mail,
   MessageCircle,
@@ -39,15 +38,15 @@ const TASK_TYPE_ICON = {
 
 const RELATED_ICON = {
   Lead: Magnet,
-  Customer: UserCheck,
-  Quotation: Handshake,
+  Client: UserCheck,
+  Quotation: FileText,
 };
 
 const getRelatedName = (task) => {
   if (!task.relatedToType || !task.relatedTo) return null;
   const ref = task.relatedTo;
   const type = task.relatedToType;
-  if (type === "Lead" || type === "Customer") {
+  if (type === "Lead" || type === "Client") {
     return [ref.firstName, ref.lastName].filter(Boolean).join(" ") || "Unknown";
   }
   if (type === "Quotation") return ref.title || "Unknown";

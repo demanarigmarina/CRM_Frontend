@@ -17,7 +17,7 @@ export default function LeadCard({
   // show for agent if conversion is approved
   const isReadyToConvert =
     lead.status === "Qualified" &&
-    !lead.convertedToCustomer &&
+    !lead.convertedToClient &&
     (permissions.canApproveConvert
       ? !lead.conversionRequested && !lead.conversionApproved // manager: directly convertible
       : permissions.canRequestConvert && lead.conversionApproved); // agent: approved, ready to convert
@@ -38,7 +38,7 @@ export default function LeadCard({
   };
 
   const getConversionStatusConfig = (lead = {}) => {
-    if (lead.convertedToCustomer) return null;
+    if (lead.convertedToClient) return null;
 
     if (lead.conversionRequested && !lead.conversionApproved) {
       return permissions.canApproveConvert

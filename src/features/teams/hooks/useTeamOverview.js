@@ -11,7 +11,7 @@ export function useTeamOverview(teamId) {
     leads: 0,
     quotations: 0,
     tasks: 0,
-    customers: 0,
+    clients: 0,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -26,12 +26,12 @@ export function useTeamOverview(teamId) {
       const { data: teamData } = await api.get(`/api/teams/${teamId}`);
       setTeam(teamData);
 
-      const [leadsRes, quotationsRes, tasksRes, customersRes] =
+      const [leadsRes, quotationsRes, tasksRes, clientsRes] =
         await Promise.allSettled([
           api.get("/api/leads"),
           api.get("/api/quotations"),
           api.get("/api/tasks"),
-          api.get("/api/customers"),
+          api.get("/api/clients"),
         ]);
 
       setStats({
@@ -47,9 +47,9 @@ export function useTeamOverview(teamId) {
           tasksRes.status === "fulfilled"
             ? (tasksRes.value.data?.length ?? 0)
             : 0,
-        customers:
-          customersRes.status === "fulfilled"
-            ? (customersRes.value.data?.length ?? 0)
+        clients:
+          clientsRes.status === "fulfilled"
+            ? (clientsRes.value.data?.length ?? 0)
             : 0,
       });
     } catch (err) {

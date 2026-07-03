@@ -1,4 +1,4 @@
-import { UserCheck, Magnet, Handshake, ListTodo } from "lucide-react";
+import { UserCheck, Magnet, FileText, ListTodo } from "lucide-react";
 import { formatDate } from "../../../utils/date";
 import { getDisplayName } from "../../../utils/name";
 import { formatCurrency } from "../../../utils/currency";
@@ -13,7 +13,7 @@ const PILL_STYLES = {
   Converted: "bg-emerald-100 text-emerald-700",
   // Shared
   Lost: "bg-red-100 text-red-600",
-  // Customer statuses
+  // Client statuses
   Active: "bg-emerald-100 text-emerald-700",
   Inactive: "bg-gray-100 text-gray-500",
   // Quotation stages
@@ -70,7 +70,7 @@ function LeadRow({ item, isLast }) {
   );
 }
 
-function CustomerRow({ item, isLast }) {
+function ClientRow({ item, isLast }) {
   const name = getDisplayName(item, { includeMiddleInitial: true });
   return (
     <Row
@@ -87,16 +87,16 @@ function CustomerRow({ item, isLast }) {
 }
 
 function QuotationRow({ item, isLast }) {
-  const customer = item.customer
-    ? `${item.customer.firstName} ${item.customer.lastName}`
+  const client = item.client
+    ? `${item.client.firstName} ${item.client.lastName}`
     : "—";
   return (
     <Row
       isLast={isLast}
       dotClass="bg-amber-400"
-      icon={<Handshake size={13} className="text-amber-500" />}
+      icon={<FileText size={13} className="text-amber-500" />}
       title={item.title}
-      sub={customer}
+      sub={client}
       meta={formatCurrency(item.value)}
       date={item.expectedCloseDate || item.createdAt}
       dateLabel={item.expectedCloseDate ? "Close" : "Created"}
@@ -171,8 +171,8 @@ function Row({
 
 const RESOURCE_CONFIG = {
   leads: { icon: Magnet, label: "leads", RowComponent: LeadRow },
-  customers: { icon: UserCheck, label: "customers", RowComponent: CustomerRow },
-  quotations: { icon: Handshake, label: "quotations", RowComponent: QuotationRow },
+  clients: { icon: UserCheck, label: "clients", RowComponent: ClientRow },
+  quotations: { icon: FileText, label: "quotations", RowComponent: QuotationRow },
   tasks: { icon: ListTodo, label: "tasks", RowComponent: TaskRow },
 };
 

@@ -14,11 +14,11 @@ export const SOCKET_EVENTS = {
   QUOTATION_ASSIGNED: "quotation.assigned",
   QUOTATION_STATUS_CHANGED: "quotation.status.changed",
 
-  // Customers
-  CUSTOMER_CREATED: "customer.created",
-  CUSTOMER_UPDATED: "customer.updated",
-  CUSTOMER_ASSIGNED: "customer.assigned",
-  CUSTOMER_STATUS_CHANGED: "customer.status.changed",
+  // Clients
+  CLIENT_CREATED: "client.created",
+  CLIENT_UPDATED: "client.updated",
+  CLIENT_ASSIGNED: "client.assigned",
+  CLIENT_STATUS_CHANGED: "client.status.changed",
 
   // Tasks
   TASK_CREATED: "task.created",

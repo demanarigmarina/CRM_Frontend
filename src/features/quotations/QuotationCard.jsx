@@ -11,8 +11,8 @@ import { formatDate } from "../../utils/date";
 // import { getProbabilityTone } from "./utils/quotationPresentation";
 
 export default function QuotationCard({ quotation, index, isLast, onClick }) {
-  const customerName = quotation.customer
-    ? getDisplayName(quotation.customer, { includeSuffix: true })
+  const clientName = quotation.client
+    ? getDisplayName(quotation.client, { includeSuffix: true })
     : "—";
 
   const assignedName = quotation.assignedTo ? (
@@ -54,10 +54,10 @@ export default function QuotationCard({ quotation, index, isLast, onClick }) {
         {formatCurrencyCompact(quotation.value, quotation.currency)}
       </div>
 
-      {/* Customer */}
+      {/* Client */}
       <div className="text-xs text-gray-500 mb-1.5 truncate">
-        <span className="font-medium text-gray-600">{customerName} · </span>
-        {quotation.customer?.company && <span>{quotation.customer.company}</span>}
+        <span className="font-medium text-gray-600">{clientName} · </span>
+        {quotation.client?.company && <span>{quotation.client.company}</span>}
       </div>
 
       {/* Footer: Assigned user + Expected close */}

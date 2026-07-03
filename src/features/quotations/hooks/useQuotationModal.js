@@ -14,7 +14,7 @@ import api from "../../../services/api";
 
 const EMPTY_FORM = {
   title: "",
-  customer: "",
+  client: "",
   value: "",
   currency: "PHP",
   // probability: 10,
@@ -25,7 +25,7 @@ const EMPTY_FORM = {
 
 const mapQuotationToForm = (quotation) => ({
   title: quotation.title || "",
-  customer: quotation.customer?._id || "",
+  client: quotation.client?._id || "",
   value: quotation.value ?? "",
   currency: quotation.currency || "PHP",
   // probability: quotation.probability ?? 0,

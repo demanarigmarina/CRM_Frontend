@@ -15,7 +15,6 @@ import {
   Bell,
   Magnet,
   UserCheck,
-  Handshake,
   TriangleAlert,
 } from "lucide-react";
 
@@ -50,7 +49,7 @@ import {
 
 const STATUSES = ["To Do", "In Progress", "Completed"];
 const REPEATS = ["None", "Daily", "Weekly", "Monthly"];
-const RELATED_TYPES = ["Lead", "Customer", "Quotation"];
+const RELATED_TYPES = ["Lead", "Client", "Quotation"];
 
 const PRIORITY_COLORS = {
   Low: "blue",
@@ -84,15 +83,15 @@ const TASK_TYPE_ICON = {
 
 const RELATED_TYPE_ICON = {
   Lead: Magnet,
-  Customer: UserCheck,
-  Quotation: Handshake,
+  Client: UserCheck,
+  Quotation: FileText,
 };
 
 const getRelatedLabel = (task) => {
   if (!task?.relatedToType || !task?.relatedTo) return null;
   const ref = task.relatedTo;
   const type = task.relatedToType;
-  if (type === "Lead" || type === "Customer") {
+  if (type === "Lead" || type === "Client") {
     const name = [ref.firstName, ref.lastName].filter(Boolean).join(" ");
     return name || "Unknown";
   }
@@ -113,7 +112,7 @@ export default function TaskModal({
   currentUser,
   assignableUsers = [],
   leads = [],
-  customers = [],
+  clients = [],
   quotations = [],
   permissions = {},
   loading = false,
@@ -141,8 +140,8 @@ export default function TaskModal({
         value: l._id,
       }));
     }
-    if (type === "Customer") {
-      return customers.map((c) => ({
+    if (type === "Client") {
+      return clients.map((c) => ({
         label: `${getDisplayName(c, { includeMiddleInitial: true, includeSuffix: true })}${c.company ? ` — ${c.company}` : ""}`,
         value: c._id,
       }));
@@ -154,7 +153,7 @@ export default function TaskModal({
       }));
     }
     return [];
-  }, [formData.relatedToType, leads, customers, quotations]);
+  }, [formData.relatedToType, leads, clients, quotations]);
 
   if (!open) return null;
 

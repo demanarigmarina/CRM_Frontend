@@ -4,7 +4,7 @@ import UserCard from "../../components/view/ViewUserCard";
 const ACTION_CONFIG = {
   convert: {
     title: "Convert this lead?",
-    description: "This will create a new customer record from this lead.",
+    description: "This will create a new client record from this lead.",
     warning:
       "⚠ This action cannot be undone. The lead will be permanently marked as converted.",
     confirmText: "Convert",
@@ -42,7 +42,7 @@ export default function LeadActionConfirmModal({
 
   const title = isDirectConvert ? "Convert this lead directly?" : config.title;
   const description = isDirectConvert
-    ? "This will immediately create a customer without approval."
+    ? "This will immediately create a client without approval."
     : config.description;
 
   return (
@@ -68,7 +68,7 @@ export default function LeadActionConfirmModal({
           {action === "convert" && canConvert && (
             <p className="text-xs italic text-gray-500 mt-4 pt-4 border-t border-gray-100">
               If no agent is assigned, you will become the account owner of this
-              customer.
+              client.
             </p>
           )}
         </div>

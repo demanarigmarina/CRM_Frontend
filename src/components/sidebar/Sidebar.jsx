@@ -26,8 +26,7 @@ export default function Sidebar() {
   const modulePages = [
     "prospects",
     "leads",
-    "customers",
-    // "quotations",
+    "clients",
     "quotations",
     "tasks",
     "meetings",

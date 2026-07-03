@@ -10,7 +10,7 @@ import TeamCard from "../../components/card/TeamCard";
 import StatusBadge from "../../components/badge/StatusBadge";
 
 import UserLeadsTab from "./tabs/UserLeadsTab";
-import UserCustomersTab from "./tabs/UserCustomersTab";
+import UserClientsTab from "./tabs/UserClientsTab";
 import UserQuotationsTab from "./tabs/UserQuotationsTab";
 import UserTasksTab from "./tabs/UserTasksTab";
 
@@ -19,7 +19,7 @@ import { formatDate, formatDateTime } from "../../utils/date";
 import { formatPhone } from "../../utils/format";
 import { getDisplayName } from "../../utils/name";
 
-const TABS = ["Overview", "Leads", "Customers", "Quotations", "Tasks"];
+const TABS = ["Overview", "Leads", "Clients", "Quotations", "Tasks"];
 
 function TeamSection({ user }) {
   const role = user.role;
@@ -179,10 +179,10 @@ export default function UserView({ open, user, onClose, onEdit }) {
                 enabled={activeTab === "Leads"}
               />
             )}
-            {activeTab === "Customers" && (
-              <UserCustomersTab
+            {activeTab === "Clients" && (
+              <UserClientsTab
                 employeeId={user.employeeId}
-                enabled={activeTab === "Customers"}
+                enabled={activeTab === "Clients"}
               />
             )}
             {activeTab === "Quotations" && (

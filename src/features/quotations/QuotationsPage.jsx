@@ -20,7 +20,7 @@ import { usePermissions } from "../../permissions/usePermissions";
 import { useAuth } from "../../context/AuthContext";
 import { useQuotations } from "./hooks/useQuotations";
 import { useQuotationModal } from "./hooks/useQuotationModal";
-import { useCustomers } from "../customers/hooks/useCustomers";
+import { useClients } from "../clients/hooks/useClients";
 import { useUsers } from "../users/hooks/useUsers";
 
 import QuotationKanban from "./QuotationKanban";
@@ -33,7 +33,7 @@ export default function QuotationsPage() {
   const isCurrentAgent = currentUser.role === "Sales Agent";
   const navigate = useNavigate();
 
-  const { customers = [] } = useCustomers();
+  const { clients = [] } = useClients();
 
   const { users: salesAgents = [] } = useUsers({
     skip: !permissions.canAssign,
@@ -105,8 +105,8 @@ export default function QuotationsPage() {
           }).toLowerCase()
         : "";
 
-      const customerName = quotation.customer
-        ? getDisplayName(quotation.customer, {
+      const clientName = quotation.client
+        ? getDisplayName(quotation.client, {
             includeMiddleInitial: true,
             includeSuffix: true,
           }).toLowerCase()
@@ -117,8 +117,8 @@ export default function QuotationsPage() {
         quotation.title?.toLowerCase().includes(q) ||
         quotation.stage?.toLowerCase().includes(q) ||
         assigneeName.includes(q) ||
-        customerName.includes(q) ||
-        quotation.customer?.company?.toLowerCase().includes(q);
+        clientName.includes(q) ||
+        quotation.client?.company?.toLowerCase().includes(q);
 
       return (
         matchesSearch &&
@@ -340,7 +340,7 @@ export default function QuotationsPage() {
         activitiesLoading={activitiesLoading}
         tasks={tasks}
         tasksLoading={tasksLoading}
-        customers={customers}
+        clients={clients}
         salesAgents={salesAgents}
         permissions={permissions}
         loading={submitting}

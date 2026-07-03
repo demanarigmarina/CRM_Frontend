@@ -16,9 +16,9 @@ import {
   LEAD_SOURCE_OPTIONS,
 } from "../../constants/options";
 
-export default function CustomerForm({
+export default function ClientForm({
   open,
-  editingCustomer,
+  editingClient,
   formData,
   addressCodes,
   salesAgents = [],
@@ -42,13 +42,13 @@ export default function CustomerForm({
   return (
     <FormDrawer
       open={open}
-      title={editingCustomer ? "Edit Customer" : "Add Customer"}
-      formId="customer-form"
+      title={editingClient ? "Edit Client" : "Add Client"}
+      formId="client-form"
       loading={loading}
       onClose={onClose}
       onCancel={onCancel}
     >
-      <form id="customer-form" onSubmit={onSubmit} className="space-y-5">
+      <form id="client-form" onSubmit={onSubmit} className="space-y-5">
         <AvatarUploader
           preview={preview}
           onAvatarChange={onAvatarChange}
@@ -56,7 +56,7 @@ export default function CustomerForm({
         />
 
         {/* Assignment — create mode only */}
-        {!editingCustomer && permissions.canAssign && (
+        {!editingClient && permissions.canAssign && (
           <FormSection title="Assignment">
             <div>
               <FormLabel>Account owner (optional)</FormLabel>

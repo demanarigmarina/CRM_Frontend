@@ -8,20 +8,20 @@ const STATUS_OPTIONS = ["Active", "Inactive", "Lost"].map((s) => ({
   value: s,
 }));
 
-export default function UserCustomersTab({ employeeId, enabled }) {
-  const r = useUserRecords(employeeId, "customers", enabled);
+export default function UserClientsTab({ employeeId, enabled }) {
+  const r = useUserRecords(employeeId, "clients", enabled);
   return (
     <div className="py-2">
       <TabToolbar
         search={r.search}
         onSearch={r.handleSearch}
-        placeholder="Search customers..."
+        placeholder="Search clients..."
         filterValue={r.filter}
         onFilter={r.handleFilter}
         filterOptions={STATUS_OPTIONS}
         filterPlaceholder="All statuses"
       />
-      <UserRecordList items={r.data} loading={r.loading} resource="customers" />
+      <UserRecordList items={r.data} loading={r.loading} resource="clients" />
       <ViewMoreButton
         hasMore={r.hasMore}
         loadingMore={r.loadingMore}

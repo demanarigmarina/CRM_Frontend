@@ -29,18 +29,18 @@ export default function KpiSection({ kpi, loading }) {
     },
     {
       icon: <UserCheck size={23} />,
-      label: "Total Customers",
-      tooltip: "Total number of customers",
-      value: loading ? null : kpi?.customers.total,
+      label: "Total Clients",
+      tooltip: "Total number of clients",
+      value: loading ? null : kpi?.clients.total,
       sub: loading
         ? null
-        : `${kpi?.customers.active ?? 0} active · +${kpi?.customers.newThisMonth ?? 0} this month`,
+        : `${kpi?.clients.active ?? 0} active · +${kpi?.clients.newThisMonth ?? 0} this month`,
       color: "emerald",
     },
     {
       icon: <Target size={23} />,
       label: "Lead Conversion",
-      tooltip: "Percentage of leads that have been converted to customers",
+      tooltip: "Percentage of leads that have been converted to clients",
       value: loading ? null : `${kpi?.leads.conversionRate ?? 0}`,
       sub: loading
         ? null

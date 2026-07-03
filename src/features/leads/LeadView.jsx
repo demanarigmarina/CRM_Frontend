@@ -55,7 +55,7 @@ const AgentConversionPendingBanner = () => (
 
 const ManagerConversionBanner = ({ lead }) => {
   const isPending = lead.conversionRequested && !lead.conversionApproved;
-  const isApproved = lead.conversionApproved && !lead.convertedToCustomer;
+  const isApproved = lead.conversionApproved && !lead.convertedToClient;
   if (!isPending && !isApproved) return null;
 
   if (isPending) {
@@ -200,7 +200,7 @@ export default function LeadView({
     tone: "gray",
   };
 
-  const isConverted = lead?.convertedToCustomer;
+  const isConverted = lead?.convertedToClient;
   const conversionRequested = lead?.conversionRequested;
   const conversionApproved = lead?.conversionApproved;
   const hasAssignee = Boolean(lead?.leadAssignee);
@@ -408,7 +408,7 @@ export default function LeadView({
                       className="border-sky-500 text-sky-700 hover:bg-sky-50"
                     />
                     <ActionButton
-                      label="Convert to Customer"
+                      label="Convert to Client"
                       icon={FiUserPlus}
                       onClick={() =>
                         setConfirmAction({ type: "convert", lead })

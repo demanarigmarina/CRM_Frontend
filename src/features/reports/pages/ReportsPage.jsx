@@ -27,10 +27,10 @@ const reports = [
   },
   {
     id: 3,
-    title: "Customer Report",
-    description: "Generate customer information reports",
-    category: "Customers",
-    route: "/reports/customers",
+    title: "Client Report",
+    description: "Generate client information reports",
+    category: "Clients",
+    route: "/reports/clients",
   },
 ];
 
@@ -111,8 +111,8 @@ export default function ReportsPage() {
                       value: "Leads",
                     },
                     {
-                      label: "Customers",
-                      value: "Customers",
+                      label: "Clients",
+                      value: "Clients",
                     },
                   ]}
                   value={{

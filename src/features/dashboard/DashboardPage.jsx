@@ -86,7 +86,7 @@ export default function DashboardPage() {
         <LeadFunnelChart data={charts?.leadFunnel} loading={loading} />
         <MonthlyTrendsChart
           monthlyLeads={charts?.monthlyLeads}
-          monthlyCustomers={charts?.monthlyCustomers}
+          monthlyClients={charts?.monthlyClients}
           loading={loading}
         />
       </div>

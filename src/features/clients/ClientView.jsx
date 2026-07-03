@@ -20,7 +20,7 @@ import { buildFullAddress } from "../../utils/buildFullAddress";
 // Config
 const TABS = ["Overview", "Activity"];
 
-const customerStatusConfig = {
+const clientsStatusConfig = {
   Active: {
     text: "Active",
     tone: "green",
@@ -39,27 +39,27 @@ const btnOutlineBase =
   "flex items-center gap-1.5 px-3 py-1.5 text-sm border rounded-md transition-colors cursor-pointer";
 
 // Main component
-export default function CustomerView({
+export default function ClientView({
   open,
-  customer,
+  client,
   salesAgents = [],
   permissions = {},
   onClose,
   onEdit,
-  onReassignCustomer,
+  onReassignClient,
 }) {
   const [activeTab, setActiveTab] = useState("Overview");
   const [reassignModalOpen, setReassignModalOpen] = useState(false);
   const { activities, loading: activitiesLoading } = useActivities(
-    open && customer ? "Customer" : null,
-    customer?._id,
+    open && client ? "Client" : null,
+    client?._id,
   );
 
-  const addr = customer?.address ?? {};
-  const hasOwner = Boolean(customer?.assignedTo);
+  const addr = client?.address ?? {};
+  const hasOwner = Boolean(client?.assignedTo);
 
-  const status = customerStatusConfig[customer?.status] ?? {
-    text: customer?.status || "Unknown",
+  const status = clientsStatusConfig[client?.status] ?? {
+    text: client?.status || "Unknown",
     tone: "gray",
   };
 
@@ -77,7 +77,7 @@ export default function CustomerView({
         onClose?.();
       }}
     >
-      {customer && (
+      {client && (
         <>
           {/* Header */}
           <div className="shrink-0 px-6 py-3 bg-white">
@@ -105,14 +105,14 @@ export default function CustomerView({
                   <span
                     title={
                       !permissions.canEdit
-                        ? "You don't have permission to edit customers"
+                        ? "You don't have permission to edit clients"
                         : undefined
                     }
                     className="inline-flex"
                   >
                     <button
                       type="button"
-                      onClick={() => permissions.canEdit && onEdit?.(customer)}
+                      onClick={() => permissions.canEdit && onEdit?.(client)}
                       disabled={!permissions.canEdit}
                       className={`${btnOutlineBase} ${
                         !permissions.canEdit
@@ -128,8 +128,8 @@ export default function CustomerView({
             </div>
 
             <ViewProfileHero
-              record={customer}
-              subtitle={`${customer.company || "—"} · ${customer.industry || "—"}`}
+              record={client}
+              subtitle={`${client.company || "—"} · ${client.industry || "—"}`}
               badge={statusBadge}
             />
 
@@ -146,10 +146,10 @@ export default function CustomerView({
               <>
                 <SectionBlock title="Relationship">
                   <div className="col-span-3 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <UserCard user={customer.createdBy} label="Created by" />
-                    {customer.assignedTo ? (
+                    <UserCard user={client.createdBy} label="Created by" />
+                    {client.assignedTo ? (
                       <UserCard
-                        user={customer.assignedTo}
+                        user={client.assignedTo}
                         label="Account owner"
                       />
                     ) : (
@@ -160,22 +160,22 @@ export default function CustomerView({
                       </div>
                     )}
                   </div>
-                  {customer.createdFromLead ? (
+                  {client.createdFromLead ? (
                     <div className="col-span-3 rounded-md border border-amber-100 bg-amber-50/60 px-3 py-2.5 mt-2">
                       <p className="text-xs font-semibold text-amber-900 uppercase tracking-wide mb-1">
                         Source lead
                       </p>
                       <p className="text-sm text-gray-800">
-                        {getDisplayName(customer.createdFromLead, {
+                        {getDisplayName(client.createdFromLead, {
                           includeSuffix: true,
                         })}
-                        {customer.createdFromLead.company
-                          ? ` · ${customer.createdFromLead.company}`
+                        {client.createdFromLead.company
+                          ? ` · ${client.createdFromLead.company}`
                           : ""}
                       </p>
-                      {customer.createdFromLead.status && (
+                      {client.createdFromLead.status && (
                         <p className="text-xs text-gray-600 mt-0.5">
-                          Lead status: {customer.createdFromLead.status}
+                          Lead status: {client.createdFromLead.status}
                         </p>
                       )}
                     </div>
@@ -189,30 +189,30 @@ export default function CustomerView({
                 </SectionBlock>
 
                 <SectionBlock title="Personal Information">
-                  <Field label="First Name" value={customer.firstName} />
-                  <Field label="Middle Name" value={customer.middleName} />
-                  <Field label="Last Name" value={customer.lastName} />
+                  <Field label="First Name" value={client.firstName} />
+                  <Field label="Middle Name" value={client.middleName} />
+                  <Field label="Last Name" value={client.lastName} />
                   <Field
                     label="Suffix"
                     value={
-                      customer.suffixName === "N/A" ? "—" : customer.suffixName
+                      client.suffixName === "N/A" ? "—" : client.suffixName
                     }
                   />
                   <Field
                     label="Date of Birth"
-                    value={formatDate(customer.dateOfBirth)}
+                    value={formatDate(client.dateOfBirth)}
                   />
-                  <Field label="Sex" value={customer.sex} />
-                  <Field label="Phone" value={formatPhone(customer.phone)} />
-                  <Field label="Email" value={customer.email} />
+                  <Field label="Sex" value={client.sex} />
+                  <Field label="Phone" value={formatPhone(client.phone)} />
+                  <Field label="Email" value={client.email} />
                 </SectionBlock>
 
-                <SectionBlock title="Customer Information">
-                  <Field label="Company" value={customer.company} />
-                  <Field label="Industry" value={customer.industry} />
-                  <Field label="Lead source" value={customer.leadSource} />
+                <SectionBlock title="Client Information">
+                  <Field label="Company" value={client.company} />
+                  <Field label="Industry" value={client.industry} />
+                  <Field label="Lead source" value={client.leadSource} />
                   <Field label="Status" value={status.text} />
-                  <Field label="Customer type" value={customer.customerType} />
+                  <Field label="Client type" value={client.clientType} />
                 </SectionBlock>
 
                 <SectionBlock title="Address">
@@ -236,18 +236,18 @@ export default function CustomerView({
 
                 <SectionBlock title="Notes" fullWidth>
                   <p className="text-sm text-gray-700 whitespace-pre-wrap">
-                    {customer.notes || "—"}
+                    {client.notes || "—"}
                   </p>
                 </SectionBlock>
 
                 <SectionBlock title="Record">
                   <Field
                     label="Created"
-                    value={formatDateTime(customer.createdAt)}
+                    value={formatDateTime(client.createdAt)}
                   />
                   <Field
                     label="Updated"
-                    value={formatDateTime(customer.updatedAt)}
+                    value={formatDateTime(client.updatedAt)}
                   />
                 </SectionBlock>
               </>
@@ -265,18 +265,18 @@ export default function CustomerView({
 
       {/* Reassign modal */}
       <AssignAgentModal
-        open={open && reassignModalOpen && Boolean(customer)}
-        currentAssignee={customer?.assignedTo}
+        open={open && reassignModalOpen && Boolean(client)}
+        currentAssignee={client?.assignedTo}
         salesAgents={salesAgents}
-        title={hasOwner ? "Reassign customer" : "Assign account owner"}
-        subtitle="Choose who owns this customer record."
+        title={hasOwner ? "Reassign client" : "Assign account owner"}
+        subtitle="Choose who owns this client record."
         currentLabel="Current"
         selectLabel={
           hasOwner ? "New account owner (Sales Agent)" : "Account owner"
         }
         confirmLabel={hasOwner ? "Save reassignment" : "Save"}
         confirmingLabel="Saving…"
-        onConfirm={(agentId) => onReassignCustomer?.(customer._id, agentId)}
+        onConfirm={(agentId) => onReassignClient?.(client._id, agentId)}
         onClose={() => setReassignModalOpen(false)}
       />
     </ViewDrawer>

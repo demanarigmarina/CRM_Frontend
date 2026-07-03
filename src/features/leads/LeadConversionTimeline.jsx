@@ -49,7 +49,7 @@ const StandardTimeline = ({ lead }) => {
     conversionApproved,
     conversionApprovedBy,
     conversionApprovedAt,
-    convertedToCustomer,
+    convertedToClient,
     convertedBy,
     convertedAt,
   } = lead;
@@ -89,7 +89,7 @@ const StandardTimeline = ({ lead }) => {
       key: "converted",
       label: "Converted",
       icon: FiUserPlus,
-      done: Boolean(convertedToCustomer),
+      done: Boolean(convertedToClient),
       by: getDisplayName(convertedBy, {
         includeMiddleInitial: true,
         includeSuffix: true,
@@ -135,7 +135,7 @@ const StandardTimeline = ({ lead }) => {
               {step.done ? (
                 <div className="mt-1 text-center space-y-0.5">
                   {step.by && (
-                    <p className="text-xs text-gray-600 font-medium leading-tight truncate max-w-[150px]">
+                    <p className="text-xs text-gray-600 font-medium leading-tight truncate max-w-37.5">
                       {step.by}
                     </p>
                   )}
@@ -173,13 +173,13 @@ const StandardTimeline = ({ lead }) => {
 export default function LeadConversionTimeline({ lead }) {
   if (!lead) return null;
 
-  const { conversionRequested, conversionApproved, convertedToCustomer } = lead;
+  const { conversionRequested, conversionApproved, convertedToClient } = lead;
 
-  if (!conversionRequested && !conversionApproved && !convertedToCustomer) {
+  if (!conversionRequested && !conversionApproved && !convertedToClient) {
     return null;
   }
 
-  const isDirectConversion = convertedToCustomer && !conversionRequested;
+  const isDirectConversion = convertedToClient && !conversionRequested;
 
   return (
     <div className="mb-6">

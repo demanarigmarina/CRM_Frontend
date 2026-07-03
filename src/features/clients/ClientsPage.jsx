@@ -17,13 +17,13 @@ import { getDisplayName } from "../../utils/name";
 
 import { usePermissions } from "../../permissions/usePermissions";
 import { useAuth } from "../../context/AuthContext";
-import { useCustomers } from "./hooks/useCustomers";
-import { useCustomerForm } from "./hooks/useCustomerForm";
+import { useClients } from "./hooks/useClients";
+import { useClientForm } from "./hooks/useClientForm";
 import { useUsers } from "../users/hooks/useUsers";
 
-import CustomerTable from "./CustomerTable";
-import CustomerForm from "./CustomerForm";
-import CustomerView from "./CustomerView";
+import ClientTable from "./ClientTable";
+import ClientForm from "./ClientForm";
+import ClientView from "./ClientView";
 
 const STATUS_OPTIONS = ["Active", "Inactive", "Lost"].map((s) => ({
   label: s,
@@ -35,45 +35,45 @@ const TYPE_OPTIONS = ["Individual", "Business"].map((s) => ({
   value: s,
 }));
 
-export default function CustomersPage() {
-  const permissions = usePermissions("customers");
+export default function ClientsPage() {
+  const permissions = usePermissions("clients");
   const { user: currentUser } = useAuth();
   const isCurrentAgent = currentUser.role === "Sales Agent";
 
   const { users: salesAgents = [] } = useUsers({
     skip: !permissions.canAssign,
     mode: "assignable",
-    resource: "customer",
+    resource: "client",
   });
 
-  const [viewingCustomer, setViewingCustomer] = useState(null);
+  const [viewingClient, setViewingClient] = useState(null);
   const [viewPaneOpen, setViewPaneOpen] = useState(false);
   const closeTimerRef = useRef(null);
 
-  const openViewPane = (customer) => {
+  const openViewPane = (client) => {
     if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
-    setViewingCustomer(customer);
+    setViewingClient(client);
     setViewPaneOpen(true);
   };
 
   const closeViewPane = () => {
     setViewPaneOpen(false);
-    closeTimerRef.current = setTimeout(() => setViewingCustomer(null), 300);
+    closeTimerRef.current = setTimeout(() => setViewingClient(null), 300);
   };
 
-  const syncViewingCustomer = (customerId, updated) => {
-    if (updated && viewingCustomer?._id === customerId)
-      setViewingCustomer((prev) => ({ ...prev, ...updated }));
+  const syncViewingClient = (clientId, updated) => {
+    if (updated && viewingClient?._id === clientId)
+      setViewingClient((prev) => ({ ...prev, ...updated }));
   };
 
   const {
-    customers = [],
+    clients = [],
     loading,
-    createCustomer,
-    updateCustomer,
-    assignCustomer,
-    updateCustomerStatus,
-  } = useCustomers();
+    createClient,
+    updateClient,
+    assignClient,
+    updateClientStatus,
+  } = useClients();
 
   const {
     formData,
@@ -81,7 +81,7 @@ export default function CustomersPage() {
     avatar,
     preview,
     showSidePane,
-    editingCustomer,
+    editingClient,
     handleChange,
     handleAddressSelect,
     handleAvatarChange,
@@ -89,7 +89,7 @@ export default function CustomersPage() {
     openCreateSidePane,
     openEditSidePane,
     closeSidePane,
-  } = useCustomerForm();
+  } = useClientForm();
 
   // Filters
   const [search, setSearch] = useState("");
@@ -116,18 +116,18 @@ export default function CustomersPage() {
 
   const agentFilterOptions = useMemo(() => {
     const uniqueAgents = new Map();
-    customers.forEach((c) => {
+    clients.forEach((c) => {
       if (c.assignedTo) uniqueAgents.set(c.assignedTo._id, c.assignedTo);
     });
     return Array.from(uniqueAgents.values()).map((u) => ({
       label: getDisplayName(u, { includeSuffix: true }),
       value: u._id,
     }));
-  }, [customers]);
+  }, [clients]);
 
-  const filteredCustomers = useMemo(() => {
-    return customers.filter((customer) => {
-      const fullName = getDisplayName(customer, {
+  const filteredClients = useMemo(() => {
+    return clients.filter((client) => {
+      const fullName = getDisplayName(client, {
         includeMiddleInitial: true,
         includeSuffix: true,
       }).toLowerCase();
@@ -135,50 +135,50 @@ export default function CustomersPage() {
       return (
         (!q ||
           fullName.includes(q) ||
-          customer.email?.toLowerCase().includes(q) ||
-          customer.company?.toLowerCase().includes(q) ||
-          customer.phone?.toLowerCase().includes(q)) &&
-        (!filterStatus || customer.status === filterStatus) &&
-        (!filterType || customer.customerType === filterType) &&
-        (!filterAssigned || customer.assignedTo?._id === filterAssigned)
+          client.email?.toLowerCase().includes(q) ||
+          client.company?.toLowerCase().includes(q) ||
+          client.phone?.toLowerCase().includes(q)) &&
+        (!filterStatus || client.status === filterStatus) &&
+        (!filterType || client.clientType === filterType) &&
+        (!filterAssigned || client.assignedTo?._id === filterAssigned)
       );
     });
-  }, [customers, search, filterStatus, filterType, filterAssigned]);
+  }, [clients, search, filterStatus, filterType, filterAssigned]);
 
-  const handleReassignCustomer = async (customerId, assignedTo) => {
-    const updated = await assignCustomer(customerId, assignedTo);
-    syncViewingCustomer(customerId, updated);
+  const handleReassignClient = async (clientId, assignedTo) => {
+    const updated = await assignClient(clientId, assignedTo);
+    syncViewingClient(clientId, updated);
     return Boolean(updated);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const result = editingCustomer
-      ? await updateCustomer(editingCustomer, formData, avatar)
-      : await createCustomer(formData, avatar);
+    const result = editingClient
+      ? await updateClient(editingClient, formData, avatar)
+      : await createClient(formData, avatar);
     if (result) closeSidePane();
   };
 
-  const handleUpdateStatus = async (customerid, newStatus) => {
-    await updateCustomerStatus(customerid, newStatus);
+  const handleUpdateStatus = async (clientid, newStatus) => {
+    await updateClientStatus(clientid, newStatus);
   };
 
   return (
     <PageBase>
       <div className="flex items-center justify-between mb-4">
         <PageHeader
-          title="Customers"
+          title="Clients"
           subtitle={
             isCurrentAgent
-              ? "Customers assigned to you or converted from your leads"
-              : "View and manage customers across your team"
+              ? "Clients assigned to you or converted from your leads"
+              : "View and manage clients across your team"
           }
         />
 
         <PageToolbar
           searchValue={search}
           onSearchChange={(e) => setSearch(e.target.value)}
-          searchPlaceholder="Search customers..."
+          searchPlaceholder="Search clients..."
           filterSlot={
             <FilterPopover
               filterRef={filterRef}
@@ -203,7 +203,7 @@ export default function CustomersPage() {
               </div>
 
               <div>
-                <p className="text-xs text-gray-400 mb-1">Customer Type</p>
+                <p className="text-xs text-gray-400 mb-1">Client Type</p>
                 <Select
                   {...getSelectProps({ variant: "filter" })}
                   placeholder="All types"
@@ -241,7 +241,7 @@ export default function CustomersPage() {
                 className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-md cursor-pointer"
               >
                 <span className="flex items-center gap-2 text-sm">
-                  <FaPlus size={11} /> Add Customer
+                  <FaPlus size={11} /> Add Client
                 </span>
               </button>
             )
@@ -250,8 +250,8 @@ export default function CustomersPage() {
       </div>
 
       <PageContentState>
-        <CustomerTable
-          customers={filteredCustomers}
+        <ClientTable
+          clients={filteredClients}
           permissions={permissions}
           onView={openViewPane}
           onEdit={permissions.canEdit ? openEditSidePane : undefined}
@@ -260,23 +260,23 @@ export default function CustomersPage() {
         />
       </PageContentState>
 
-      <CustomerView
+      <ClientView
         open={viewPaneOpen}
-        customer={viewingCustomer}
+        client={viewingClient}
         salesAgents={salesAgents}
         permissions={permissions}
         onClose={closeViewPane}
-        onEdit={(customer) => {
+        onEdit={(client) => {
           closeViewPane();
-          openEditSidePane(customer);
+          openEditSidePane(client);
         }}
-        onReassignCustomer={handleReassignCustomer}
+        onReassignClient={handleReassignClient}
       />
 
       {permissions.canCreate && (
-        <CustomerForm
+        <ClientForm
           open={showSidePane}
-          editingCustomer={editingCustomer}
+          editingClient={editingClient}
           formData={formData}
           salesAgents={salesAgents}
           addressCodes={addressCodes}

@@ -15,15 +15,15 @@ import {
 } from "../../components/table";
 import LoaderTables from "../../components/loader/TablesLazyLoader";
 
-const CUSTOMER_STATUSES = ["Active", "Inactive", "Lost"];
-const CUSTOMER_STATUS_TONE = {
+const CLIENT_STATUSES = ["Active", "Inactive", "Lost"];
+const CLIENT_STATUS_TONE = {
   Active: "green",
   Inactive: "gray",
   Lost: "red",
 };
 
-export default function CustomerTable({
-  customers,
+export default function ClientTable({
+  clients,
   permissions = {},
   onEdit,
   onView,
@@ -51,7 +51,7 @@ export default function CustomerTable({
     to,
     goTo,
     setRowsPerPage,
-  } = useTablePagination(customers, 10);
+  } = useTablePagination(clients, 10);
 
   const HEADERS = columns.map((col) => col.label);
 
@@ -60,7 +60,7 @@ export default function CustomerTable({
       <LoaderTables
         paginatedItems="loading"
         headers={HEADERS}
-        emptyMessage="No customers found."
+        emptyMessage="No clients found."
         heightClass="h-112.5"
         currentPage={currentPage}
         totalPages={totalPages}
@@ -71,34 +71,34 @@ export default function CustomerTable({
         pageWindow={pageWindow}
         onGoTo={goTo}
         onRowsPerPageChange={setRowsPerPage}
-        renderRow={(customer) => (
-          <TableRow key={customer._id} onClick={() => onView(customer)}>
+        renderRow={(client) => (
+          <TableRow key={client._id} onClick={() => onView(client)}>
             <TableCell>
               <div className="flex items-center gap-2">
                 <img
-                  src={getProfileImage(customer)}
+                  src={getProfileImage(client)}
                   alt="avatar"
                   className="w-9 h-9 rounded-full object-cover border border-gray-300"
                 />
                 <span>
-                  {getDisplayName(customer, {
+                  {getDisplayName(client, {
                     includeMiddleInitial: true,
                     includeSuffix: true,
                   })}
                 </span>
               </div>
             </TableCell>
-            <TableCell>{customer.company}</TableCell>
-            {customer.assignedTo ? (
+            <TableCell>{client.company}</TableCell>
+            {client.assignedTo ? (
               <TableCell>
                 <div className="flex items-center gap-2">
                   <img
-                    src={getProfileImage(customer.assignedTo)}
+                    src={getProfileImage(client.assignedTo)}
                     alt="avatar"
                     className="w-7 h-7 rounded-full border object-cover border-gray-300"
                   />
-                  <UserDisplayName user={customer.assignedTo}>
-                    {getDisplayName(customer.assignedTo, {
+                  <UserDisplayName user={client.assignedTo}>
+                    {getDisplayName(client.assignedTo, {
                       includeMiddleInitial: true,
                       includeSuffix: true,
                     })}
@@ -111,17 +111,17 @@ export default function CustomerTable({
               </TableCell>
             )}
             <TableCell>
-              <div className="text-sm">{formatPhone(customer.phone)}</div>
-              <div className="text-xs">{customer.email}</div>
+              <div className="text-sm">{formatPhone(client.phone)}</div>
+              <div className="text-xs">{client.email}</div>
             </TableCell>
             <TableCell>
               <StatusDropdown
-                status={customer.status}
-                statuses={CUSTOMER_STATUSES}
-                toneMap={CUSTOMER_STATUS_TONE}
+                status={client.status}
+                statuses={CLIENT_STATUSES}
+                toneMap={CLIENT_STATUS_TONE}
                 disabled={!permissions.canEdit}
                 onSelect={(newStatus) =>
-                  onUpdateStatus(customer._id, newStatus)
+                  onUpdateStatus(client._id, newStatus)
                 }
               />
             </TableCell>
@@ -130,10 +130,10 @@ export default function CustomerTable({
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    onEdit(customer);
+                    onEdit(client);
                   }}
                   className="p-2 rounded-md text-gray-400 hover:text-[#ef4444] transition-colors hover:fill-[#ef4444] cursor-pointer fill"
-                  title="Edit customer"
+                  title="Edit client"
                 >
                   <Pencil size={16} />
                 </button>
@@ -149,38 +149,38 @@ export default function CustomerTable({
     <>
       <BaseTable
         columns={columns}
-        empty={paginatedItems.length === 0 ? "No customers found." : null}
+        empty={paginatedItems.length === 0 ? "No clients found." : null}
         colSpan={columns.length}
         heightClass="h-112.5"
       >
-        {paginatedItems.map((customer) => (
-          <TableRow key={customer._id} onClick={() => onView(customer)}>
+        {paginatedItems.map((client) => (
+          <TableRow key={client._id} onClick={() => onView(client)}>
             <TableCell>
               <div className="flex items-center gap-2">
                 <img
-                  src={getProfileImage(customer)}
+                  src={getProfileImage(client)}
                   alt="avatar"
                   className="w-9 h-9 rounded-full object-cover border border-gray-300"
                 />
                 <span>
-                  {getDisplayName(customer, {
+                  {getDisplayName(client, {
                     includeMiddleInitial: true,
                     includeSuffix: true,
                   })}
                 </span>
               </div>
             </TableCell>
-            <TableCell>{customer.company}</TableCell>
-            {customer.assignedTo ? (
+            <TableCell>{client.company}</TableCell>
+            {client.assignedTo ? (
               <TableCell>
                 <div className="flex items-center gap-2">
                   <img
-                    src={getProfileImage(customer.assignedTo)}
+                    src={getProfileImage(client.assignedTo)}
                     alt="avatar"
                     className="w-7 h-7 rounded-full border object-cover border-gray-300"
                   />
-                  <UserDisplayName user={customer.assignedTo}>
-                    {getDisplayName(customer.assignedTo, {
+                  <UserDisplayName user={client.assignedTo}>
+                    {getDisplayName(client.assignedTo, {
                       includeMiddleInitial: true,
                       includeSuffix: true,
                     })}
@@ -194,21 +194,21 @@ export default function CustomerTable({
             )}
 
             <TableCell>
-              <div className="text-sm">{formatPhone(customer.phone)}</div>
+              <div className="text-sm">{formatPhone(client.phone)}</div>
             </TableCell>
 
             <TableCell>
-              <div className="text-sm">{customer.email}</div>
+              <div className="text-sm">{client.email}</div>
             </TableCell>
 
             <TableCell>
               <StatusDropdown
-                status={customer.status}
-                statuses={CUSTOMER_STATUSES}
-                toneMap={CUSTOMER_STATUS_TONE}
+                status={client.status}
+                statuses={CLIENT_STATUSES}
+                toneMap={CLIENT_STATUS_TONE}
                 disabled={!permissions.canEdit}
                 onSelect={(newStatus) =>
-                  onUpdateStatus(customer._id, newStatus)
+                  onUpdateStatus(client._id, newStatus)
                 }
               />
             </TableCell>
@@ -218,10 +218,10 @@ export default function CustomerTable({
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    onEdit(customer);
+                    onEdit(client);
                   }}
                   className="p-2 rounded-md text-gray-400 hover:text-[#ef4444] transition-colors hover:fill-[#ef4444] cursor-pointer fill"
-                  title="Edit customer"
+                  title="Edit client"
                 >
                   <Pencil size={16} />
                 </button>

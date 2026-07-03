@@ -4,10 +4,10 @@ import api from "../services/api";
 /**
  * useActivities - Fetch and manage activity logs for an entity
  * 
- * Fetches all activity records related to a specific entity (Lead, Customer, Quotation, etc.)
+ * Fetches all activity records related to a specific entity (Lead, Client, Quotation, etc.)
  * Activities include creation, updates, status changes, and user interactions
  * 
- * @param {string} relatedToType - Type of entity ('Lead', 'Customer', , 'Task')
+ * @param {string} relatedToType - Type of entity ('Lead', 'Client', 'Quotation', 'Task')
  * @param {string} relatedToId - ID of the entity to fetch activities for
  * @returns {Object} Activity management object
  * @returns {Array} .activities - Array of activity records

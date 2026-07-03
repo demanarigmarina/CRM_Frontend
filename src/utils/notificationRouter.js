@@ -14,8 +14,8 @@ export function resolveNotificationTarget(notif, userRole) {
     case "QUOTATION_ASSIGNED":
       return { path: `${prefix}/quotations` };
 
-    case "CUSTOMER_ASSIGNED":
-      return { path: `${prefix}/customers` };
+    case "CLIENT_ASSIGNED":
+      return { path: `${prefix}/clients` };
 
     case "TASK_ASSIGNED":
     case "TASK_STATUS_CHANGED":

@@ -13,7 +13,7 @@ import UserCard from "../view/ViewUserCard";
  * AssignAgentModal
  *
  * Shared modal for assigning or reassigning a sales agent.
- * Used by LeadView (assign lead), CustomerView (reassign account owner),
+ * Used by LeadView (assign lead), ClientView (reassign account owner),
  * and ManageTeamModal (assign agent to team).
  *
  * @prop {boolean}         open                - controls visibility

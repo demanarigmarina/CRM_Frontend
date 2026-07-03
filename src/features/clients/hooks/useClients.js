@@ -13,59 +13,59 @@ const Toast = Swal.mixin({
   width: "auto",
 });
 
-export function useCustomers() {
-  const [customers, setCustomers] = useState([]);
+export function useClients() {
+  const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const fetchCustomers = useCallback(async () => {
+  const fetchClients = useCallback(async () => {
     setLoading(true);
     try {
-      const { data } = await api.get("/api/customers");
-      setCustomers(data);
+      const { data } = await api.get("/api/clients");
+      setClients(data);
     } catch (error) {
-      console.error("Error fetching customers:", error);
+      console.error("Error fetching clients:", error);
     } finally {
       setLoading(false);
     }
   }, [api]);
 
   useEffect(() => {
-    fetchCustomers();
-  }, [fetchCustomers]);
+    fetchClients();
+  }, [fetchClients]);
 
   useSocket(
-    SOCKET_EVENTS.CUSTOMER_CREATED,
+    SOCKET_EVENTS.CLIENT_CREATED,
     useCallback(() => {
-      fetchCustomers();
-    }, [fetchCustomers]),
+      fetchClients();
+    }, [fetchClients]),
   );
 
   useSocket(
-    SOCKET_EVENTS.CUSTOMER_UPDATED,
+    SOCKET_EVENTS.CLIENT_UPDATED,
     useCallback(() => {
-      fetchCustomers();
-    }, [fetchCustomers]),
+      fetchClients();
+    }, [fetchClients]),
   );
 
   useSocket(
-    SOCKET_EVENTS.CUSTOMER_ASSIGNED,
+    SOCKET_EVENTS.CLIENT_ASSIGNED,
     useCallback(() => {
-      fetchCustomers();
-    }, [fetchCustomers]),
+      fetchClients();
+    }, [fetchClients]),
   );
 
   useSocket(
-    SOCKET_EVENTS.CUSTOMER_STATUS_CHANGED,
+    SOCKET_EVENTS.CLIENT_STATUS_CHANGED,
     useCallback((data) => {
-      setCustomers((prev) =>
+      setClients((prev) =>
         prev.map((c) =>
-          c._id === data.customerId ? { ...c, status: data.newStatus } : c,
+          c._id === data.clientId ? { ...c, status: data.newStatus } : c,
         ),
       );
     }, []),
   );
 
-  const createCustomer = async (formData, avatar) => {
+  const createClient = async (formData, avatar) => {
     setLoading(true);
     try {
       const data = new FormData();
@@ -99,18 +99,18 @@ export function useCustomers() {
       Object.keys(mapped).forEach((key) => data.append(key, mapped[key] ?? ""));
       if (avatar) data.append("profilePicture", avatar);
 
-      const { data: result } = await api.post("/api/customers", data);
-      setCustomers((prev) => [...prev, result.customer]);
+      const { data: result } = await api.post("/api/clients", data);
+      setClients((prev) => [...prev, result.client]);
       Toast.fire({
         icon: "success",
-        title: `Customer created successfully`,
+        title: `Client created successfully`,
       });
       return result;
     } catch (error) {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: error.response?.data?.error || "Failed to create customer",
+        text: error.response?.data?.error || "Failed to create client",
       });
       return null;
     } finally {
@@ -118,7 +118,7 @@ export function useCustomers() {
     }
   };
 
-  const updateCustomer = async (_id, formData, avatar) => {
+  const updateClient = async (_id, formData, avatar) => {
     setLoading(true);
     try {
       const data = new FormData();
@@ -152,18 +152,18 @@ export function useCustomers() {
         data.append("removeProfilePicture", "true");
       }
 
-      const { data: updated } = await api.patch(`/api/customers/${_id}`, data);
-      setCustomers((prev) => prev.map((c) => (c._id === _id ? updated : c)));
+      const { data: updated } = await api.patch(`/api/clients/${_id}`, data);
+      setClients((prev) => prev.map((c) => (c._id === _id ? updated : c)));
       Toast.fire({
         icon: "success",
-        title: `Customer updated successfully`,
+        title: `Client updated successfully`,
       });
       return updated;
     } catch (error) {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: error.response?.data?.error || "Failed to update customer",
+        text: error.response?.data?.error || "Failed to update client",
       });
       return null;
     } finally {
@@ -171,14 +171,14 @@ export function useCustomers() {
     }
   };
 
-  const assignCustomer = async (customerId, assignedTo) => {
+  const assignClient = async (clientId, assignedTo) => {
     try {
       const { data: updated } = await api.patch(
-        `/api/customers/${customerId}/assign`,
+        `/api/clients/${clientId}/assign`,
         { assignedTo: assignedTo || null },
       );
-      setCustomers((prev) =>
-        prev.map((c) => (c._id === customerId ? updated : c)),
+      setClients((prev) =>
+        prev.map((c) => (c._id === clientId ? updated : c)),
       );
       Toast.fire({ icon: "success", title: "Assignment updated" });
       return updated;
@@ -192,7 +192,7 @@ export function useCustomers() {
     }
   };
 
-  const deleteCustomer = async (_id) => {
+  const deleteClient = async (_id) => {
     const result = await Swal.fire({
       title: "Are you sure?",
       text: "This action cannot be undone.",
@@ -209,11 +209,11 @@ export function useCustomers() {
 
     setLoading(true);
     try {
-      await api.delete(`/api/customers/${_id}`);
-      setCustomers((prev) => prev.filter((c) => c._id !== _id));
+      await api.delete(`/api/clients/${_id}`);
+      setClients((prev) => prev.filter((c) => c._id !== _id));
       Swal.fire({
         title: "Deleted!",
-        text: "Customer has been deleted.",
+        text: "Client has been deleted.",
         icon: "success",
         timer: 2500,
         showConfirmButton: false,
@@ -224,7 +224,7 @@ export function useCustomers() {
     } catch {
       Swal.fire({
         title: "Error!",
-        text: "Failed to delete customer.",
+        text: "Failed to delete client.",
         icon: "error",
       });
       return false;
@@ -233,41 +233,41 @@ export function useCustomers() {
     }
   };
 
-  const updateCustomerStatus = async (customerId, status) => {
+  const updateClientStatus = async (clientId, status) => {
     // Optimistic update
-    setCustomers((prev) =>
-      prev.map((c) => (c._id === customerId ? { ...c, status } : c)),
+    setClients((prev) =>
+      prev.map((c) => (c._id === clientId ? { ...c, status } : c)),
     );
 
     try {
       const { data: updated } = await api.patch(
-        `/api/customers/${customerId}/status`,
+        `/api/clients/${clientId}/status`,
         { status },
       );
-      setCustomers((prev) =>
-        prev.map((c) => (c._id === customerId ? updated : c)),
+      setClients((prev) =>
+        prev.map((c) => (c._id === clientId ? updated : c)),
       );
       Toast.fire({ icon: "success", title: `Status updated to ${status}` });
       return updated;
     } catch (error) {
-      await fetchCustomers(); // rollback on failure
+      await fetchClients(); // rollback on failure
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: error.response?.data?.error || "Failed to update customer status",
+        text: error.response?.data?.error || "Failed to update client status",
       });
       return null;
     }
   };
 
   return {
-    customers,
+    clients,
     loading,
-    refetchCustomers: fetchCustomers,
-    createCustomer,
-    updateCustomer,
-    assignCustomer,
-    deleteCustomer,
-    updateCustomerStatus,
+    refetchClients: fetchClients,
+    createClient,
+    updateClient,
+    assignClient,
+    deleteClient,
+    updateClientStatus,
   };
 }

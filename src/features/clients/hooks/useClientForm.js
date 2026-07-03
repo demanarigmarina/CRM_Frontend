@@ -42,36 +42,36 @@ const formatPhone = (phone) => {
   return phone;
 };
 
-export function useCustomerForm() {
+export function useClientForm() {
   const base = useFormBase(EMPTY_FORM);
   const [showSidePane, setShowSidePane] = useState(false);
-  const [editingCustomer, setEditingCustomer] = useState(null);
+  const [editingClient, setEditingClient] = useState(null);
 
   const openCreateSidePane = () => {
     base.resetForm();
-    setEditingCustomer(null);
+    setEditingClient(null);
     setShowSidePane(true);
   };
 
-  const openEditSidePane = (customer) => {
-    const addr = customer.address || {};
+  const openEditSidePane = (client) => {
+    const addr = client.address || {};
     const country = addr.country || "";
     const province = addr.province || "";
     const city = addr.municipality || "";
 
     base.setFormData({
       assignedTo: "",
-      firstName: customer.firstName || "",
-      middleName: customer.middleName || "",
-      lastName: customer.lastName || "",
-      suffixName: customer.suffixName || "",
-      birthday: formatDateInput(customer.dateOfBirth),
-      gender: customer.sex || "",
-      company: customer.company || "",
-      leadSource: customer.leadSource || "",
-      industry: customer.industry || "",
-      email: customer.email || "",
-      phone: formatPhone(customer.phone || ""), 
+      firstName: client.firstName || "",
+      middleName: client.middleName || "",
+      lastName: client.lastName || "",
+      suffixName: client.suffixName || "",
+      birthday: formatDateInput(client.dateOfBirth),
+      gender: client.sex || "",
+      company: client.company || "",
+      leadSource: client.leadSource || "",
+      industry: client.industry || "",
+      email: client.email || "",
+      phone: formatPhone(client.phone || ""), 
       country,
       province,
       city,
@@ -79,16 +79,16 @@ export function useCustomerForm() {
       street: addr.street || "",
       houseNumber: addr.houseNumber || "",
       zipCode: addr.zipCode || "",
-      notes: customer.notes || "",
-      status: customer.status || "Active",
+      notes: client.notes || "",
+      status: client.status || "Active",
       removeProfilePicture: false,
     });
 
     base.setAddressCodes(base.resolveEditCodes(country, province, city));
-    setEditingCustomer(customer._id);
+    setEditingClient(client._id);
     base.setPreviewFromPath(
-      customer.profilePicture
-        ? `http://localhost:5000${customer.profilePicture}`
+      client.profilePicture
+        ? `http://localhost:5000${client.profilePicture}`
         : "",
     );
     base.setAvatar(null);
@@ -97,14 +97,14 @@ export function useCustomerForm() {
 
   const closeSidePane = () => {
     setShowSidePane(false);
-    setEditingCustomer(null);
+    setEditingClient(null);
     base.resetForm();
   };
 
   return {
     ...base,
     showSidePane,
-    editingCustomer,
+    editingClient,
     openCreateSidePane,
     openEditSidePane,
     closeSidePane,

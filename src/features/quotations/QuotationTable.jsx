@@ -76,8 +76,8 @@ export default function QuotationTable({
         onGoTo={goTo}
         onRowsPerPageChange={setRowsPerPage}
         renderRow={(quotation) => {
-          const customerName = quotation.customer
-            ? `${getDisplayName(quotation.customer, { includeMiddleInitial: true, includeSuffix: true })}`
+          const clientName = quotation.client
+            ? `${getDisplayName(quotation.client, { includeMiddleInitial: true, includeSuffix: true })}`
             : null;
           const assignedTo = quotation.assignedTo;
           const assignedName = assignedTo ? (
@@ -99,14 +99,14 @@ export default function QuotationTable({
               <TableCell className="max-w-72">
                 <div className="min-w-0">
                   <p className="font-medium truncate">{quotation.title}</p>
-                  {customerName && (
+                  {clientName && (
                     <p className="text-xs text-gray-400 truncate mt-0.5">
-                      {quotation.customer?.company && (
+                      {quotation.client?.company && (
                         <span className="font-medium text-gray-500">
-                          {quotation.customer.company} ·{" "}
+                          {quotation.client.company} ·{" "}
                         </span>
                       )}
-                      {customerName}
+                      {clientName}
                     </p>
                   )}
                 </div>
@@ -195,8 +195,8 @@ export default function QuotationTable({
         heightClass="h-112.5"
       >
         {paginatedItems.map((quotation) => {
-          const customerName = quotation.customer
-            ? `${getDisplayName(quotation.customer, { includeMiddleInitial: true, includeSuffix: true })}`
+          const clientName = quotation.client
+            ? `${getDisplayName(quotation.client, { includeMiddleInitial: true, includeSuffix: true })}`
             : null;
           const assignedTo = quotation.assignedTo;
           const assignedName = assignedTo ? (
@@ -215,18 +215,18 @@ export default function QuotationTable({
 
           return (
             <TableRow key={quotation._id} onClick={() => onView(quotation)}>
-              {/* Quotation (Title + Customer) */}
+              {/* Quotation (Title + Client) */}
               <TableCell className="max-w-72">
                 <div className="min-w-0">
                   <p className="font-medium truncate">{quotation.title}</p>
-                  {customerName && (
+                  {clientName && (
                     <p className="text-xs text-gray-400 truncate mt-0.5">
-                      {quotation.customer?.company && (
+                      {quotation.client?.company && (
                         <span className="font-medium text-gray-500">
-                          {quotation.customer.company} ·{" "}
+                          {quotation.client.company} ·{" "}
                         </span>
                       )}
-                      {customerName}
+                      {clientName}
                     </p>
                   )}
                 </div>

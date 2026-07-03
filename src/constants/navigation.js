@@ -5,7 +5,6 @@ import {
   UsersRound,
   Magnet,
   UserCheck,
-  Handshake,
   BarChart2,
   ListTodo,
   Briefcase,
@@ -61,9 +60,9 @@ export const BASE_NAV = {
     label: "Leads",
   },
 
-  customers: {
+  clients: {
     icon: createIcon(UserCheck),
-    label: "Customers",
+    label: "Clients",
   },
 
   quotations: {
@@ -100,7 +99,7 @@ export const ROLE_ROUTES = {
 
     "prospects",
     "leads",
-    "customers",
+    "clients",
     "quotations",
     "tasks",
     "meetings",
@@ -116,7 +115,7 @@ export const ROLE_ROUTES = {
 
     "prospects",
     "leads",
-    "customers",
+    "clients",
     "quotations",
     "tasks",
     "meetings",
@@ -130,7 +129,7 @@ export const ROLE_ROUTES = {
 
     "prospects",
     "leads",
-    "customers",
+    "clients",
     "quotations",
     "tasks",
     "meetings",

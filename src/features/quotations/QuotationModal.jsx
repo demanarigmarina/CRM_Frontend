@@ -55,7 +55,7 @@ export default function QuotationModal({
   activitiesLoading = false,
   tasks = [],           
   tasksLoading = false, 
-  customers = [],
+  clients = [],
   salesAgents = [],
   permissions = {},
   loading = false,
@@ -70,13 +70,13 @@ export default function QuotationModal({
 }) {
   const [activeTab, setActiveTab] = useState("Activity");
 
-  const customerOptions = useMemo(
+  const clientOptions = useMemo(
     () =>
-      customers.map((c) => ({
+      clients.map((c) => ({
         label: `${getDisplayName(c, { includeSuffix: true })}${c.company ? ` — ${c.company}` : ""}`,
         value: c._id,
       })),
-    [customers],
+    [clients],
   );
 
   const agentOptions = useMemo(
@@ -100,8 +100,8 @@ export default function QuotationModal({
     const d = viewingQuotation;
     if (!d) return null;
 
-    const customerName = d.customer
-      ? getDisplayName(d.customer, {
+    const clientName = d.client
+      ? getDisplayName(d.client, {
           includeMiddleInitial: true,
           includeSuffix: true,
         })
@@ -219,7 +219,7 @@ export default function QuotationModal({
           <p className="text-sm font-semibold text-gray-800 mb-4">Details</p>
 
           <div className="flex flex-col gap-4">
-            {/* Customer */}
+            {/* Client */}
             <div>
               <div className="flex items-center gap-1.5 mb-0.5">
                 <User size={11} className="text-gray-400" />
@@ -227,9 +227,9 @@ export default function QuotationModal({
                   Client
                 </p>
               </div>
-              <p className="text-sm font-medium text-gray-700">{customerName}</p>
-              {d.customer?.company && (
-                <p className="text-xs text-gray-400">{d.customer.company}</p>
+              <p className="text-sm font-medium text-gray-700">{clientName}</p>
+              {d.client?.company && (
+                <p className="text-xs text-gray-400">{d.client.company}</p>
               )}
             </div>
 
@@ -362,8 +362,8 @@ export default function QuotationModal({
   };
 
   const renderForm = () => {
-    const selectedCustomer =
-      customerOptions.find((o) => o.value === formData.customer) || null;
+    const selectedClient =
+      clientOptions.find((o) => o.value === formData.client) || null;
     const selectedAgent =
       agentOptions.find((o) => o.value === formData.assignedTo) || null;
 
@@ -387,15 +387,15 @@ export default function QuotationModal({
             />
           </div>
 
-          {/* Customer */}
+          {/* Client */}
           <div>
             <FormLabel required>Client</FormLabel>
             <Select
               {...getSelectProps({ isClearable: true })}
               placeholder="Select client..."
-              options={customerOptions}
-              value={selectedCustomer}
-              onChange={(opt) => onSelectChange("customer", opt?.value || "")}
+              options={clientOptions}
+              value={selectedClient}
+              onChange={(opt) => onSelectChange("client", opt?.value || "")}
             />
           </div>
 

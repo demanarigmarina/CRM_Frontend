@@ -23,7 +23,7 @@ import { useTasks } from "../../hooks/useTasks";
 import { useTaskModal } from "./hooks/useTaskModal";
 import { useUsers } from "../users/hooks/useUsers";
 import { useLeads } from "../leads/hooks/useLeads";
-import { useCustomers } from "../customers/hooks/useCustomers";
+import { useClients } from "../clients/hooks/useClients";
 import { useQuotations } from "../quotations/hooks/useQuotations";
 
 import TaskKanban from "./TaskKanban";
@@ -86,7 +86,7 @@ useEffect(() => {
     resource: "task",
   });
   const { leads = [] } = useLeads();
-  const { customers = [] } = useCustomers();
+  const { clients = [] } = useClients();
   const { quotations = [] } = useQuotations();
 
   const [view, setView] = useState("kanban");
@@ -305,7 +305,7 @@ useEffect(() => {
                 <Select
                   {...getSelectProps({ variant: "filter" })}
                   placeholder="All types"
-                  options={["Lead", "Customer", "Quotation"].map((t) => ({
+                  options={["Lead", "Client", "Quotation"].map((t) => ({
                     label: t,
                     value: t,
                   }))}
@@ -442,7 +442,7 @@ useEffect(() => {
         currentUser={currentUser}
         assignableUsers={assignableUsers}
         leads={leads}
-        customers={customers}
+        clients={clients}
         quotations={quotations}
         permissions={permissions}
         loading={submitting}

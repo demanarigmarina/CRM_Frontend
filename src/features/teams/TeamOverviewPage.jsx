@@ -3,9 +3,9 @@ import {
   Users,
   Magnet,
   UserCheck,
-  Handshake,
   ListTodo,
   Settings2,
+  FileText,
 } from "lucide-react";
 
 import { useAuth } from "../../context/AuthContext";
@@ -137,13 +137,13 @@ export default function TeamOverviewPage() {
               />
               <StatCard
                 icon={<UserCheck size={18} />}
-                label="Customers"
-                value={stats.customers}
+                label="Clients"
+                value={stats.clients}
                 color="emerald"
                 loading={loading}
               />
               <StatCard
-                icon={<Handshake size={18} />}
+                icon={<FileText size={18} />}
                 label="Quotations"
                 value={stats.quotations}
                 color="red"
