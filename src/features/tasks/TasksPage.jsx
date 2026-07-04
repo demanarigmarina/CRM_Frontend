@@ -89,7 +89,7 @@ useEffect(() => {
   const { clients = [] } = useClients();
   const { quotations = [] } = useQuotations();
 
-  const [view, setView] = useState("kanban");
+  const [view, setView] = useState("table");
   const [search, setSearch] = useState("");
   const [filterPriority, setFilterPriority] = useState(null);
   const [filterResponsible, setFilterResponsible] = useState(null);
@@ -397,7 +397,7 @@ useEffect(() => {
                 className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-md cursor-pointer"
               >
                 <span className="flex items-center gap-2 text-sm">
-                  <FaPlus size={11} /> New Task
+                  <FaPlus size={11} /> Add Task
                 </span>
               </button>
             )

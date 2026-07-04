@@ -531,6 +531,7 @@ export default function QuotationModal({
       loading={loading}
       onClose={onClose}
       onCancel={onClose}
+      footer={isView ? renderViewFooter() : null}
     >
       {renderForm()}
     </FormDrawer>

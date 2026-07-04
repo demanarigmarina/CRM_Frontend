@@ -102,7 +102,7 @@ export default function LeadsPage() {
 
   const [previewColumns, setPreviewColumns] = useState(null);
 
-  const [view, setView] = useState("kanban");
+  const [view, setView] = useState("table");
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState(null);
   const [filterSource, setFilterSource] = useState(null);

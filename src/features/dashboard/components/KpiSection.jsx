@@ -31,10 +31,10 @@ export default function KpiSection({ kpi, loading }) {
       icon: <UserCheck size={23} />,
       label: "Total Clients",
       tooltip: "Total number of clients",
-      value: loading ? null : kpi?.clients.total,
+      value: loading ? null : kpi?.clients?.total,
       sub: loading
         ? null
-        : `${kpi?.clients.active ?? 0} active · +${kpi?.clients.newThisMonth ?? 0} this month`,
+        : `${kpi?.clients?.active ?? 0} active · +${kpi?.clients?.newThisMonth ?? 0} this month`,
       color: "emerald",
     },
     {

@@ -21,11 +21,15 @@ import {
 import { getSelectProps } from "../../components/select/selectConfig";
 import Modal from "../../components/modal/Modal";
 import { ModalField } from "../../components/modal/ModalField";
+
+import FormDrawer from "../../components/form/FormDrawer";
+import FormSection from "../../components/form/FormSection";
 import {
   FormLabel,
   FormInput,
   FormTextarea,
 } from "../../components/form/FormField";
+
 import BaseBadge from "../../components/badge/BaseBadge";
 import UserDisplayName from "../../components/UserDisplayName";
 import ActivityTimeline from "../../components/activity/ActivityTimeline";
@@ -103,8 +107,8 @@ export default function TaskModal({
   open,
   mode,
   origin,
-  activeTab,
-  onTabChange,
+  // activeTab,
+  // onTabChange,
   formData,
   viewingTask,
   activities = [],
@@ -493,13 +497,9 @@ export default function TaskModal({
     const today = new Date().toISOString().split("T")[0];
 
     return (
-      <form onSubmit={onSubmit} className="flex flex-col h-full min-h-0">
+      <form id= "task-form" onSubmit={onSubmit} className="flex flex-col h-full min-h-0">
 
         <div className="flex-1 overflow-y-auto min-h-0 space-y-4 px-1">
-          {/* Form Title */}
-          <h2 className="text-lg font-semibold text-gray-800">
-            {isCreate ? "Add New Task" : "Edit Task"}
-          </h2>
 
           <div>
             <FormLabel required>Subject</FormLabel>
@@ -726,7 +726,7 @@ export default function TaskModal({
           </div>
         </div>
 
-        <div className="flex justify-end items-center gap-2">
+        {/* <div className="flex justify-end items-center gap-2">
           {isEdit && origin === "view" && (
             <button
               type="button"
@@ -750,23 +750,24 @@ export default function TaskModal({
               </div>
             )}
           </button>
-        </div>
+        </div> */}
       </form>
     );
   };
 
-  const title = isCreate ? "New Task" : isEdit ? "Edit Task" : "";
+  const title = isCreate ? "Add New Task" : isEdit ? "Edit Task" : "";
 
   return (
-    <Modal
+    <FormDrawer
       open={open}
       title={title}
+      formId="task-form"
+      loading={loading}
       onClose={onClose}
-      maxWidth={"max-w-3xl"}
-      className="min-h-[90vh]"
+      onCancel={isEdit && origin === "view" ? onSwitchToView : onClose}
       footer={isView ? renderViewFooter() : null}
     >
       {isView ? renderView() : renderForm()}
-    </Modal>
+    </FormDrawer>
   );
 }

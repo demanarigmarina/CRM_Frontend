@@ -76,7 +76,7 @@ export default function QuotationsPage() {
     handleSelectChange,
   } = useQuotationModal();
 
-  const [view, setView] = useState("kanban");
+  const [view, setView] = useState("table");
   const [search, setSearch] = useState("");
   const [filterStage, setFilterStage] = useState(null);
   const [filterAssigned, setFilterAssigned] = useState(null);
@@ -297,7 +297,7 @@ export default function QuotationsPage() {
                 className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-md cursor-pointer"
               >
                 <span className="flex items-center gap-2 text-sm">
-                  <FaPlus size={11} /> New Quotation
+                  <FaPlus size={11} /> Add Quotation
                 </span>
               </button>
             )

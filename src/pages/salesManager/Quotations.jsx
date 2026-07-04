@@ -1,3 +1,5 @@
-export default function Quotations() {
-  return <h1>Quotations</h1>;
+import QuotationsPage from "../../features/quotations/QuotationsPage";
+
+export default function AdminQuotations() {
+  return <QuotationsPage />;
 }
