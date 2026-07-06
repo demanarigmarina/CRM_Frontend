@@ -1,63 +1,30 @@
-import axios from "axios";
+import api from "../../../services/api";
 
-const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
-});
+const prospectService = {
+  getProspects: async () => {
+    const { data } = await api.get("/api/prospects");
+    return data;
+  },
 
-const unwrap = (response) => {
-  const d = response.data;
-  return d?.prospects || d?.prospect || d?.data || d;
+  createProspect: async (payload) => {
+    const { data } = await api.post("/api/prospects", payload);
+    return data;
+  },
+
+  updateProspect: async (id, payload) => {
+    const { data } = await api.put(`/api/prospects/${id}`, payload);
+    return data;
+  },
+
+  deleteProspect: async (id) => {
+    const { data } = await api.delete(`/api/prospects/${id}`);
+    return data;
+  },
+
+  markAsContacted: async (id) => {
+    const { data } = await api.patch(`/api/prospects/${id}/contacted`);
+    return data;
+  },
 };
 
-// ===============================
-// GET ALL PROSPECTS
-// ===============================
-export const getProspects = async () => {
-  const response = await API.get("/api/prospects");
-  return unwrap(response);
-};
-
-// ===============================
-// GET ONE PROSPECT
-// ===============================
-export const getProspectById = async (id) => {
-  const response = await API.get(`/api/prospects/${id}`);
-  return unwrap(response);
-};
-
-// ===============================
-// ADD PROSPECT
-// ===============================
-export const createProspect = async (prospect) => {
-  try {
-    const response = await API.post("/api/prospects", prospect);
-    return unwrap(response);
-  } catch (err) {
-    console.error("createProspect error:", err.response?.data || err.message || err);
-    throw err;
-  }
-};
-
-// ===============================
-// UPDATE PROSPECT
-// ===============================
-export const updateProspect = async (id, prospect) => {
-  const response = await API.put(`/api/prospects/${id}`, prospect);
-  return unwrap(response);
-};
-
-// ===============================
-// DELETE PROSPECT
-// ===============================
-export const deleteProspect = async (id) => {
-  const response = await API.delete(`/api/prospects/${id}`);
-  return unwrap(response);
-};
-
-// ===============================
-// CONVERT TO LEAD
-// ===============================
-export const convertToLead = async (id) => {
-  const response = await API.post(`/api/prospects/${id}/convert`);
-  return unwrap(response);
-};
+export default prospectService;

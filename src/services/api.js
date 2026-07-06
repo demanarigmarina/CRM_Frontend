@@ -1,33 +1,38 @@
 import axios from "axios";
 
-// ── Axios instance used by ALL protected API calls ────────────────────────────
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:5000";
+
+// Axios instance used by all protected API calls
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "/",
+  baseURL: API_BASE_URL,
   withCredentials: true,
 });
-// ── Shared in-memory token store ──────────────────────────────────────────────
+
+// Shared in-memory token store
 let _accessToken = null;
-let _onLogout = null; // callback set by AuthContext to clear state + redirect
+let _onLogout = null;
 
 export const setAccessToken = (token) => {
   _accessToken = token;
 };
+
 export const setLogoutCallback = (fn) => {
   _onLogout = fn;
 };
 
-// ── Request interceptor: attach access token to every request ─────────────────
+// Request interceptor: attach access token to every request
 api.interceptors.request.use(
   (config) => {
     if (_accessToken) {
       config.headers.Authorization = `Bearer ${_accessToken}`;
     }
+
     return config;
   },
-  (error) => Promise.reject(error),
+  (error) => Promise.reject(error)
 );
 
-// ── Response interceptor: handle 401 → silent refresh → retry ────────────────
 let isRefreshing = false;
 let failedQueue = [];
 
@@ -39,23 +44,25 @@ const processQueue = (error, token = null) => {
       prom.resolve(token);
     }
   });
+
   failedQueue = [];
 };
 
+// Response interceptor: handle 401 -> silent refresh -> retry
 api.interceptors.response.use(
-  (response) => response, // 2xx — pass through
+  (response) => response,
 
   async (error) => {
     const originalRequest = error.config;
+
     if (
       error.response?.status !== 401 ||
-      originalRequest._retry ||
-      originalRequest.url?.includes("/api/auth/refresh")
+      originalRequest?._retry ||
+      originalRequest?.url?.includes("/api/auth/refresh")
     ) {
       return Promise.reject(error);
     }
 
-    // If a refresh is already in flight, queue this request until it resolves
     if (isRefreshing) {
       return new Promise((resolve, reject) => {
         failedQueue.push({ resolve, reject });
@@ -71,32 +78,32 @@ api.interceptors.response.use(
     isRefreshing = true;
 
     try {
-      // Silent refresh — the httpOnly cookie is sent automatically
       const { data } = await axios.post(
-        "/api/auth/refresh",
+        `${API_BASE_URL}/api/auth/refresh`,
         {},
-        { withCredentials: true },
+        { withCredentials: true }
       );
 
       const newToken = data.accessToken;
+
       setAccessToken(newToken);
       processQueue(null, newToken);
 
-      // Retry the original failed request with the new token
       originalRequest.headers.Authorization = `Bearer ${newToken}`;
       return api(originalRequest);
     } catch (refreshError) {
-      // Refresh failed — session is dead
       processQueue(refreshError, null);
       setAccessToken(null);
 
-      if (_onLogout) _onLogout(); // clear React state + redirect to /login
+      if (_onLogout) {
+        _onLogout();
+      }
 
       return Promise.reject(refreshError);
     } finally {
       isRefreshing = false;
     }
-  },
+  }
 );
 
 export default api;
