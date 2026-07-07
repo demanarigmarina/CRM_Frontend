@@ -35,11 +35,17 @@ export default function QuotationsPage() {
 
   const { clients = [] } = useClients();
 
-  const { users: salesAgents = [] } = useUsers({
+  const { users = [] } = useUsers({
     skip: !permissions.canAssign,
-    mode: "assignable",
-    resource: "quotations",
   });
+
+  const salesAgents = useMemo(
+    () =>
+      users.filter(
+        (user) => user.role?.trim().toLowerCase() === "sales agent"
+      ),
+    [users]
+  );
 
   const {
     quotations,

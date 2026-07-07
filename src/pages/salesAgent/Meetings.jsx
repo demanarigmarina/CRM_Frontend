@@ -1,3 +1,4 @@
-export default function Meetings() {
-  return <h1>Meetings</h1>;
+import MeetingsPage from "../../features/meetings/MeetingsPage";
+export default function SalesAgentMeetings() {
+  return <MeetingsPage />;
 }
