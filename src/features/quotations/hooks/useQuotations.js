@@ -14,12 +14,12 @@ const Toast = Swal.mixin({
 });
 
 const STAGES = [
-  "Prospecting",
-  "Qualification",
-  "Proposal",
+  "Draft",
+  "Sent",
+  "Under Review",
   "Negotiation",
-  "Won",
-  "Lost",
+  "Rejected",
+  "Expired",
 ];
 
 export function useQuotations() {
@@ -140,7 +140,7 @@ export function useQuotations() {
         value: Number(formData.value),
         currency: formData.currency || "PHP",
         // probability: Number(formData.probability) || 0,
-        stage: formData.stage || "Prospecting",
+        stage: formData.stage || "Draft",
         expectedCloseDate: formData.expectedCloseDate || null,
         notes: formData.notes || "",
       };

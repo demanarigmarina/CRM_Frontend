@@ -34,12 +34,13 @@ const CURRENCIES = [
 ];
 
 const STAGE_COLORS = {
-  Prospecting: { tone: "blue" },
-  Qualification: { tone: "indigo" },
-  Proposal: { tone: "purple" },
-  Negotiation: { tone: "amber" },
-  Won: { tone: "green" },
-  Lost: { tone: "red" },
+  Draft: { tone: "gray" },
+  Sent: { tone: "blue" },
+  "Under Review": { tone: "amber" },
+  Negotiation: { tone: "purple" },
+  Approved: { tone: "green" },
+  Rejected: { tone: "red" },
+  Expired: { tone: "gray" },
 };
 
 const VIEW_TABS = ["Activity", "Tasks"];
@@ -48,7 +49,6 @@ export default function QuotationModal({
   stages,
   open,
   mode, // "create" | "view" | "edit"
-  // origin,
   formData,
   viewingQuotation,
   activities = [],
@@ -66,7 +66,7 @@ export default function QuotationModal({
   onSubmit,
   onDelete,
   onClose,
-  onAddTask, // () => void — navigates to tasks page and opens create modal
+  onAddTask, 
 }) {
   const [activeTab, setActiveTab] = useState("Activity");
 
@@ -238,7 +238,7 @@ export default function QuotationModal({
               <div className="flex items-center gap-1.5 mb-0.5">
                 <User size={11} className="text-gray-400" />
                 <p className="text-[10px] text-gray-400 uppercase tracking-wider">
-                  Assigned To
+                  Sales Agent
                 </p>
               </div>
               <p className="text-sm font-medium text-gray-700">

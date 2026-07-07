@@ -12,11 +12,14 @@ const HEADERS = [
   { label: "Report Name" },
   { label: "Description" },
   { label: "Category" },
+  { label: "Actions" },
 ];
 
 export default function ReportTable({
   reports = [],
   isLoading = false,
+  onEdit,
+  onDelete,
 }) {
   const {
     currentPage,
@@ -70,6 +73,26 @@ export default function ReportTable({
             <span className="text-gray-600">
               {report.category}
             </span>
+          </TableCell>
+
+          {/* Actions */}
+          <TableCell>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => onEdit?.(report)}
+                className="rounded-md border border-gray-300 px-2.5 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
+              >
+                Edit
+              </button>
+              <button
+                type="button"
+                onClick={() => onDelete?.(report.id)}
+                className="rounded-md border border-red-200 px-2.5 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50"
+              >
+                Delete
+              </button>
+            </div>
           </TableCell>
         </TableRow>
       )}
