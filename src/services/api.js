@@ -1,15 +1,12 @@
 import axios from "axios";
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
-// Axios instance used by all protected API calls
 const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: API_URL,
   withCredentials: true,
 });
 
-// Shared in-memory token store
 let _accessToken = null;
 let _onLogout = null;
 
@@ -17,11 +14,12 @@ export const setAccessToken = (token) => {
   _accessToken = token;
 };
 
+export const getAccessToken = () => _accessToken;
+
 export const setLogoutCallback = (fn) => {
   _onLogout = fn;
 };
 
-// Request interceptor: attach access token to every request
 api.interceptors.request.use(
   (config) => {
     if (_accessToken) {
@@ -30,35 +28,42 @@ api.interceptors.request.use(
 
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 let isRefreshing = false;
 let failedQueue = [];
 
 const processQueue = (error, token = null) => {
-  failedQueue.forEach((prom) => {
+  failedQueue.forEach((request) => {
     if (error) {
-      prom.reject(error);
+      request.reject(error);
     } else {
-      prom.resolve(token);
+      request.resolve(token);
     }
   });
 
   failedQueue = [];
 };
 
-// Response interceptor: handle 401 -> silent refresh -> retry
 api.interceptors.response.use(
   (response) => response,
 
   async (error) => {
     const originalRequest = error.config;
 
+    if (!originalRequest) {
+      return Promise.reject(error);
+    }
+
+    const isRefreshRequest = originalRequest.url?.includes(
+      "/api/auth/refresh",
+    );
+
     if (
       error.response?.status !== 401 ||
-      originalRequest?._retry ||
-      originalRequest?.url?.includes("/api/auth/refresh")
+      originalRequest._retry ||
+      isRefreshRequest
     ) {
       return Promise.reject(error);
     }
@@ -71,7 +76,7 @@ api.interceptors.response.use(
           originalRequest.headers.Authorization = `Bearer ${token}`;
           return api(originalRequest);
         })
-        .catch((err) => Promise.reject(err));
+        .catch((queueError) => Promise.reject(queueError));
     }
 
     originalRequest._retry = true;
@@ -79,9 +84,11 @@ api.interceptors.response.use(
 
     try {
       const { data } = await axios.post(
-        `${API_BASE_URL}/api/auth/refresh`,
+        `${API_URL}/api/auth/refresh`,
         {},
-        { withCredentials: true }
+        {
+          withCredentials: true,
+        },
       );
 
       const newToken = data.accessToken;
@@ -90,6 +97,7 @@ api.interceptors.response.use(
       processQueue(null, newToken);
 
       originalRequest.headers.Authorization = `Bearer ${newToken}`;
+
       return api(originalRequest);
     } catch (refreshError) {
       processQueue(refreshError, null);
@@ -103,7 +111,7 @@ api.interceptors.response.use(
     } finally {
       isRefreshing = false;
     }
-  }
+  },
 );
 
 export default api;

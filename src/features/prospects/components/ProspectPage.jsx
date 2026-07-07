@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import Select from "react-select";
 
@@ -15,22 +15,21 @@ import { getSelectProps } from "../../../components/select/selectConfig";
 
 import ProspectForm from "./ProspectForm";
 import ProspectTable from "./ProspectTable";
+import ProspectKanban from "./ProspectKanban";
 import useProspect from "../hooks/useProspect";
 
 const STATUS_OPTIONS = [
   { label: "New", value: "New" },
   { label: "Contacted", value: "Contacted" },
-  { label: "Qualified", value: "Qualified" },
-  { label: "Converted", value: "Converted" },
   { label: "Lost", value: "Lost" },
 ];
 
 const SOURCE_OPTIONS = [
   { label: "Website", value: "Website" },
-  { label: "Facebook", value: "Facebook" },
   { label: "Referral", value: "Referral" },
-  { label: "Walk-in", value: "Walk-in" },
+  { label: "Facebook", value: "Facebook" },
   { label: "Email", value: "Email" },
+  { label: "Walk-in", value: "Walk-in" },
   { label: "Phone Call", value: "Phone Call" },
   { label: "Event", value: "Event" },
   { label: "Other", value: "Other" },
@@ -40,60 +39,80 @@ export default function ProspectPage() {
   const {
     prospects,
     loading,
-
-    searchTerm,
-    setSearchTerm,
-
-    statusFilter,
-    setStatusFilter,
-
-    sourceFilter,
-    setSourceFilter,
-
     addProspect,
     editProspect,
     removeProspect,
     markAsContacted,
   } = useProspect();
 
-  const [openForm, setOpenForm] = useState(false);
+  const [viewMode, setViewMode] = useState("table");
+  const [search, setSearch] = useState("");
+  const [filterStatus, setFilterStatus] = useState(null);
+  const [filterSource, setFilterSource] = useState(null);
+
+  const [formOpen, setFormOpen] = useState(false);
   const [editingProspect, setEditingProspect] = useState(null);
 
   const clearAllFilters = useCallback(() => {
-    setStatusFilter("All");
-    setSourceFilter("All");
-  }, [setStatusFilter, setSourceFilter]);
+    setFilterStatus(null);
+    setFilterSource(null);
+  }, []);
 
   const {
     filterOpen,
     setFilterOpen,
     filterRef,
     activeFilterCount,
-    clearAllFilters: handleClear,
-  } = useFilterPopover(
-    {
-      statusFilter: statusFilter === "All" ? null : statusFilter,
-      sourceFilter: sourceFilter === "All" ? null : sourceFilter,
-    },
-    clearAllFilters
-  );
+    clearAllFilters: handleClearFilters,
+  } = useFilterPopover({ filterStatus, filterSource }, clearAllFilters);
 
-  const handleOpenAdd = () => {
+  const filteredProspects = useMemo(() => {
+    const query = search.trim().toLowerCase();
+
+    return prospects.filter((prospect) => {
+      const representative = prospect.representativeName || {};
+
+      const representativeName = [
+        representative.firstName,
+        representative.middleInitial,
+        representative.lastName,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+      const matchesSearch =
+        !query ||
+        prospect.companyName?.toLowerCase().includes(query) ||
+        prospect.companyEmailAddress?.toLowerCase().includes(query) ||
+        prospect.phone?.toLowerCase().includes(query) ||
+        representativeName.includes(query);
+
+      const matchesStatus = !filterStatus || prospect.status === filterStatus;
+
+      const matchesSource =
+        !filterSource || prospect.leadSource === filterSource;
+
+      return matchesSearch && matchesStatus && matchesSource;
+    });
+  }, [prospects, search, filterStatus, filterSource]);
+
+  const handleOpenCreate = () => {
     setEditingProspect(null);
-    setOpenForm(true);
+    setFormOpen(true);
   };
 
-  const handleOpenEdit = (prospect) => {
+  const handleEdit = (prospect) => {
     setEditingProspect(prospect);
-    setOpenForm(true);
+    setFormOpen(true);
   };
 
   const handleCloseForm = () => {
+    setFormOpen(false);
     setEditingProspect(null);
-    setOpenForm(false);
   };
 
-  const handleSave = async (payload) => {
+  const handleSubmit = async (payload) => {
     const success = editingProspect
       ? await editProspect(editingProspect._id, payload)
       : await addProspect(payload);
@@ -101,6 +120,12 @@ export default function ProspectPage() {
     if (success) {
       handleCloseForm();
     }
+
+    return success;
+  };
+
+  const handleStatusChange = async (id, status) => {
+    return editProspect(id, { status });
   };
 
   return (
@@ -112,16 +137,18 @@ export default function ProspectPage() {
         />
 
         <PageToolbar
-          searchValue={searchTerm}
-          onSearchChange={(e) => setSearchTerm(e.target.value)}
+          searchValue={search}
+          onSearchChange={(event) => setSearch(event.target.value)}
           searchPlaceholder="Search prospects..."
+          view={viewMode}
+          onViewChange={setViewMode}
           filterSlot={
             <FilterPopover
               filterRef={filterRef}
               filterOpen={filterOpen}
-              onToggle={() => setFilterOpen((prev) => !prev)}
+              onToggle={() => setFilterOpen((previous) => !previous)}
               activeFilterCount={activeFilterCount}
-              onClearAll={handleClear}
+              onClearAll={handleClearFilters}
             >
               <div>
                 <p className="text-xs text-gray-400 mb-1">Status</p>
@@ -131,12 +158,10 @@ export default function ProspectPage() {
                   options={STATUS_OPTIONS}
                   value={
                     STATUS_OPTIONS.find(
-                      (option) => option.value === statusFilter
+                      (option) => option.value === filterStatus,
                     ) || null
                   }
-                  onChange={(option) =>
-                    setStatusFilter(option?.value || "All")
-                  }
+                  onChange={(option) => setFilterStatus(option?.value || null)}
                 />
               </div>
 
@@ -148,19 +173,18 @@ export default function ProspectPage() {
                   options={SOURCE_OPTIONS}
                   value={
                     SOURCE_OPTIONS.find(
-                      (option) => option.value === sourceFilter
+                      (option) => option.value === filterSource,
                     ) || null
                   }
-                  onChange={(option) =>
-                    setSourceFilter(option?.value || "All")
-                  }
+                  onChange={(option) => setFilterSource(option?.value || null)}
                 />
               </div>
             </FilterPopover>
           }
           actionButton={
             <button
-              onClick={handleOpenAdd}
+              type="button"
+              onClick={handleOpenCreate}
               className="bg-red-500 hover:bg-red-600 text-white py-2 px-5 rounded-md cursor-pointer min-w-[150px]"
             >
               <span className="flex items-center justify-center gap-2 text-sm whitespace-nowrap">
@@ -173,20 +197,34 @@ export default function ProspectPage() {
       </div>
 
       <PageContentState loading={false}>
-        <ProspectTable
-          prospects={prospects}
-          loading={loading}
-          onEdit={handleOpenEdit}
-          onDelete={removeProspect}
-          onContact={markAsContacted}
-        />
+        {viewMode === "table" ? (
+          <ProspectTable
+            prospects={filteredProspects}
+            loading={loading}
+            onEdit={handleEdit}
+            onDelete={removeProspect}
+            onContact={markAsContacted}
+          />
+        ) : (
+          <ProspectKanban
+            prospects={filteredProspects}
+            loading={loading}
+            onView={() => {}}
+            onEdit={handleEdit}
+            onDelete={removeProspect}
+            onContact={markAsContacted}
+            onStatusChange={handleStatusChange}
+          />
+        )}
       </PageContentState>
 
       <ProspectForm
-        open={openForm}
+        open={formOpen}
         editingProspect={editingProspect}
-        onSave={handleSave}
+        onSubmit={handleSubmit}
         onClose={handleCloseForm}
+        onCancel={handleCloseForm}
+        loading={loading}
       />
     </PageBase>
   );

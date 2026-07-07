@@ -1,3 +1,4 @@
-export default function Prospects() {
-  return <h1>Prospects</h1>;
+import ProspectPage from "../../features/prospects/components/ProspectPage";
+export default function prospects() {
+  return <ProspectPage />;
 }

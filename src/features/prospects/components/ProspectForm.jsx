@@ -9,125 +9,130 @@ import {
   inputClass,
 } from "../../../components/form/FormField";
 
-const formId = "prospect-form";
+const FORM_ID = "prospect-form";
 
 const initialFormData = {
   companyName: "",
-  natureOfBusiness: "",
+  businessAddress: {
+    houseNumber: "",
+    streetAddress: "",
+    city: "",
+    province: "",
+    country: "Philippines",
+  },
   companyEmailAddress: "",
-  phone: "",
-  leadSource: "",
-  status: "New",
-  representativeName: {
-    firstName: "",
-    middleInitial: "",
-    lastName: "",
-  },
+  companyWebsite: "",
+  natureOfBusiness: "",
+  numberOfEmployees: "",
+
   ownerName: {
+    lastName: "",
     firstName: "",
     middleInitial: "",
-    lastName: "",
   },
+  representativeName: {
+    lastName: "",
+    firstName: "",
+    middleInitial: "",
+  },
+  title: "",
+  emailAddress: "",
+  viber: "",
+  phone: "",
+
+  status: "New",
+  leadSource: "Website",
   notes: "",
 };
-
-const leadSourceOptions = [
-  "Website",
-  "Facebook",
-  "Referral",
-  "Walk-in",
-  "Email",
-  "Phone Call",
-  "Event",
-  "Other",
-];
-
-const statusOptions = ["New", "Contacted", "Qualified", "Converted", "Lost"];
-
-function mergeProspectData(prospect) {
-  if (!prospect) return initialFormData;
-
-  return {
-    ...initialFormData,
-    ...prospect,
-    representativeName: {
-      ...initialFormData.representativeName,
-      ...(prospect.representativeName || {}),
-    },
-    ownerName: {
-      ...initialFormData.ownerName,
-      ...(prospect.ownerName || {}),
-    },
-  };
-}
 
 export default function ProspectForm({
   open,
   editingProspect,
-  prospect,
-  loading = false,
-  onSave,
+  onSubmit,
   onClose,
+  onCancel,
+  loading,
 }) {
-  const activeProspect = editingProspect || prospect || null;
   const [formData, setFormData] = useState(initialFormData);
-  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (open) {
-      setFormData(mergeProspectData(activeProspect));
+    if (!open) return;
+
+    if (editingProspect) {
+      setFormData({
+        companyName: editingProspect.companyName || "",
+        businessAddress: {
+          houseNumber: editingProspect.businessAddress?.houseNumber || "",
+          streetAddress: editingProspect.businessAddress?.streetAddress || "",
+          city: editingProspect.businessAddress?.city || "",
+          province: editingProspect.businessAddress?.province || "",
+          country: editingProspect.businessAddress?.country || "Philippines",
+        },
+        companyEmailAddress: editingProspect.companyEmailAddress || "",
+        companyWebsite: editingProspect.companyWebsite || "",
+        natureOfBusiness: editingProspect.natureOfBusiness || "",
+        numberOfEmployees: editingProspect.numberOfEmployees || "",
+
+        ownerName: {
+          lastName: editingProspect.ownerName?.lastName || "",
+          firstName: editingProspect.ownerName?.firstName || "",
+          middleInitial: editingProspect.ownerName?.middleInitial || "",
+        },
+        representativeName: {
+          lastName: editingProspect.representativeName?.lastName || "",
+          firstName: editingProspect.representativeName?.firstName || "",
+          middleInitial:
+            editingProspect.representativeName?.middleInitial || "",
+        },
+        title: editingProspect.title || "",
+        emailAddress: editingProspect.emailAddress || "",
+        viber: editingProspect.viber || "",
+        phone: editingProspect.phone || "",
+
+        status: editingProspect.status || "New",
+        leadSource: editingProspect.leadSource || "Website",
+        notes: editingProspect.notes || "",
+      });
+    } else {
+      setFormData(initialFormData);
     }
-  }, [open, activeProspect]);
+  }, [open, editingProspect]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+  const handleChange = (event) => {
+    const { name, value } = event.target;
 
-    setFormData((prev) => ({
-      ...prev,
+    setFormData((previous) => ({
+      ...previous,
       [name]: value,
     }));
   };
 
-  const handleNestedChange = (section, field, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      [section]: {
-        ...prev[section],
+  const handleNestedChange = (group, field, value) => {
+    setFormData((previous) => ({
+      ...previous,
+      [group]: {
+        ...previous[group],
         [field]: value,
       },
     }));
   };
 
-  const handleCancel = () => {
-    setFormData(initialFormData);
-    onClose();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    await onSubmit(formData);
   };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    setSaving(true);
-
-    try {
-      await onSave(formData);
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const isSubmitting = loading || saving;
 
   return (
     <FormDrawer
       open={open}
-      title={activeProspect ? "Edit Prospect" : "Add Prospect"}
-      formId={formId}
-      loading={isSubmitting}
-      onClose={handleCancel}
-      onCancel={handleCancel}
+      title={editingProspect ? "Edit Prospect" : "Add Prospect"}
+      formId={FORM_ID}
+      loading={loading}
+      onClose={onClose}
+      onCancel={onCancel}
     >
-      <form id={formId} onSubmit={handleSubmit} className="space-y-5">
-        <FormSection title="Company Information">
+      <form id={FORM_ID} onSubmit={handleSubmit} className="space-y-5">
+        <FormSection title="Company Profile">
           <div>
             <FormLabel required>Company Name</FormLabel>
             <FormInput
@@ -140,48 +145,187 @@ export default function ProspectForm({
           </div>
 
           <div>
-            <FormLabel>Nature of Business</FormLabel>
-            <FormInput
-              name="natureOfBusiness"
-              value={formData.natureOfBusiness}
-              onChange={handleChange}
-              placeholder="Enter nature of business"
-            />
-          </div>
-
-          <div>
-            <FormLabel>Email Address</FormLabel>
+            <FormLabel required>Company Email Address</FormLabel>
             <FormInput
               type="email"
               name="companyEmailAddress"
               value={formData.companyEmailAddress}
               onChange={handleChange}
+              required
               placeholder="company@email.com"
             />
           </div>
 
           <div>
-            <FormLabel>Phone Number</FormLabel>
+            <FormLabel>Company Website</FormLabel>
             <FormInput
-              name="phone"
-              value={formData.phone}
+              name="companyWebsite"
+              value={formData.companyWebsite}
               onChange={handleChange}
-              placeholder="Enter phone number"
+              placeholder="https://example.com"
+            />
+          </div>
+
+          <div>
+            <FormLabel>Nature of Business</FormLabel>
+            <FormInput
+              name="natureOfBusiness"
+              value={formData.natureOfBusiness}
+              onChange={handleChange}
+              placeholder="e.g. Construction, Retail, IT"
+            />
+          </div>
+
+          <div>
+            <FormLabel>Number of Employees</FormLabel>
+            <FormInput
+              name="numberOfEmployees"
+              value={formData.numberOfEmployees}
+              onChange={handleChange}
+              placeholder="e.g. 1-10, 50+, 100+"
             />
           </div>
         </FormSection>
 
-        <FormSection title="Representative Name">
+        <FormSection title="Business Address">
+          <div>
+            <FormLabel>House / Building No.</FormLabel>
+            <FormInput
+              value={formData.businessAddress.houseNumber}
+              onChange={(event) =>
+                handleNestedChange(
+                  "businessAddress",
+                  "houseNumber",
+                  event.target.value,
+                )
+              }
+              placeholder="House or building number"
+            />
+          </div>
+
+          <div>
+            <FormLabel>Street Address</FormLabel>
+            <FormInput
+              value={formData.businessAddress.streetAddress}
+              onChange={(event) =>
+                handleNestedChange(
+                  "businessAddress",
+                  "streetAddress",
+                  event.target.value,
+                )
+              }
+              placeholder="Street address"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <FormLabel>City</FormLabel>
+              <FormInput
+                value={formData.businessAddress.city}
+                onChange={(event) =>
+                  handleNestedChange(
+                    "businessAddress",
+                    "city",
+                    event.target.value,
+                  )
+                }
+                placeholder="City"
+              />
+            </div>
+
+            <div>
+              <FormLabel>Province</FormLabel>
+              <FormInput
+                value={formData.businessAddress.province}
+                onChange={(event) =>
+                  handleNestedChange(
+                    "businessAddress",
+                    "province",
+                    event.target.value,
+                  )
+                }
+                placeholder="Province"
+              />
+            </div>
+          </div>
+
+          <div>
+            <FormLabel>Country</FormLabel>
+            <FormInput
+              value={formData.businessAddress.country}
+              onChange={(event) =>
+                handleNestedChange(
+                  "businessAddress",
+                  "country",
+                  event.target.value,
+                )
+              }
+              placeholder="Country"
+            />
+          </div>
+        </FormSection>
+
+        <FormSection title="Owner Information">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div>
+              <FormLabel>First Name</FormLabel>
+              <FormInput
+                value={formData.ownerName.firstName}
+                onChange={(event) =>
+                  handleNestedChange(
+                    "ownerName",
+                    "firstName",
+                    event.target.value,
+                  )
+                }
+                placeholder="First name"
+              />
+            </div>
+
+            <div>
+              <FormLabel>Middle Initial</FormLabel>
+              <FormInput
+                value={formData.ownerName.middleInitial}
+                onChange={(event) =>
+                  handleNestedChange(
+                    "ownerName",
+                    "middleInitial",
+                    event.target.value,
+                  )
+                }
+                placeholder="M.I."
+              />
+            </div>
+
+            <div>
+              <FormLabel>Last Name</FormLabel>
+              <FormInput
+                value={formData.ownerName.lastName}
+                onChange={(event) =>
+                  handleNestedChange(
+                    "ownerName",
+                    "lastName",
+                    event.target.value,
+                  )
+                }
+                placeholder="Last name"
+              />
+            </div>
+          </div>
+        </FormSection>
+
+        <FormSection title="Representative Information">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div>
               <FormLabel>First Name</FormLabel>
               <FormInput
                 value={formData.representativeName.firstName}
-                onChange={(e) =>
+                onChange={(event) =>
                   handleNestedChange(
                     "representativeName",
                     "firstName",
-                    e.target.value
+                    event.target.value,
                   )
                 }
                 placeholder="First name"
@@ -192,15 +336,14 @@ export default function ProspectForm({
               <FormLabel>Middle Initial</FormLabel>
               <FormInput
                 value={formData.representativeName.middleInitial}
-                onChange={(e) =>
+                onChange={(event) =>
                   handleNestedChange(
                     "representativeName",
                     "middleInitial",
-                    e.target.value
+                    event.target.value,
                   )
                 }
                 placeholder="M.I."
-                maxLength={5}
               />
             </div>
 
@@ -208,61 +351,77 @@ export default function ProspectForm({
               <FormLabel>Last Name</FormLabel>
               <FormInput
                 value={formData.representativeName.lastName}
-                onChange={(e) =>
+                onChange={(event) =>
                   handleNestedChange(
                     "representativeName",
                     "lastName",
-                    e.target.value
+                    event.target.value,
                   )
                 }
                 placeholder="Last name"
               />
             </div>
+          </div>
+
+          <div>
+            <FormLabel>Title / Position</FormLabel>
+            <FormInput
+              name="title"
+              value={formData.title}
+              onChange={handleChange}
+              placeholder="e.g. Manager, CEO, Owner"
+            />
+          </div>
+
+          <div>
+            <FormLabel>Contact Email</FormLabel>
+            <FormInput
+              type="email"
+              name="emailAddress"
+              value={formData.emailAddress}
+              onChange={handleChange}
+              placeholder="representative@email.com"
+            />
+          </div>
+
+          <div>
+            <FormLabel>Viber</FormLabel>
+            <FormInput
+              name="viber"
+              value={formData.viber}
+              onChange={handleChange}
+              placeholder="Viber number"
+            />
+          </div>
+
+          <div>
+            <FormLabel required>Phone</FormLabel>
+            <FormInput
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              required
+              placeholder="Contact phone number"
+            />
           </div>
         </FormSection>
 
-        <FormSection title="Owner Name">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <div>
-              <FormLabel>First Name</FormLabel>
-              <FormInput
-                value={formData.ownerName.firstName}
-                onChange={(e) =>
-                  handleNestedChange("ownerName", "firstName", e.target.value)
-                }
-                placeholder="First name"
-              />
-            </div>
-
-            <div>
-              <FormLabel>Middle Initial</FormLabel>
-              <FormInput
-                value={formData.ownerName.middleInitial}
-                onChange={(e) =>
-                  handleNestedChange(
-                    "ownerName",
-                    "middleInitial",
-                    e.target.value
-                  )
-                }
-                placeholder="M.I."
-                maxLength={5}
-              />
-            </div>
-
-            <div>
-              <FormLabel>Last Name</FormLabel>
-              <FormInput
-                value={formData.ownerName.lastName}
-                onChange={(e) =>
-                  handleNestedChange("ownerName", "lastName", e.target.value)
-                }
-                placeholder="Last name"
-              />
-            </div>
+        <FormSection title="CRM Details">
+          <div>
+            <FormLabel required>Status</FormLabel>
+            <select
+              name="status"
+              value={formData.status}
+              onChange={handleChange}
+              required
+              className={inputClass}
+            >
+              <option value="New">New</option>
+              <option value="Contacted">Contacted</option>
+              <option value="Lost">Lost</option>
+            </select>
           </div>
 
-        <FormSection title="Prospect Details">
           <div>
             <FormLabel>Lead Source</FormLabel>
             <select
@@ -271,28 +430,14 @@ export default function ProspectForm({
               onChange={handleChange}
               className={inputClass}
             >
-              <option value="">Select lead source</option>
-              {leadSourceOptions.map((source) => (
-                <option key={source} value={source}>
-                  {source}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <FormLabel>Status</FormLabel>
-            <select
-              name="status"
-              value={formData.status}
-              onChange={handleChange}
-              className={inputClass}
-            >
-              {statusOptions.map((status) => (
-                <option key={status} value={status}>
-                  {status}
-                </option>
-              ))}
+              <option value="Website">Website</option>
+              <option value="Referral">Referral</option>
+              <option value="Facebook">Facebook</option>
+              <option value="Email">Email</option>
+              <option value="Walk-in">Walk-in</option>
+              <option value="Phone Call">Phone Call</option>
+              <option value="Event">Event</option>
+              <option value="Other">Other</option>
             </select>
           </div>
 

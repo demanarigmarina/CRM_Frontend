@@ -28,6 +28,17 @@ function getFullName(name) {
     .toLowerCase();
 }
 
+function getErrorMessage(error, fallback) {
+  console.error("Full API error response:", error.response?.data);
+
+  return (
+    error.response?.data?.message ||
+    error.response?.data?.error ||
+    error.message ||
+    fallback
+  );
+}
+
 export default function useProspect() {
   const [allProspects, setAllProspects] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -47,10 +58,7 @@ export default function useProspect() {
 
       Toast.fire({
         icon: "error",
-        title:
-          error.response?.data?.message ||
-          error.response?.data?.error ||
-          "Failed to load prospects",
+        title: getErrorMessage(error, "Failed to load prospects"),
       });
     } finally {
       setLoading(false);
@@ -70,9 +78,14 @@ export default function useProspect() {
 
       const searchableText = [
         prospect.companyName,
-        prospect.natureOfBusiness,
         prospect.companyEmailAddress,
+        prospect.companyWebsite,
+        prospect.natureOfBusiness,
+        prospect.numberOfEmployees,
         prospect.phone,
+        prospect.emailAddress,
+        prospect.viber,
+        prospect.title,
         prospect.leadSource,
         prospect.status,
         representativeName,
@@ -97,12 +110,10 @@ export default function useProspect() {
 
   const addProspect = async (payload) => {
     try {
-      const createdProspect = await prospectService.createProspect(payload);
+      const data = await prospectService.createProspect(payload);
+      const createdProspect = data?.prospect || data;
 
-      setAllProspects((prev) => [
-        ...prev,
-        createdProspect?.prospect || createdProspect,
-      ]);
+      setAllProspects((prev) => [createdProspect, ...prev]);
 
       Toast.fire({
         icon: "success",
@@ -115,10 +126,7 @@ export default function useProspect() {
 
       Toast.fire({
         icon: "error",
-        title:
-          error.response?.data?.message ||
-          error.response?.data?.error ||
-          "Failed to create prospect",
+        title: getErrorMessage(error, "Failed to create prospect"),
       });
 
       return false;
@@ -127,12 +135,12 @@ export default function useProspect() {
 
   const editProspect = async (id, payload) => {
     try {
-      const updatedProspect = await prospectService.updateProspect(id, payload);
-      const nextProspect = updatedProspect?.prospect || updatedProspect;
+      const data = await prospectService.updateProspect(id, payload);
+      const updatedProspect = data?.prospect || data;
 
       setAllProspects((prev) =>
         prev.map((prospect) =>
-          prospect._id === id ? { ...prospect, ...nextProspect } : prospect
+          prospect._id === id ? updatedProspect : prospect
         )
       );
 
@@ -147,10 +155,7 @@ export default function useProspect() {
 
       Toast.fire({
         icon: "error",
-        title:
-          error.response?.data?.message ||
-          error.response?.data?.error ||
-          "Failed to update prospect",
+        title: getErrorMessage(error, "Failed to update prospect"),
       });
 
       return false;
@@ -188,10 +193,7 @@ export default function useProspect() {
 
       Toast.fire({
         icon: "error",
-        title:
-          error.response?.data?.message ||
-          error.response?.data?.error ||
-          "Failed to delete prospect",
+        title: getErrorMessage(error, "Failed to delete prospect"),
       });
 
       return false;
@@ -199,37 +201,39 @@ export default function useProspect() {
   };
 
   const markAsContacted = async (id) => {
-    try {
-      const updatedProspect = await prospectService.markAsContacted(id);
-      const nextProspect = updatedProspect?.prospect || updatedProspect;
+    const result = await Swal.fire({
+      title: "Move prospect to leads?",
+      text: "Once contacted, this prospect will be moved to the Leads module.",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonColor: "#ef4444",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Move to Leads",
+    });
 
-      setAllProspects((prev) =>
-        prev.map((prospect) =>
-          prospect._id === id
-            ? {
-                ...prospect,
-                ...nextProspect,
-                status: nextProspect?.status || "Contacted",
-              }
-            : prospect
-        )
-      );
+    if (!result.isConfirmed) return false;
+
+    try {
+      const data = await prospectService.markAsContacted(id);
+
+      if (data?.moved) {
+        setAllProspects((prev) =>
+          prev.filter((prospect) => prospect._id !== id)
+        );
+      }
 
       Toast.fire({
         icon: "success",
-        title: "Prospect marked as contacted",
+        title: data?.message || "Prospect moved to leads",
       });
 
       return true;
     } catch (error) {
-      console.error("Error contacting prospect:", error);
+      console.error("Error moving prospect to leads:", error);
 
       Toast.fire({
         icon: "error",
-        title:
-          error.response?.data?.message ||
-          error.response?.data?.error ||
-          "Failed to update prospect",
+        title: getErrorMessage(error, "Failed to move prospect to leads"),
       });
 
       return false;

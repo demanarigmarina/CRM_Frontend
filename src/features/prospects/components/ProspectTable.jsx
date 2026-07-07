@@ -1,5 +1,4 @@
-import { useEffect } from "react";
-import { Pencil, PhoneCall, Trash2 } from "lucide-react";
+import { Edit2, Phone, Trash2 } from "lucide-react";
 
 import {
   BaseTable,
@@ -9,35 +8,7 @@ import {
   useTablePagination,
 } from "../../../components/table";
 
-function getFullName(name) {
-  if (!name) return "-";
-
-  const fullName = [name.firstName, name.middleInitial, name.lastName]
-    .filter(Boolean)
-    .join(" ");
-
-  return fullName || "-";
-}
-
-function getStatusClass(status) {
-  switch (status) {
-    case "New":
-      return "bg-sky-50 text-sky-600";
-    case "Contacted":
-      return "bg-amber-50 text-amber-600";
-    case "Qualified":
-      return "bg-purple-50 text-purple-600";
-    case "Converted":
-      return "bg-emerald-50 text-emerald-600";
-    case "Lost":
-      return "bg-red-50 text-red-600";
-    default:
-      return "bg-gray-50 text-gray-500";
-  }
-}
-
 const columns = [
-  { key: "number", label: "#" },
   { key: "companyName", label: "Company" },
   { key: "representative", label: "Representative" },
   { key: "companyEmailAddress", label: "Company Email" },
@@ -46,6 +17,31 @@ const columns = [
   { key: "status", label: "Status" },
   { key: "actions", label: "", align: "text-right" },
 ];
+
+const getRepresentativeName = (prospect) => {
+  const representative = prospect?.representativeName || {};
+
+  const name = [
+    representative.firstName,
+    representative.middleInitial,
+    representative.lastName,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return name || "-";
+};
+
+const getStatusClass = (status) => {
+  switch (status) {
+    case "Contacted":
+      return "bg-amber-50 text-amber-700";
+    case "Lost":
+      return "bg-red-50 text-red-700";
+    default:
+      return "bg-sky-50 text-sky-700";
+  }
+};
 
 export default function ProspectTable({
   prospects = [],
@@ -67,79 +63,41 @@ export default function ProspectTable({
     setRowsPerPage,
   } = useTablePagination(prospects, 10);
 
-  useEffect(() => {
-    if (totalRows === 0 || currentPage > totalPages) {
-      goTo(1);
-    }
-  }, [currentPage, totalRows, totalPages, goTo]);
-
-  if (loading) {
-    return (
-      <div className="flex min-h-0 flex-1 flex-col">
-        <BaseTable
-          columns={columns}
-          empty="Loading prospects..."
-          colSpan={columns.length}
-          minHeightClass="min-h-[calc(100vh-430px)]"
-          heightClass="h-[430px]"
-        />
-      </div>
-    );
-  }
-
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
+    <>
       <BaseTable
         columns={columns}
-        empty={paginatedItems.length === 0 ? "No prospects found." : null}
+        empty={
+          loading
+            ? "Loading prospects..."
+            : prospects.length === 0
+              ? "No prospects found."
+              : null
+        }
         colSpan={columns.length}
-        minHeightClass="min-h-[calc(100vh-430px)]"
-        heightClass="h-[430px]"
+        minHeightClass="min-h-[calc(100vh-345px)]"
+        heightClass="h-[450px]"
       >
-        {paginatedItems.map((prospect, index) => (
-          <TableRow
-            key={prospect._id || index}
-            title="Prospect row"
-            className="text-gray-700"
-          >
+        {paginatedItems.map((prospect) => (
+          <TableRow key={prospect._id} title="Prospect record">
             <TableCell>
-              {(currentPage - 1) * rowsPerPage + index + 1}
-            </TableCell>
-
-            <TableCell>
-              <div className="max-w-[160px] truncate">
+              <span className="font-medium text-gray-700">
                 {prospect.companyName || "-"}
-              </div>
+              </span>
             </TableCell>
 
-            <TableCell>
-              <div className="max-w-[180px] truncate">
-                {getFullName(prospect.representativeName)}
-              </div>
-            </TableCell>
+            <TableCell>{getRepresentativeName(prospect)}</TableCell>
 
-            <TableCell>
-              <div className="max-w-[220px] truncate">
-                {prospect.companyEmailAddress || "-"}
-              </div>
-            </TableCell>
+            <TableCell>{prospect.companyEmailAddress || "-"}</TableCell>
 
-            <TableCell>
-              <div className="max-w-[140px] truncate">
-                {prospect.phone || "-"}
-              </div>
-            </TableCell>
+            <TableCell>{prospect.phone || "-"}</TableCell>
 
-            <TableCell>
-              <div className="max-w-[130px] truncate">
-                {prospect.leadSource || "-"}
-              </div>
-            </TableCell>
+            <TableCell>{prospect.leadSource || "-"}</TableCell>
 
             <TableCell>
               <span
-                className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${getStatusClass(
-                  prospect.status
+                className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${getStatusClass(
+                  prospect.status,
                 )}`}
               >
                 {prospect.status || "New"}
@@ -147,41 +105,41 @@ export default function ProspectTable({
             </TableCell>
 
             <TableCell align="text-right">
-              <div className="flex justify-end gap-2 text-gray-400">
+              <div className="flex items-center justify-end gap-2">
                 <button
                   type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onContact(prospect._id);
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onContact?.(prospect._id);
                   }}
-                  className="transition hover:text-emerald-600"
-                  title="Mark as contacted"
+                  className="text-gray-400 hover:text-emerald-600"
+                  title="Move to leads"
                 >
-                  <PhoneCall size={15} />
+                  <Phone size={16} />
                 </button>
 
                 <button
                   type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onEdit(prospect);
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onEdit?.(prospect);
                   }}
-                  className="transition hover:text-sky-600"
+                  className="text-gray-400 hover:text-sky-600"
                   title="Edit prospect"
                 >
-                  <Pencil size={15} />
+                  <Edit2 size={16} />
                 </button>
 
                 <button
                   type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDelete(prospect._id);
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onDelete?.(prospect._id);
                   }}
-                  className="transition hover:text-red-600"
+                  className="text-gray-400 hover:text-red-600"
                   title="Delete prospect"
                 >
-                  <Trash2 size={15} />
+                  <Trash2 size={16} />
                 </button>
               </div>
             </TableCell>
@@ -199,8 +157,7 @@ export default function ProspectTable({
         pageWindow={pageWindow}
         onGoTo={goTo}
         onRowsPerPageChange={setRowsPerPage}
-        marginTop="mt-5"
       />
-    </div>
+    </>
   );
 }
