@@ -28,19 +28,10 @@ export default function FilterPopover({
       <button
         type="button"
         onClick={onToggle}
-        className={`flex items-center gap-1.5 px-3 py-1.75 rounded-md border text-sm transition-colors cursor-pointer ${
-          activeFilterCount > 0
-            ? "border-red-300 bg-red-50 text-red-600"
-            : "border-gray-300 text-gray-500 hover:bg-gray-50"
-        }`}
+        className="flex items-center gap-1.5 px-3 py-1.75 rounded-md border border-gray-300 text-sm text-gray-500 hover:bg-gray-50 transition-colors cursor-pointer"
       >
         <FiFilter size={14} />
         Filter
-        {activeFilterCount > 0 && (
-          <span className="ml-0.5 bg-red-500 text-white text-[10px] font-bold w-4.5 h-4.5 rounded-full flex items-center justify-center">
-            {activeFilterCount}
-          </span>
-        )}
       </button>
 
       {/* Dropdown panel */}
