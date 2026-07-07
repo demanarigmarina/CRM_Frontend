@@ -261,7 +261,6 @@ export default function ProspectForm({
               />
             </div>
           </div>
-        </FormSection>
 
         <FormSection title="Prospect Details">
           <div>
