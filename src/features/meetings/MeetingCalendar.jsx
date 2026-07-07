@@ -6,7 +6,14 @@ const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 export default function MeetingCalendar({ currentMonth, meetings, onSelectMeeting, activeMeetingId, activeView = 'Month' }) {
   const calendarCells = getDaysInMonth(currentMonth);
 
-  const getDateKey = (date) => date.toISOString().split('T')[0];
+  const getDateKey = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+  
+    return `${year}-${month}-${day}`;
+  };
+
   const getMeetingsForDate = (date) => meetings.filter((meeting) => meeting.date === getDateKey(date));
 
   const renderMeetingCard = (meeting) => {
@@ -109,7 +116,7 @@ export default function MeetingCalendar({ currentMonth, meetings, onSelectMeetin
 
       <div className="grid min-h-180 grid-cols-7 grid-rows-6">
         {calendarCells.map((cell, idx) => {
-          const dateStr = cell.date.toISOString().split('T')[0];
+          const dateStr = getDateKey(cell.date);
           const dayMeetings = meetings.filter((m) => m.date === dateStr);
 
           return (

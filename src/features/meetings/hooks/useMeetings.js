@@ -24,32 +24,6 @@ const MOCK_MEETINGS = [
     notes: 'Discuss project requirements, quotation details, and expected timeline for the upcoming campaign.',
     participants: ['John Doe', 'Jane Smith', 'Michael Cruz', 'Sarah Santos', 'Kevin Reyes'],
   },
-  {
-    id: 2,
-    title: 'Internal Meeting',
-    type: 'Internal Meeting',
-    date: '2025-09-04',
-    time: '2:00 PM - 3:30 PM',
-    location: 'Room 4B',
-    organizer: 'John Doe',
-    client: 'Sales Team',
-    color: 'bg-red-50 text-red-600 border-red-200',
-    notes: 'Weekly sync regarding pipeline goals.',
-    participants: ['John Doe', 'Jane Smith'],
-  },
-  {
-    id: 3,
-    title: 'Product Demo',
-    type: 'Product Demo',
-    date: '2025-09-08',
-    time: '11:00 AM - 12:00 PM',
-    location: 'Virtual',
-    organizer: 'Jane Smith',
-    client: 'Tech Solutions',
-    color: 'bg-purple-50 text-purple-600 border-purple-200',
-    notes: 'Showcase core MVP features.',
-    participants: ['Jane Smith', 'Sarah Santos'],
-  },
 ];
 
 export function useMeetings() {
