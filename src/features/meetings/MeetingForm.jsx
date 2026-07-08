@@ -1,51 +1,25 @@
-import React, { useState, useMemo } from 'react';
-import Select from 'react-select';
+import React, { useState } from 'react';
 import { Plus, X } from 'lucide-react';
 
 import FormDrawer from '../../components/form/FormDrawer';
 import FormSection from '../../components/form/FormSection';
 import { FormLabel, FormInput, FormTextarea } from '../../components/form/FormField';
-import { getSelectProps } from '../../components/select/selectConfig';
 
-import { useUsers } from '../users/hooks/useUsers';
-import { getDisplayName } from '../../utils/name';
-
-const MEETING_TYPES = [
-  { value: "Online", label: "Online" },
-  { value: "Client Meeting", label: "Client Meeting" },
-  { value: "Internal", label: "Internal" },
-  { value: "Presentation", label: "Presentation" },
-];
-
-function MeetingFormContent({ meeting, users, usersLoading, onSubmit, onClose }) {
+function MeetingFormContent({ meeting, onSubmit, onClose }) {
   // --- Form Local State ---
   const [title, setTitle] = useState(meeting?.title ?? '');
   const [location, setLocation] = useState(meeting?.location ?? '');
-  const [type, setType] = useState(meeting?.type ?? 'Online');
+  const [locationScope, setLocationScope] = useState(meeting?.locationScope ?? 'Inside the Philippines');
+  const [type, setType] = useState(meeting?.type ?? '');
   const [client, setClient] = useState(meeting?.client ?? '');
-  const [allDay, setAllDay] = useState(meeting?.allDay ?? false);
-  const [startDate, setStartDate] = useState(meeting?.startDate ?? meeting?.date ?? '');
+  const [date, setDate] = useState(meeting?.date ?? '');
   const [startTime, setStartTime] = useState(meeting?.startTime ?? '');
-  const [endDate, setEndDate] = useState(meeting?.endDate ?? '');
   const [endTime, setEndTime] = useState(meeting?.endTime ?? '');
   const [notes, setNotes] = useState(meeting?.notes ?? '');
-  const [host, setHost] = useState(meeting?.host ?? '');
+  const [host, setHost] = useState(meeting?.host ?? meeting?.organizer ?? '');
   const [participants, setParticipants] = useState(meeting?.participants ?? []);
   const [participantName, setParticipantName] = useState('');
   const [isAddingParticipant, setIsAddingParticipant] = useState(false);
-
-  // --- Memoized Select Options ---
-  const hostOptions = useMemo(
-    () =>
-      users.map((u) => {
-        const name = getDisplayName(u, { includeMiddleInitial: true, includeSuffix: true });
-        return {
-          label: `${name}${u.role ? ` — ${u.role}` : ''}`,
-          value: name,
-        };
-      }),
-    [users]
-  );
 
   // --- Participant Handling Actions ---
   const addParticipant = () => {
@@ -69,17 +43,15 @@ function MeetingFormContent({ meeting, users, usersLoading, onSubmit, onClose })
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!title || !startDate) return;
+    if (!title || !date) return;
 
     onSubmit({
       title,
-      date: startDate,
-      startDate,
+      date,
       startTime,
-      endDate,
       endTime,
-      allDay,
       location,
+      locationScope,
       type,
       client,
       host,
@@ -110,18 +82,28 @@ function MeetingFormContent({ meeting, users, usersLoading, onSubmit, onClose })
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <FormLabel>Meeting Type</FormLabel>
-                <Select
-                  {...getSelectProps({ isSearchable: false })}
-                  placeholder="Select type..."
-                  options={MEETING_TYPES}
-                  value={MEETING_TYPES.find((t) => t.value === type) || null}
-                  onChange={(opt) => setType(opt?.value || "")}
+                <FormInput
+                  type="text"
+                  required
+                  list="meeting-types"
+                  value={type}
+                  placeholder="e.g. Online, On-site"
+                  onChange={(e) => setType(e.target.value)}
                 />
+                  <datalist id="meeting-types">
+                  <option value="Client Meeting" />
+                  <option value="Internal Meeting" />
+                  <option value="Presentation" />
+                  <option value="Online" />
+                  <option value="Training" />
+                  <option value="Sales Meeting" />
+                </datalist>
               </div>
               <div>
                 <FormLabel>Client</FormLabel>
                 <FormInput
                   type="text"
+                  required
                   value={client}
                   placeholder="Enter client name..."
                   onChange={(e) => setClient(e.target.value)}
@@ -129,14 +111,27 @@ function MeetingFormContent({ meeting, users, usersLoading, onSubmit, onClose })
               </div>
             </div>
 
-            <div>
-              <FormLabel>Location</FormLabel>
-              <FormInput
-                type="text"
-                value={location}
-                placeholder="e.g. Google Meet, Conference Room A"
-                onChange={(e) => setLocation(e.target.value)}
-              />
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <FormLabel>Location</FormLabel>
+                <FormInput
+                  type="text"
+                  value={location}
+                  placeholder="e.g. Google Meet, Conference Room A"
+                  onChange={(e) => setLocation(e.target.value)}
+                />
+              </div>
+              <div>
+                <FormLabel>Location scope</FormLabel>
+                <select
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-red-300"
+                  value={locationScope}
+                  onChange={(e) => setLocationScope(e.target.value)}
+                >
+                  <option value="Inside the Philippines">Inside the Philippines</option>
+                  <option value="Outside the country">Outside the country</option>
+                </select>
+              </div>
             </div>
           </div>
         </FormSection>
@@ -144,14 +139,14 @@ function MeetingFormContent({ meeting, users, usersLoading, onSubmit, onClose })
         {/* Section 2: Schedule */}
         <FormSection title="Schedule">
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-3 gap-3">
               <div>
-                <FormLabel required>Start Date</FormLabel>
+                <FormLabel required>Date</FormLabel>
                 <FormInput
                   type="date"
                   required
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
                 />
               </div>
               <div>
@@ -160,18 +155,6 @@ function MeetingFormContent({ meeting, users, usersLoading, onSubmit, onClose })
                   type="time"
                   value={startTime}
                   onChange={(e) => setStartTime(e.target.value)}
-                  disabled={allDay}
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <FormLabel>End Date</FormLabel>
-                <FormInput
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
                 />
               </div>
               <div>
@@ -180,33 +163,18 @@ function MeetingFormContent({ meeting, users, usersLoading, onSubmit, onClose })
                   type="time"
                   value={endTime}
                   onChange={(e) => setEndTime(e.target.value)}
-                  disabled={allDay}
                 />
               </div>
             </div>
 
             <div>
               <FormLabel>Host</FormLabel>
-              <Select
-                {...getSelectProps({ isClearable: true })}
-                placeholder="Select host..."
-                options={hostOptions}
-                isLoading={usersLoading}
-                value={hostOptions.find((h) => h.value === host) || null}
-                onChange={(opt) => setHost(opt?.value || "")}
+              <FormInput
+                type="text"
+                value={host}
+                placeholder="Enter host name..."
+                onChange={(e) => setHost(e.target.value)}
               />
-            </div>
-
-            <div className="pt-1">
-              <label className="flex items-center gap-2 cursor-pointer select-none w-max">
-                <input 
-                  type="checkbox" 
-                  checked={allDay} 
-                  onChange={(e) => setAllDay(e.target.checked)} 
-                  className="rounded text-red-500 focus:ring-red-400 h-4 w-4 border-gray-300"
-                />
-                <span className="text-sm font-medium text-gray-700">All Day Event</span>
-              </label>
             </div>
           </div>
         </FormSection>
@@ -295,8 +263,6 @@ function MeetingFormContent({ meeting, users, usersLoading, onSubmit, onClose })
 }
 
 export default function MeetingForm({ isOpen, onClose, onSubmit, meeting = null }) {
-  const { users = [], loading: usersLoading } = useUsers();
-
   if (!isOpen) return null;
 
   const formKey = meeting?.id || meeting?._id || 'new-meeting';
@@ -314,8 +280,6 @@ export default function MeetingForm({ isOpen, onClose, onSubmit, meeting = null 
       <MeetingFormContent
         key={formKey}
         meeting={meeting}
-        users={users}
-        usersLoading={usersLoading}
         onSubmit={onSubmit}
         onClose={onClose}
       />

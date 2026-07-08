@@ -15,7 +15,7 @@ const MOCK_MEETINGS = [
     id: 1,
     title: 'ABC Corporation Consultation',
     type: 'Client Consultation',
-    date: '2025-09-02',
+    date: '2026-07-17',
     time: '10:00 AM - 11:30 AM',
     location: 'Conference Room A',
     organizer: 'John Doe (Sales Manager)',
@@ -26,9 +26,37 @@ const MOCK_MEETINGS = [
   },
 ];
 
+const getMeetingColor = (type = "") => {
+  switch (type.trim().toLowerCase()) {
+    case "client consultation":
+      return "bg-blue-50 text-blue-600 border-blue-200";
+
+    case "client meeting":
+      return "bg-blue-50 text-blue-600 border-blue-200";
+
+    case "internal meeting":
+      return "bg-green-50 text-green-600 border-green-200";
+
+    case "presentation":
+      return "bg-purple-50 text-purple-600 border-purple-200";
+
+    case "training":
+      return "bg-yellow-50 text-yellow-700 border-yellow-200";
+
+    case "online":
+      return "bg-cyan-50 text-cyan-600 border-cyan-200";
+
+    case "sales meeting":
+      return "bg-orange-50 text-orange-600 border-orange-200";
+
+    default:
+      return "bg-gray-50 text-gray-600 border-gray-200";
+  }
+};
+
 export function useMeetings() {
   const [meetings, setMeetings] = useState(MOCK_MEETINGS);
-  const [selectedMeeting, setSelectedMeeting] = useState(MOCK_MEETINGS[0]);
+  const [selectedMeeting, setSelectedMeeting] = useState(null);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [searchQuery, setSearchQuery] = useState('');
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -82,9 +110,7 @@ export function useMeetings() {
       id: meetingToEdit?.id ?? Date.now(),
       title: meetingData.title,
       date: meetingData.date,
-      startDate: meetingData.startDate,
       startTime: meetingData.startTime,
-      endDate: meetingData.endDate,
       endTime: meetingData.endTime,
       allDay: meetingData.allDay || false,
       type: meetingData.type,
@@ -94,8 +120,9 @@ export function useMeetings() {
         meetingData.time ||
         '12:00 PM - 1:00 PM',
       location: meetingData.location || 'Main Office',
+      locationScope: meetingData.locationScope || 'Inside the Philippines',
       organizer: meetingData.host || meetingData.organizer || 'John Doe',
-      color: meetingData.color || 'bg-blue-50 text-blue-600 border-blue-200',
+      color: getMeetingColor(meetingData.type),
       notes: meetingData.notes || 'Prepared for backend integration',
       participants: meetingData.participants || ['John Doe'],
     };
@@ -106,7 +133,6 @@ export function useMeetings() {
       Toast.fire({ icon: 'success', title: 'Meeting updated successfully' });
     } else {
       setMeetings((prev) => [payload, ...prev]);
-      setSelectedMeeting(payload);
       Toast.fire({ icon: 'success', title: 'Meeting added successfully' });
     }
   };

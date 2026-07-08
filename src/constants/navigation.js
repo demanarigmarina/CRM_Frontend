@@ -46,7 +46,7 @@ export const BASE_NAV = {
 
   // Module Header
   module: {
-    label: "Module",
+    label: "Modules",
     type: "group",
   },
 

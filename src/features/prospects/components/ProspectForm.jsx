@@ -59,6 +59,7 @@ export default function ProspectForm({
     if (!open) return;
 
     if (editingProspect) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFormData({
         companyName: editingProspect.companyName || "",
         businessAddress: {

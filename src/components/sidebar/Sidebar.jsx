@@ -104,7 +104,7 @@ export default function Sidebar() {
           >
             <div className="flex items-center gap-4">
               <Folder size={20} />
-              {!isCollapsed && <span>Module</span>}
+              {!isCollapsed && <span>Modules</span>}
             </div>
 
             {!isCollapsed &&

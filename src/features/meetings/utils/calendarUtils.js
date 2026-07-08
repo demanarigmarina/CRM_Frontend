@@ -35,5 +35,8 @@ export function getDaysInMonth(date) {
 }
 
 export function formatMonthYear(date) {
-  return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+  return date.toLocaleDateString('en-US', { 
+    month: 'long', 
+    year: 'numeric' 
+  });
 }
