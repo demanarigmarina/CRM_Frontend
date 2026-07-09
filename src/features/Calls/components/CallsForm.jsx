@@ -12,16 +12,15 @@ import {
 const FORM_ID = "calls-form";
 
 const initialFormData = {
-  clientName: "",
   companyName: "",
-  contactMethod: "Phone",
+  contactPerson: "",
+  contactNumber: "Mobile",
   contactValue: "",
   callType: "Follow-up Call",
   status: "Scheduled",
   scheduledAt: "",
   completedAt: "",
   notes: "",
-  outcome: "",
 };
 
 const toDateTimeLocal = (value) => {
@@ -37,19 +36,19 @@ const toDateTimeLocal = (value) => {
   return localDate.toISOString().slice(0, 16);
 };
 
-const getContactPlaceholder = (contactMethod) => {
-  switch (contactMethod) {
-    case "Email":
-      return "Enter email address";
-    case "Text":
-      return "Enter mobile number";
+const getContactPlaceholder = (contactNumber) => {
+  switch (contactNumber) {
+    case "WhatsApp":
+      return "Enter WhatsApp number...";
+    case "Viber":
+      return "Enter Viber number...";
     default:
-      return "Enter phone number";
+      return "Enter Mobile number...";
   }
 };
 
-const getContactInputType = (contactMethod) => {
-  if (contactMethod === "Email") return "email";
+const getContactInputType = (contactNumber) => {
+  if (contactNumber === "WhatsApp") return "WhatsApp";
   return "text";
 };
 
@@ -68,13 +67,14 @@ export default function CallsForm({
 
     if (editingCall) {
       setFormData({
-        clientName: editingCall.clientName || "",
         companyName: editingCall.companyName || "",
-        contactMethod: editingCall.contactMethod || "Phone",
+        contactPerson: editingCall.contactPerson || "",
+        contactMethod: editingCall.contactMethod || "Mobile",
         contactValue:
           editingCall.contactValue ||
-          editingCall.phone ||
-          editingCall.email ||
+          editingCall.mobile||
+          editingCall.WhatsApp||
+          editingCall.Viber||
           "",
         callType: editingCall.callType || "Follow-up Call",
         status: editingCall.status || "Scheduled",
@@ -112,11 +112,12 @@ export default function CallsForm({
 
     const payload = {
       ...formData,
-      phone:
-        formData.contactMethod === "Phone" || formData.contactMethod === "Text"
+      Mobile:
+        formData.contactMethod === "Mobile" || formData.contactMethod === ""
           ? formData.contactValue
           : "",
-      email: formData.contactMethod === "Email" ? formData.contactValue : "",
+      WhatsApp: formData.contactMethod === "WhatsApp" ? formData.contactValue : "",
+      Viber: formData.contactMethod === "Viber" ? formData.contactValue : "",
       completedAt:
         formData.status === "Completed" && formData.completedAt
           ? formData.completedAt
@@ -140,23 +141,23 @@ export default function CallsForm({
       <form id={FORM_ID} onSubmit={handleSubmit} className="space-y-5">
         <FormSection title="Call Information">
           <div>
-            <FormLabel required>Client Name</FormLabel>
+            <FormLabel required>Company Name</FormLabel>
             <FormInput
               name="clientName"
               value={formData.clientName}
               onChange={handleChange}
               required
-              placeholder="Enter client name"
+              placeholder="Enter comapany name..."
             />
           </div>
 
           <div>
-            <FormLabel>Company Name</FormLabel>
+            <FormLabel>Contact Person</FormLabel>
             <FormInput
               name="companyName"
               value={formData.companyName}
               onChange={handleChange}
-              placeholder="Enter company name"
+              placeholder="Enter client name..."
             />
           </div>
 
@@ -169,17 +170,17 @@ export default function CallsForm({
               required
               className={inputClass}
             >
-              <option value="Phone">Phone</option>
-              <option value="Text">Text</option>
-              <option value="Email">Email</option>
+              <option value="Mobile">Mobile</option>
+              <option value="WhatsApp">WhatsApp</option>
+              <option value="Viber">Viber</option>
             </select>
           </div>
 
           <div>
             <FormLabel required>
-              {formData.contactMethod === "Email"
-                ? "Email Address"
-                : "Contact Number"}
+              {formData.contactMethod === "WhatsApp" || formData.contactMethod === "Viber"
+                ? "WhatsApp Number"
+                : "Viber Number"}
             </FormLabel>
             <FormInput
               type={getContactInputType(formData.contactMethod)}
@@ -259,19 +260,10 @@ export default function CallsForm({
               value={formData.notes}
               onChange={handleChange}
               rows={4}
-              placeholder="Add call notes"
+              placeholder="Add notes if it's done through email or text..."
             />
           </div>
-
-          <div>
-            <FormLabel>Outcome</FormLabel>
-            <FormTextarea
-              name="outcome"
-              value={formData.outcome}
-              onChange={handleChange}
-              rows={3}
-              placeholder="Add call outcome"
-            />
+            <div>
           </div>
         </FormSection>
       </form>

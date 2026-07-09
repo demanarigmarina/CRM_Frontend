@@ -1,118 +1,572 @@
-import { RefreshCw, AlertCircle, Users } from "lucide-react";
+import { useState } from "react";
 
-import { PageBase, PageHeader } from "../../components/page";
-import { useAuth } from "../../context/AuthContext";
+import {
+  CalendarDays,
+  CheckSquare,
+  ChevronLeft,
+  ChevronRight,
+  RefreshCw,
+} from "lucide-react";
+
+import {
+  PageBase,
+  PageHeader,
+  PageContentState,
+} from "../../components/page";
+
 import { useDashboard } from "./hooks/useDashboard";
-import { isTeamlessAgent, isTeamlessManager } from "../../utils/teamAccess";
 
-import KpiSection from "./components/KpiSection";
-import LeadFunnelChart from "./components/LeadFunnelChart";
-import MonthlyTrendsChart from "./components/MonthlyTrendsChart";
-import QuotationPipelineChart from "./components/QuotationPipelineChart";
-import TaskBreakdownChart from "./components/TaskBreakdownChart";
-import LeadSourceChart from "./components/LeadSourceChart";
-import TopPerformersSection from "./components/TopPerformersSection";
-import RecentActivitySection from "./components/RecentActivitySection";
 
-function TeamlessBanner({ user }) {
-  if (!isTeamlessAgent(user) && !isTeamlessManager(user)) return null;
 
-  const isAgent = isTeamlessAgent(user);
+function normalizeStatus(status) {
 
-  return (
-    <div className="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-      <Users size={16} className="mt-0.5 shrink-0 text-amber-500" />
-      <p>
-        You're not assigned to a team. Please contact{" "}
-        {isAgent ? "your administrator or sales manager" : "your administrator"}{" "}
-        to be added to a team.
-      </p>
-    </div>
-  );
+  if (status === "To Do") return "Pending";
+
+  if (status === "In Progress") return "Ongoing";
+
+  return status || "Pending";
+
 }
 
-export default function DashboardPage() {
-  const { user } = useAuth();
-  const { stats, loading, error, refetch } = useDashboard();
 
-  if (error) {
-    return (
-      <PageBase className="items-center justify-center">
-        <div className="flex flex-col items-center gap-3 text-gray-400">
-          <AlertCircle size={32} className="text-red-400" />
-          <p className="text-sm">{error}</p>
-          <button
-            onClick={refetch}
-            className="flex items-center gap-1.5 text-xs text-sky-600 hover:text-sky-700 font-medium"
-          >
-            <RefreshCw size={12} />
-            Retry
-          </button>
-        </div>
-      </PageBase>
-    );
-  }
 
-  const charts = stats?.charts;
-  const topPerformers = stats?.topPerformers ?? null;
-  const recentActivity = stats?.recentActivity ?? [];
+function Footer({ total }) {
 
   return (
-    <PageBase className="space-y-6 overflow-y-auto pb-10">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+
+    <div
+      className="
+      flex
+      items-center
+      justify-between
+      border-t
+      border-gray-200
+      px-5
+      py-4"
+    >
+
+
+      <span className="text-sm text-gray-500">
+        Total Records {total}
+      </span>
+
+
+
+      <div className="flex items-center gap-2">
+
+
+        <button
+          className="
+          flex
+          h-9
+          w-9
+          items-center
+          justify-center
+          rounded-lg
+          border
+          border-gray-200
+          text-gray-300"
+        >
+          <ChevronLeft size={16}/>
+        </button>
+
+
+
+        <button
+          className="
+          flex
+          h-9
+          w-9
+          items-center
+          justify-center
+          rounded-lg
+          bg-red-500
+          text-white"
+        >
+          1
+        </button>
+
+
+
+        <button
+          className="
+          flex
+          h-9
+          w-9
+          items-center
+          justify-center
+          rounded-lg
+          border
+          border-gray-200
+          text-gray-300"
+        >
+          <ChevronRight size={16}/>
+        </button>
+
+
+      </div>
+
+
+    </div>
+
+  );
+
+}
+
+
+
+
+function SectionHeader({
+  icon: Icon,
+  title,
+  subtitle,
+}) {
+
+  return (
+
+    <div className="mb-5 flex items-start gap-3">
+
+
+      <div
+        className="
+        flex
+        h-10
+        w-10
+        items-center
+        justify-center
+        rounded-lg
+        bg-red-50
+        text-red-500"
+      >
+
+        <Icon size={18}/>
+
+      </div>
+
+
+
+      <div>
+
+
+        <h2
+          className="
+          text-lg
+          font-semibold
+          text-gray-700"
+        >
+
+          {title}
+
+        </h2>
+
+
+
+        <p
+          className="
+          text-sm
+          text-gray-400"
+        >
+
+          {subtitle}
+
+        </p>
+
+
+      </div>
+
+
+    </div>
+
+  );
+
+}   
+function MyTasksTable({ tasks }) {
+
+  const [activeStatus, setActiveStatus] =
+    useState("Pending");
+
+
+
+  const statuses = [
+    {
+      name: "Pending",
+      color: "text-orange-500",
+    },
+    {
+      name: "Ongoing",
+      color: "text-blue-600",
+    },
+    {
+      name: "Completed",
+      color: "text-green-600",
+    },
+    {
+      name: "Overdue",
+      color: "text-red-600",
+    },
+  ];
+
+
+
+  const filteredTasks = tasks.filter(
+    (task) =>
+      normalizeStatus(task.status) === activeStatus
+  );
+
+
+
+  return (
+
+    <div
+      className="
+      overflow-hidden
+      rounded-xl
+      border
+      border-gray-200
+      bg-white"
+    >
+
+
+      <div className="p-5">
+
+
+        <SectionHeader
+          icon={CheckSquare}
+          title="My Tasks"
+          subtitle="Track your tasks by status"
+        />
+
+
+
+        {/* STATUS TABS */}
+
+        <div
+          className="
+          flex
+          gap-10
+          border-b
+          border-gray-200"
+        >
+
+
+          {
+            statuses.map((item)=>(
+
+
+              <button
+                key={item.name}
+                onClick={() =>
+                  setActiveStatus(item.name)
+                }
+                className={`
+                pb-3
+                text-sm
+                font-semibold
+                transition
+
+                ${
+                  activeStatus === item.name
+                  ?
+                  `${item.color} border-b-2 border-red-500`
+                  :
+                  "text-gray-500"
+                }
+                `}
+              >
+
+
+                {item.name}
+
+
+
+                <span
+                  className="
+                  ml-2
+                  rounded-full
+                  bg-gray-100
+                  px-2
+                  py-1
+                  text-xs
+                  text-gray-500"
+                >
+
+                  {
+                    tasks.filter(
+                      (task)=>
+                        normalizeStatus(task.status)
+                        === item.name
+                    ).length
+                  }
+
+                </span>
+
+
+              </button>
+
+
+            ))
+
+          }
+
+
+        </div>
+
+
+
+
+        {/* EMPTY CONTENT AREA */}
+
+        <div
+          className="
+          flex
+          min-h-[280px]
+          items-center
+          justify-center
+          text-sm
+          font-medium
+          text-gray-400"
+        >
+
+
+          {
+            filteredTasks.length > 0
+
+            ?
+
+            `${filteredTasks.length} ${activeStatus} task(s)`
+
+            :
+
+            "No tasks found."
+          }
+
+
+        </div>
+
+
+
+      </div>
+
+
+
+
+      <Footer
+        total={filteredTasks.length}
+      />
+
+
+    </div>
+
+  );
+
+} 
+function MyMeetingsTable({ meetings }) {
+
+  return (
+
+    <div
+      className="
+      overflow-hidden
+      rounded-xl
+      border
+      border-gray-200
+      bg-white"
+    >
+
+
+      <div className="p-5">
+
+
+        <SectionHeader
+          icon={CalendarDays}
+          title="My Meetings"
+          subtitle="View scheduled meetings and appointments"
+        />
+
+
+
+        <div
+          className="
+          flex
+          min-h-[280px]
+          items-center
+          justify-center
+          text-sm
+          font-medium
+          text-gray-400"
+        >
+
+          {
+            meetings.length > 0
+
+            ?
+
+            `${meetings.length} meeting(s) scheduled`
+
+            :
+
+            "No meetings scheduled."
+          }
+
+        </div>
+
+
+      </div>
+
+
+
+      <Footer
+        total={meetings.length}
+      />
+
+
+    </div>
+
+  );
+
+}
+
+
+
+
+
+
+export default function DashboardPage() {
+
+
+  const {
+    stats,
+    loading,
+    error,
+    refetch,
+  } = useDashboard();
+
+
+
+  const tasks =
+    Array.isArray(stats?.openTasks)
+      ? stats.openTasks
+      : [];
+
+
+
+  const meetings =
+    Array.isArray(stats?.meetings)
+      ? stats.meetings
+      : [];
+
+
+
+  return (
+
+    <PageBase>
+
+
+      {/* HEADER */}
+
+      <div
+        className="
+        mb-5
+        flex
+        items-center
+        justify-between"
+      >
+
+
         <PageHeader
           title="Dashboard"
-          subtitle="Overview of your CRM activity"
+          subtitle="Manage your tasks and meetings"
         />
+
+
+
         <button
+          type="button"
           onClick={refetch}
-          disabled={loading}
-          className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 transition-colors disabled:opacity-50"
+          className="
+          flex
+          items-center
+          gap-2
+          rounded-lg
+          bg-red-500
+          px-5
+          py-2.5
+          text-sm
+          font-semibold
+          text-white
+          hover:bg-red-600"
         >
-          <RefreshCw size={12} className={loading ? "animate-spin" : ""} />
-          {loading ? "Refreshing…" : "Refresh"}
+
+          <RefreshCw size={16}/>
+
+          Refresh
+
         </button>
+
+
       </div>
 
-      {/* Teamless Banner */}
-      <TeamlessBanner user={user} />
 
-      {/* KPI Cards */}
-      <KpiSection kpi={stats?.kpi} loading={loading} />
 
-      {/* Row 1 */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <LeadFunnelChart data={charts?.leadFunnel} loading={loading} />
-        <MonthlyTrendsChart
-          monthlyLeads={charts?.monthlyLeads}
-          monthlyClients={charts?.monthlyClients}
-          loading={loading}
-        />
-      </div>
 
-      {/* Row 2 */}
-      <QuotationPipelineChart data={charts?.quotationPipeline} loading={loading} />
 
-      {/* Row 3 */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <TaskBreakdownChart data={charts?.taskBreakdown} loading={loading} />
-        <LeadSourceChart data={charts?.leadSources} loading={loading} />
-      </div>
+      {
+        error && (
 
-      {/* Row 4 */}
-      <div
-        className={
-          topPerformers === null
-            ? "w-full"
-            : "grid grid-cols-1 lg:grid-cols-2 gap-4"
-        }
-      >
-        {topPerformers !== null && (
-          <TopPerformersSection data={topPerformers} loading={loading} />
-        )}
-        <RecentActivitySection data={recentActivity} loading={loading} />
-      </div>
+          <div
+            className="
+            mb-4
+            rounded-lg
+            bg-red-50
+            px-4
+            py-3
+            text-sm
+            text-red-600"
+          >
+
+            {error}
+
+          </div>
+
+        )
+      }
+
+
+
+
+
+
+      <PageContentState loading={loading}>
+
+
+        <div
+          className="
+          grid
+          gap-6
+          xl:grid-cols-2"
+        >
+
+
+          <MyTasksTable
+            tasks={tasks}
+          />
+
+
+
+          <MyMeetingsTable
+            meetings={meetings}
+          />
+
+
+        </div>
+
+
+      </PageContentState>
+
+
+
     </PageBase>
+
   );
+
 }

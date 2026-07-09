@@ -1,75 +1,18 @@
-import { useState } from "react";
-import { useSettings } from "./hooks/useSettings";
-import { useSettingsForm } from "./hooks/useSettingsForm";
-
 import PageHeader from "../../components/page/PageHeader";
-import ProfileTab from "./tabs/ProfileTab";
-import SecurityTab from "./tabs/SecurityTab";
-import NotificationsTab from "./tabs/NotificationsTab";
-
-const TABS = ["My Profile", "Security", "Notifications"];
 
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState("My Profile");
-
-  const { settings, loading } = useSettings();
-  const form = useSettingsForm(settings);
-
-  const { saving, isProfileDirty, isAddressDirty, handleSave, resetForm } =
-    form;
-  const showProfileActions = activeTab === "My Profile";
-
   return (
-    <div className="border bg-white border-gray-200 rounded-md p-6 mt-4 flex flex-col h-[calc(100vh-120px)]">
+    <div className="border bg-white border-gray-200 rounded-md p-6 mt-4 min-h-[calc(100vh-120px)]">
       <PageHeader
         title="Settings"
-        subtitle="Manage your account and application preferences"
+        subtitle="Application settings will be added here soon"
       />
 
-      {/* Tabs */}
-      <div className="flex border-b border-gray-200 mb-4 shrink-0">
-        {TABS.map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px ${
-              activeTab === tab
-                ? "border-red-600 text-red-600"
-                : "border-transparent text-gray-500 hover:text-gray-800"
-            }`}
-          >
-            {tab}
-          </button>
-        ))}
+      <div className="mt-6 rounded-md border border-dashed border-gray-300 bg-gray-50 p-10 text-center">
+        <p className="text-sm font-medium text-gray-500">
+          Settings page is currently blank.
+        </p>
       </div>
-
-      <div className="flex-1 overflow-y-auto pr-1 min-h-0">
-        {activeTab === "My Profile" && (
-          <ProfileTab loading={loading} form={form} />
-        )}
-        {activeTab === "Security" && <SecurityTab form={form} />}
-        {activeTab === "Notifications" && <NotificationsTab />}
-      </div>
-
-      {/* Profile actions  */}
-      {showProfileActions && (
-        <div className="pt-4 mt-2 border-t border-gray-100 shrink-0 flex items-center justify-end gap-3">
-          <button
-            onClick={resetForm}
-            disabled={saving || (!isProfileDirty && !isAddressDirty)}
-            className="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 disabled:opacity-40 disabled:cursor-not-allowed rounded-md transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={saving || (!isProfileDirty && !isAddressDirty)}
-            className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 disabled:opacity-40 disabled:cursor-not-allowed rounded-md transition-colors"
-          >
-            {saving ? "Saving..." : "Save Changes"}
-          </button>
-        </div>
-      )}
     </div>
   );
 }

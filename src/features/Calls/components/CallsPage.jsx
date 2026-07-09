@@ -98,12 +98,12 @@ export default function CallsPage() {
         activeCategory === "All" || call.category === activeCategory;
 
       const contactValue =
-        call.contactValue || call.phone || call.email || "";
+        call.contactValue || call.mobile|| call.Whatsapp|| call.Viber|| call.whatsapp || "";
 
       const matchesSearch =
         !query ||
-        call.clientName?.toLowerCase().includes(query) ||
         call.companyName?.toLowerCase().includes(query) ||
+        call.contactPerson?.toLowerCase().includes(query) ||
         contactValue.toLowerCase().includes(query) ||
         call.contactMethod?.toLowerCase().includes(query) ||
         call.callType?.toLowerCase().includes(query);

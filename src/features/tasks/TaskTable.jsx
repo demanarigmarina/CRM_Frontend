@@ -1,6 +1,5 @@
 import {
   Pencil,
-  AlertCircle,
   User,
   Calendar,
   Magnet,
@@ -8,6 +7,7 @@ import {
   FileText,
   TriangleAlert,
 } from "lucide-react";
+
 import { useAuth } from "../../context/AuthContext";
 import { getProfileImage } from "../../utils/avatar";
 import { getDisplayName } from "../../utils/name";
@@ -20,8 +20,8 @@ import {
   TablePagination,
   useTablePagination,
 } from "../../components/table";
-import LoaderTables from "../../components/loader/TablesLazyLoader";
 
+import LoaderTables from "../../components/loader/TablesLazyLoader";
 import UserDisplayName from "../../components/UserDisplayName";
 import BaseBadge from "../../components/badge/BaseBadge";
 import StatusDropdown from "../../components/select/StatusDropdown";
@@ -31,14 +31,16 @@ import {
   getTaskEditDisabledReason,
 } from "./utils/taskPermissions";
 
-const TASK_STATUSES = ["To Do", "In Progress", "Completed"];
+const TASK_STATUSES = ["Pending", "Ongoing", "Completed", "Overdue"];
 const TASK_PRIORITIES = ["Low", "Medium", "High"];
 
 const TASK_STATUS_TONE = {
-  "To Do": "gray",
-  "In Progress": "amber",
+  Pending: "gray",
+  Ongoing: "amber",
   Completed: "green",
+  Overdue: "red",
 };
+
 const TASK_PRIORITY_TONE = {
   Low: "blue",
   Medium: "yellow",
@@ -51,14 +53,29 @@ const RELATED_ICON = {
   Quotation: FileText,
 };
 
+const normalizeTaskStatus = (status) => {
+  if (status === "Pendinng") return "Pending";
+  if (status === "To Do") return "Pending";
+  if (status === "In Progress") return "Ongoing";
+  if (TASK_STATUSES.includes(status)) return status;
+
+  return "Pending";
+};
+
 const getRelatedName = (task) => {
   if (!task.relatedToType || !task.relatedTo) return null;
+
   const ref = task.relatedTo;
   const type = task.relatedToType;
+
   if (type === "Lead" || type === "Client") {
     return [ref.firstName, ref.lastName].filter(Boolean).join(" ") || "Unknown";
   }
-  if (type === "Quotation") return ref.title || "Unknown";
+
+  if (type === "Quotation") {
+    return ref.title || "Unknown";
+  }
+
   return null;
 };
 
@@ -67,7 +84,9 @@ const getResponsibleName = (task, currentUserId) => {
   const createdBy = task.createdBy;
 
   if (task.scope === "Personal") {
-    const isOwn = createdBy?._id === currentUserId;
+    const isOwn =
+      createdBy?._id === currentUserId || createdBy?.id === currentUserId;
+
     return {
       label: isOwn ? (
         "You"
@@ -87,10 +106,16 @@ const getResponsibleName = (task, currentUserId) => {
   }
 
   if (!assigned) {
-    return { label: "Unassigned", type: "unassigned", user: null };
+    return {
+      label: "Unassigned",
+      type: "unassigned",
+      user: null,
+    };
   }
 
-  const isOwn = assigned?._id === currentUserId;
+  const isOwn =
+    assigned?._id === currentUserId || assigned?.id === currentUserId;
+
   return {
     label: isOwn ? (
       "You"
@@ -108,7 +133,7 @@ const getResponsibleName = (task, currentUserId) => {
 };
 
 export default function TaskTable({
-  tasks,
+  tasks = [],
   permissions = {},
   onEdit,
   onView,
@@ -118,6 +143,13 @@ export default function TaskTable({
 }) {
   const { user: currentUser } = useAuth();
 
+  const canEdit = permissions.canEdit !== false;
+
+  const normalizedTasks = tasks.map((task) => ({
+    ...task,
+    status: normalizeTaskStatus(task.status),
+  }));
+
   const columns = [
     { label: "Task" },
     { label: "Responsible" },
@@ -125,7 +157,7 @@ export default function TaskTable({
     { label: "Due" },
     { label: "Status" },
     { label: "Scope" },
-    ...(permissions.canEdit ? [{ label: "", align: "text-right" }] : []),
+    ...(canEdit ? [{ label: "", align: "text-right" }] : []),
   ];
 
   const {
@@ -139,7 +171,7 @@ export default function TaskTable({
     to,
     goTo,
     setRowsPerPage,
-  } = useTablePagination(tasks, 10);
+  } = useTablePagination(normalizedTasks, 10);
 
   const HEADERS = columns.map((col) => col.label);
 
@@ -173,8 +205,11 @@ export default function TaskTable({
         heightClass="h-112.5"
       >
         {paginatedItems.map((task) => {
-          const overdue = isOverdue(task.dueDate, task.status);
-          const dueToday = isDueToday(task.dueDate, task.status);
+          const normalizedStatus = normalizeTaskStatus(task.status);
+
+          const overdue = isOverdue(task.dueDate, normalizedStatus);
+          const dueToday = isDueToday(task.dueDate, normalizedStatus);
+
           const responsible = getResponsibleName(task, currentUser?.id);
           const responsiblePhoto = getProfileImage(responsible.user);
 
@@ -186,6 +221,7 @@ export default function TaskTable({
             currentUser,
             permissions,
           );
+
           const editDisabledReason = getTaskEditDisabledReason(
             task,
             currentUser,
@@ -193,8 +229,7 @@ export default function TaskTable({
           );
 
           return (
-            <TableRow key={task._id} onClick={() => onView(task)}>
-              {/* Task (Subject + Type + Related) */}
+            <TableRow key={task._id} onClick={() => onView?.(task)}>
               <TableCell className="max-w-72">
                 <div className="flex items-center gap-2">
                   <div className="min-w-0">
@@ -204,6 +239,7 @@ export default function TaskTable({
                         : ""}
                       {task.subject}
                     </p>
+
                     {relatedName && RelatedIcon && (
                       <div className="flex items-center gap-1 mt-0.5">
                         <RelatedIcon
@@ -211,11 +247,13 @@ export default function TaskTable({
                           strokeWidth={2}
                           className="text-gray-400 shrink-0"
                         />
+
                         <span className="text-xs text-gray-400 truncate">
                           {relatedName} ({task.relatedToType})
                         </span>
                       </div>
                     )}
+
                     {task.description && !relatedName && (
                       <p className="text-xs text-gray-400 truncate mt-0.5">
                         {task.description}
@@ -225,7 +263,6 @@ export default function TaskTable({
                 </div>
               </TableCell>
 
-              {/* Responsible */}
               <TableCell>
                 <div className="flex items-center gap-2">
                   {responsible.user ? (
@@ -239,6 +276,7 @@ export default function TaskTable({
                       <User size={13} className="text-gray-400" />
                     </span>
                   )}
+
                   <span
                     className={`text-sm truncate ${
                       responsible.type === "unassigned"
@@ -251,20 +289,24 @@ export default function TaskTable({
                 </div>
               </TableCell>
 
-              {/* Priority */}
               <TableCell>
-                <StatusDropdown
-                  status={task.priority}
-                  statuses={TASK_PRIORITIES}
-                  toneMap={TASK_PRIORITY_TONE}
-                  disabled={!permissions.canEdit}
-                  onSelect={(newPriority) =>
-                    onUpdatePriority(task._id, newPriority)
-                  }
-                />
+                <div
+                  onClick={(event) => event.stopPropagation()}
+                  onMouseDown={(event) => event.stopPropagation()}
+                  onPointerDown={(event) => event.stopPropagation()}
+                >
+                  <StatusDropdown
+                    status={task.priority || "Medium"}
+                    statuses={TASK_PRIORITIES}
+                    toneMap={TASK_PRIORITY_TONE}
+                    disabled={!canEdit}
+                    onSelect={(newPriority) =>
+                      onUpdatePriority?.(task._id, newPriority)
+                    }
+                  />
+                </div>
               </TableCell>
 
-              {/* Due (with overdue / today indicators) */}
               <TableCell>
                 {task.dueDate ? (
                   <div className="flex flex-col">
@@ -289,6 +331,7 @@ export default function TaskTable({
                       ) : (
                         <Calendar size={12} className="shrink-0" />
                       )}
+
                       {formatDate(task.dueDate)}
                     </span>
                   </div>
@@ -297,18 +340,24 @@ export default function TaskTable({
                 )}
               </TableCell>
 
-              {/* Status */}
               <TableCell>
-                <StatusDropdown
-                  status={task.status}
-                  statuses={TASK_STATUSES}
-                  toneMap={TASK_STATUS_TONE}
-                  disabled={!permissions.canEdit}
-                  onSelect={(newStatus) => onUpdateStatus(task._id, newStatus)}
-                />
+                <div
+                  onClick={(event) => event.stopPropagation()}
+                  onMouseDown={(event) => event.stopPropagation()}
+                  onPointerDown={(event) => event.stopPropagation()}
+                >
+                  <StatusDropdown
+                    status={normalizedStatus}
+                    statuses={TASK_STATUSES}
+                    toneMap={TASK_STATUS_TONE}
+                    disabled={!canEdit}
+                    onSelect={(newStatus) =>
+                      onUpdateStatus?.(task._id, newStatus)
+                    }
+                  />
+                </div>
               </TableCell>
 
-              {/* Scope */}
               <TableCell>
                 <BaseBadge
                   shape="pill"
@@ -318,8 +367,7 @@ export default function TaskTable({
                 </BaseBadge>
               </TableCell>
 
-              {/* Edit */}
-              {permissions.canEdit && (
+              {canEdit && (
                 <TableCell
                   title={!canEditCurrentTask ? editDisabledReason : ""}
                   className="inline-block text-right"
@@ -327,9 +375,9 @@ export default function TaskTable({
                   <button
                     disabled={!canEditCurrentTask}
                     type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onEdit(task);
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onEdit?.(task);
                     }}
                     className={`p-2 rounded-md transition-colors ${
                       !canEditCurrentTask

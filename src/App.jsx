@@ -26,6 +26,7 @@ import AdminProspects from "./pages/admin/Prospects";
 import AdminMeetings from "./pages/admin/Meetings";
 import AdminCalls from "./pages/admin/Calls";
 import AdminSettings from "./pages/admin/Settings";
+import AdminProfile from "./pages/admin/Profile";
 
 // Sales Manager pages
 import SalesManagerIndex from "./pages/salesManager/Dashboard";
@@ -38,6 +39,7 @@ import SalesManagerProspects from "./pages/salesManager/Prospects";
 import SalesManagerMeetings from "./pages/salesManager/Meetings";
 import SalesManagerCalls from "./pages/salesManager/Calls";
 import SalesManagerSettings from "./pages/salesManager/Settings";
+import SalesManagerProfile from "./pages/salesManager/Profile";
 
 // Sales Agent pages
 import SalesAgentIndex from "./pages/salesAgent/Dashboard";
@@ -50,9 +52,11 @@ import SalesAgentProspects from "./pages/salesAgent/Prospects";
 import SalesAgentMeetings from "./pages/salesAgent/Meetings";
 import SalesAgentCalls from "./pages/salesAgent/Calls";
 import SalesAgentSettings from "./pages/salesAgent/Settings";
+import SalesAgentProfile from "./pages/salesAgent/Profile";
 
 // Support Staff pages
 import SupportStaffIndex from "./pages/supportStaff/Dashboard";
+import SupportStaffProfile from "./pages/supportStaff/Profile";
 
 import PrivateRoute from "./components/PrivateRoute";
 import SessionRedirect from "./components/SessionRedirect";
@@ -70,21 +74,21 @@ function App() {
 
       <Route path="/unauthorized" element={<Unauthorized />} />
 
+      {/* ADMIN */}
       <Route element={<PrivateRoute roles={["Admin"]} />}>
         <Route element={<AppLayout />}>
-          {/* ADMIN */}
           <Route path="/admin" element={<AdminIndex />} />
           <Route path="/admin/users" element={<AdminUsers />} />
           <Route path="/admin/teams" element={<AdminTeams />} />
           <Route path="/admin/leads" element={<AdminLeads />} />
           <Route path="/admin/clients" element={<AdminClients />} />
-          <Route path="/admin/quotations" element={<AdminQuotations />}/>
           <Route path="/admin/quotations" element={<AdminQuotations />} />
           <Route path="/admin/tasks" element={<AdminTasks />} />
           <Route path="/admin/prospects" element={<AdminProspects />} />
           <Route path="/admin/meetings" element={<AdminMeetings />} />
           <Route path="/admin/calls" element={<AdminCalls />} />
           <Route path="/admin/settings" element={<AdminSettings />} />
+          <Route path="/admin/profile" element={<AdminProfile />} />
           <Route path="/admin/reports" element={<AdminReports />} />
         </Route>
       </Route>
@@ -94,6 +98,15 @@ function App() {
         <Route element={<AppLayout />}>
           <Route path="/sales-manager" element={<SalesManagerIndex />} />
           <Route path="/sales-manager/team" element={<TeamOverview />} />
+          <Route
+            path="/sales-manager/settings"
+            element={<SalesManagerSettings />}
+          />
+          <Route
+            path="/sales-manager/profile"
+            element={<SalesManagerProfile />}
+          />
+
           <Route element={<TeamRequiredRoute />}>
             <Route
               path="/sales-manager/leads"
@@ -104,10 +117,6 @@ function App() {
               element={<SalesManagerClients />}
             />
             <Route
-            path="/sales-manager/quotations"
-            element={<SalesManagerQuotations />}
-            />
-            <Route
               path="/sales-manager/quotations"
               element={<SalesManagerQuotations />}
             />
@@ -116,22 +125,16 @@ function App() {
               element={<SalesManagerTasks />}
             />
             <Route
-             path="/sales-manager/prospects"
-             element={<SalesManagerProspects />}
+              path="/sales-manager/prospects"
+              element={<SalesManagerProspects />}
             />
-
             <Route
               path="/sales-manager/meetings"
               element={<SalesManagerMeetings />}
             />
-
             <Route
               path="/sales-manager/calls"
               element={<SalesManagerCalls />}
-            />
-            <Route
-              path="/sales-manager/settings"
-              element={<SalesManagerSettings />}
             />
           </Route>
         </Route>
@@ -140,61 +143,49 @@ function App() {
       {/* SALES AGENT */}
       <Route element={<PrivateRoute roles={["Sales Agent"]} />}>
         <Route element={<AppLayout />}>
-          <Route 
-          path="/sales-agent"
-           element={<SalesAgentIndex />} 
-          />
+          <Route path="/sales-agent" element={<SalesAgentIndex />} />
           <Route
             path="/sales-agent/team-required"
             element={<SalesAgentTeamRequired />}
           />
+          <Route
+            path="/sales-agent/settings"
+            element={<SalesAgentSettings />}
+          />
+          <Route path="/sales-agent/profile" element={<SalesAgentProfile />} />
+
           <Route element={<TeamRequiredRoute />}>
-            <Route 
-             path="/sales-agent/leads"
-             element={<SalesAgentLeads />} 
-            />
+            <Route path="/sales-agent/leads" element={<SalesAgentLeads />} />
             <Route
               path="/sales-agent/clients"
               element={<SalesAgentClients />}
             />
-           <Route
+            <Route
               path="/sales-agent/quotations"
               element={<SalesAgentQuotations />}
-             />
-            <Route 
-            path="/sales-agent/quotations"
-             element={<SalesAgentQuotations />} 
             />
+            <Route path="/sales-agent/tasks" element={<SalesAgentTasks />} />
             <Route
               path="/sales-agent/prospects"
               element={<SalesAgentProspects />}
             />
-
             <Route
               path="/sales-agent/meetings"
               element={<SalesAgentMeetings />}
             />
-
-            <Route
-              path="/sales-agent/calls"
-              element={<SalesAgentCalls />}
-            />
-            <Route 
-              path="/sales-agent/tasks"
-              element={<SalesAgentTasks />} 
-            />
-            <Route
-              path="/sales-agent/settings"
-              element={<SalesAgentSettings />}
-            />
+            <Route path="/sales-agent/calls" element={<SalesAgentCalls />} />
           </Route>
         </Route>
       </Route>
 
+      {/* SUPPORT STAFF */}
       <Route element={<PrivateRoute roles={["Support Staff"]} />}>
         <Route element={<AppLayout />}>
-          {/* SUPPORT STAFF */}
           <Route path="/support-staff" element={<SupportStaffIndex />} />
+          <Route
+            path="/support-staff/profile"
+            element={<SupportStaffProfile />}
+          />
         </Route>
       </Route>
 

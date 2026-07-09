@@ -1,7 +1,6 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { FaPlus } from "react-icons/fa";
 import { useLocation } from "react-router-dom";
-import { DotLoader } from "react-spinners";
 import Select from "react-select";
 
 import {
@@ -30,15 +29,44 @@ import TaskKanban from "./TaskKanban";
 import TaskTable from "./TaskTable";
 import TaskModal from "./TaskModal";
 
+const TASK_STATUSES = ["Pending", "Ongoing", "Completed", "Overdue"];
+
+const TASK_STATUS_OPTIONS = TASK_STATUSES.map((status) => ({
+  label: status,
+  value: status,
+}));
+
+const PRIORITY_OPTIONS = ["Low", "Medium", "High"].map((priority) => ({
+  label: priority,
+  value: priority,
+}));
+
+const RELATED_TYPE_OPTIONS = ["Lead", "Client", "Quotation"].map((type) => ({
+  label: type,
+  value: type,
+}));
+
+const SCOPE_OPTIONS = ["Personal", "Assigned"].map((scope) => ({
+  label: scope,
+  value: scope,
+}));
+
+const normalizeTaskStatus = (status) => {
+  if (status === "To Do") return "Pending";
+  if (status === "In Progress") return "Ongoing";
+  if (TASK_STATUSES.includes(status)) return status;
+
+  return "Pending";
+};
+
 export default function TasksPage() {
   const permissions = usePermissions("tasks");
   const { user: currentUser } = useAuth();
-  const isCurrentAgent = currentUser.role === "Sales Agent";
+  const isCurrentAgent = currentUser?.role === "Sales Agent";
   const location = useLocation();
 
   const {
-    tasks,
-    columns,
+    tasks = [],
     loading,
     submitting,
     reorderTasks,
@@ -47,7 +75,6 @@ export default function TasksPage() {
     createTask,
     updateTask,
     deleteTask,
-    STATUSES,
   } = useTasks();
 
   const {
@@ -70,21 +97,19 @@ export default function TasksPage() {
     handleSelectChange,
   } = useTaskModal();
 
-  // Auto-open create modal when navigated
-useEffect(() => {
-  if (location.state?.openCreate) {
-    openCreate();
-
-    // Clear the state so a page refresh doesn't re-trigger it
-    window.history.replaceState({}, "");
-  }
-}, [location.state, openCreate]);
+  useEffect(() => {
+    if (location.state?.openCreate) {
+      openCreate("Pending");
+      window.history.replaceState({}, "");
+    }
+  }, [location.state, openCreate]);
 
   const { users: assignableUsers = [] } = useUsers({
     skip: !permissions.canAssign,
     mode: "assignable",
     resource: "task",
   });
+
   const { leads = [] } = useLeads();
   const { clients = [] } = useClients();
   const { quotations = [] } = useQuotations();
@@ -124,7 +149,8 @@ useEffect(() => {
 
   const matchesTaskFilters = useCallback(
     (task) => {
-      const q = search.toLowerCase();
+      const query = search.trim().toLowerCase();
+      const normalizedStatus = normalizeTaskStatus(task.status);
 
       const assigneeName = task.assignedTo
         ? getDisplayName(task.assignedTo, {
@@ -134,19 +160,32 @@ useEffect(() => {
         : "";
 
       const matchesSearch =
-        !q ||
-        task.subject?.toLowerCase().includes(q) ||
-        task.status?.toLowerCase().includes(q) ||
-        task.priority?.toLowerCase().includes(q) ||
-        assigneeName.includes(q);
+        !query ||
+        task.subject?.toLowerCase().includes(query) ||
+        normalizedStatus.toLowerCase().includes(query) ||
+        task.priority?.toLowerCase().includes(query) ||
+        assigneeName.includes(query);
+
+      const matchesPriority =
+        !filterPriority || task.priority === filterPriority;
+
+      const matchesResponsible =
+        !filterResponsible || task.assignedTo?._id === filterResponsible;
+
+      const matchesStatus = !filterStatus || normalizedStatus === filterStatus;
+
+      const matchesRelatedType =
+        !filterRelatedType || task.relatedToType === filterRelatedType;
+
+      const matchesScope = !filterScope || task.scope === filterScope;
 
       return (
         matchesSearch &&
-        (!filterPriority || task.priority === filterPriority) &&
-        (!filterResponsible || task.assignedTo?._id === filterResponsible) &&
-        (!filterStatus || task.status === filterStatus) &&
-        (!filterRelatedType || task.relatedToType === filterRelatedType) &&
-        (!filterScope || task.scope === filterScope)
+        matchesPriority &&
+        matchesResponsible &&
+        matchesStatus &&
+        matchesRelatedType &&
+        matchesScope
       );
     },
     [
@@ -161,56 +200,77 @@ useEffect(() => {
 
   const agentFilterOptions = useMemo(() => {
     const uniqueAgents = new Map();
-    tasks.forEach((t) => {
-      if (t.assignedTo) {
-        uniqueAgents.set(t.assignedTo._id, t.assignedTo);
+
+    tasks.forEach((task) => {
+      if (task.assignedTo) {
+        uniqueAgents.set(task.assignedTo._id, task.assignedTo);
       }
     });
-    return Array.from(uniqueAgents.values()).map((u) => ({
-      label: `${getDisplayName(u, { includeMiddleInitial: true, includeSuffix: true })}`,
-      value: u._id,
+
+    return Array.from(uniqueAgents.values()).map((user) => ({
+      label: getDisplayName(user, {
+        includeMiddleInitial: true,
+        includeSuffix: true,
+      }),
+      value: user._id,
     }));
   }, [tasks]);
 
   const filteredTasks = useMemo(() => {
-    return tasks.filter(matchesTaskFilters);
+    return tasks.filter(matchesTaskFilters).map((task) => ({
+      ...task,
+      status: normalizeTaskStatus(task.status),
+    }));
   }, [tasks, matchesTaskFilters]);
 
   const filteredColumns = useMemo(() => {
-    const filtered = {};
-    for (const status of STATUSES) {
-      filtered[status] = (columns[status] || []).filter(matchesTaskFilters);
-    }
-    return filtered;
-  }, [columns, STATUSES, matchesTaskFilters]);
+    return TASK_STATUSES.reduce((grouped, status) => {
+      grouped[status] = filteredTasks.filter(
+        (task) => normalizeTaskStatus(task.status) === status,
+      );
+
+      return grouped;
+    }, {});
+  }, [filteredTasks]);
+
+  const handleOpenCreate = (status = "Pending") => {
+    openCreate(status);
+  };
 
   const handleDragEnd = async (result) => {
     const { destination, source, draggableId } = result;
 
     if (!destination) return;
 
-    const isSameColumn = destination.droppableId === source.droppableId;
+    const sourceStatus = source.droppableId;
+    const destinationStatus = destination.droppableId;
+
+    const isSameColumn = destinationStatus === sourceStatus;
     const isSamePosition = destination.index === source.index;
 
     if (isSameColumn && isSamePosition) return;
 
-    const destinationStatus = destination.droppableId;
-
     if (isSameColumn) {
-      const column = [...(columns[source.droppableId] || [])];
+      const column = [...(filteredColumns[sourceStatus] || [])];
+
       const [moved] = column.splice(source.index, 1);
       if (!moved) return;
+
       column.splice(destination.index, 0, moved);
-      const updates = column.map((task, idx) => ({
+
+      const updates = column.map((task, index) => ({
         _id: task._id,
-        position: idx,
+        status: sourceStatus,
+        position: index,
       }));
-      reorderTasks(updates);
+
+      await reorderTasks(updates);
       return;
     }
 
-    const sourceColumn = [...(columns[source.droppableId] || [])];
-    const destinationColumn = [...(columns[destination.droppableId] || [])];
+    const sourceColumn = [...(filteredColumns[sourceStatus] || [])];
+    const destinationColumn = [...(filteredColumns[destinationStatus] || [])];
+
     const [moved] = sourceColumn.splice(source.index, 1);
     if (!moved) return;
 
@@ -220,15 +280,15 @@ useEffect(() => {
     });
 
     const updates = [
-      ...sourceColumn.map((task, idx) => ({
+      ...sourceColumn.map((task, index) => ({
         _id: task._id,
-        status: source.droppableId,
-        position: idx,
+        status: sourceStatus,
+        position: index,
       })),
-      ...destinationColumn.map((task, idx) => ({
+      ...destinationColumn.map((task, index) => ({
         _id: task._id,
         status: destinationStatus,
-        position: idx,
+        position: index,
       })),
     ];
 
@@ -240,10 +300,12 @@ useEffect(() => {
     );
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
     const payload = {
       ...formData,
+      status: normalizeTaskStatus(formData.status),
       scope: formData.scope || "Personal",
       assignedTo:
         formData.scope === "Personal" ? null : formData.assignedTo || null,
@@ -252,26 +314,36 @@ useEffect(() => {
       relatedToType: formData.relatedToType || undefined,
       relatedTo: formData.relatedTo || undefined,
     };
+
     if (mode === "create") {
       const created = await createTask(payload);
-      if (created) closeModal();
+
+      if (created) {
+        closeModal();
+      }
     } else if (mode === "edit" && viewingTask) {
       const updated = await updateTask(viewingTask._id, payload);
-      if (updated) closeModal();
+
+      if (updated) {
+        closeModal();
+      }
     }
   };
 
   const handleUpdateStatus = async (taskId, newStatus) => {
-    await updateTaskStatus(taskId, newStatus, 0);
+    return updateTaskStatus(taskId, normalizeTaskStatus(newStatus), 0);
   };
 
   const handleUpdatePriority = async (taskId, newPriority) => {
-    await updateTaskPriority(taskId, newPriority);
+    return updateTaskPriority(taskId, newPriority);
   };
 
   const handleDelete = async (taskId) => {
     const deleted = await deleteTask(taskId);
-    if (deleted) closeModal();
+
+    if (deleted) {
+      closeModal();
+    }
   };
 
   return (
@@ -288,7 +360,7 @@ useEffect(() => {
 
         <PageToolbar
           searchValue={search}
-          onSearchChange={(e) => setSearch(e.target.value)}
+          onSearchChange={(event) => setSearch(event.target.value)}
           searchPlaceholder="Search tasks..."
           view={view}
           onViewChange={setView}
@@ -296,7 +368,7 @@ useEffect(() => {
             <FilterPopover
               filterRef={filterRef}
               filterOpen={filterOpen}
-              onToggle={() => setFilterOpen((p) => !p)}
+              onToggle={() => setFilterOpen((previous) => !previous)}
               activeFilterCount={activeFilterCount}
               onClearAll={handleClear}
             >
@@ -305,16 +377,15 @@ useEffect(() => {
                 <Select
                   {...getSelectProps({ variant: "filter" })}
                   placeholder="All types"
-                  options={["Lead", "Client", "Quotation"].map((t) => ({
-                    label: t,
-                    value: t,
-                  }))}
+                  options={RELATED_TYPE_OPTIONS}
                   value={
-                    filterRelatedType
-                      ? { label: filterRelatedType, value: filterRelatedType }
-                      : null
+                    RELATED_TYPE_OPTIONS.find(
+                      (option) => option.value === filterRelatedType,
+                    ) || null
                   }
-                  onChange={(opt) => setFilterRelatedType(opt?.value || null)}
+                  onChange={(option) =>
+                    setFilterRelatedType(option?.value || null)
+                  }
                 />
               </div>
 
@@ -327,10 +398,12 @@ useEffect(() => {
                     options={agentFilterOptions}
                     value={
                       agentFilterOptions.find(
-                        (o) => o.value === filterResponsible,
+                        (option) => option.value === filterResponsible,
                       ) || null
                     }
-                    onChange={(opt) => setFilterResponsible(opt?.value || null)}
+                    onChange={(option) =>
+                      setFilterResponsible(option?.value || null)
+                    }
                     isSearchable
                   />
                 </div>
@@ -341,16 +414,15 @@ useEffect(() => {
                 <Select
                   {...getSelectProps({ variant: "filter" })}
                   placeholder="All priorities"
-                  options={["Low", "Medium", "High"].map((p) => ({
-                    label: p,
-                    value: p,
-                  }))}
+                  options={PRIORITY_OPTIONS}
                   value={
-                    filterPriority
-                      ? { label: filterPriority, value: filterPriority }
-                      : null
+                    PRIORITY_OPTIONS.find(
+                      (option) => option.value === filterPriority,
+                    ) || null
                   }
-                  onChange={(opt) => setFilterPriority(opt?.value || null)}
+                  onChange={(option) =>
+                    setFilterPriority(option?.value || null)
+                  }
                 />
               </div>
 
@@ -360,13 +432,15 @@ useEffect(() => {
                   <Select
                     {...getSelectProps({ variant: "filter" })}
                     placeholder="All statuses"
-                    options={STATUSES.map((s) => ({ label: s, value: s }))}
+                    options={TASK_STATUS_OPTIONS}
                     value={
-                      filterStatus
-                        ? { label: filterStatus, value: filterStatus }
-                        : null
+                      TASK_STATUS_OPTIONS.find(
+                        (option) => option.value === filterStatus,
+                      ) || null
                     }
-                    onChange={(opt) => setFilterStatus(opt?.value || null)}
+                    onChange={(option) =>
+                      setFilterStatus(option?.value || null)
+                    }
                   />
                 </div>
               )}
@@ -376,16 +450,13 @@ useEffect(() => {
                 <Select
                   {...getSelectProps({ variant: "filter" })}
                   placeholder="All scopes"
-                  options={["Personal", "Assigned"].map((s) => ({
-                    label: s,
-                    value: s,
-                  }))}
+                  options={SCOPE_OPTIONS}
                   value={
-                    filterScope
-                      ? { label: filterScope, value: filterScope }
-                      : null
+                    SCOPE_OPTIONS.find(
+                      (option) => option.value === filterScope,
+                    ) || null
                   }
-                  onChange={(opt) => setFilterScope(opt?.value || null)}
+                  onChange={(option) => setFilterScope(option?.value || null)}
                 />
               </div>
             </FilterPopover>
@@ -393,11 +464,13 @@ useEffect(() => {
           actionButton={
             permissions.canCreate && (
               <button
-                onClick={() => openCreate()}
+                type="button"
+                onClick={() => handleOpenCreate("Pending")}
                 className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-md cursor-pointer"
               >
                 <span className="flex items-center gap-2 text-sm">
-                  <FaPlus size={11} /> Add Task
+                  <FaPlus size={11} />
+                  Add Task
                 </span>
               </button>
             )
@@ -409,11 +482,14 @@ useEffect(() => {
         {view === "kanban" ? (
           <TaskKanban
             columns={filteredColumns}
-            statuses={STATUSES}
+            statuses={TASK_STATUSES}
             permissions={permissions}
             onDragEnd={handleDragEnd}
-            onAddTask={(status) => openCreate(status)}
+            onAddTask={(status) => handleOpenCreate(status)}
             onCardClick={(task) => openView(task)}
+            onEdit={(task) => openEdit(task)}
+            onUpdateStatus={handleUpdateStatus}
+            onUpdatePriority={handleUpdatePriority}
             isLoading={loading}
           />
         ) : (

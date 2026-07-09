@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Settings, LogOut } from "lucide-react";
+import { User as UserIcon, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
@@ -21,7 +21,7 @@ export default function Navbar() {
     "Support Staff": "/support-staff",
   };
 
-  const settingsPath = `${roleRoutes[user?.role]}/settings`;
+  const profilePath = `${roleRoutes[user?.role]}/profile`;
 
   const [open, setOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
@@ -38,17 +38,19 @@ export default function Navbar() {
     clearAll,
   } = useNotifications();
 
-  // Close dropdowns on outside click
   useEffect(() => {
     function handleClickOutside(e) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setOpen(false);
       }
+
       if (notifRef.current && !notifRef.current.contains(e.target)) {
         setNotifOpen(false);
       }
     }
+
     document.addEventListener("mousedown", handleClickOutside);
+
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
@@ -84,7 +86,6 @@ export default function Navbar() {
       <h1 className="text-xl font-semibold">{user?.role}</h1>
 
       <div className="flex items-center gap-4">
-        {/* Notification bell + panel */}
         <NotificationPanel
           notifRef={notifRef}
           notifOpen={notifOpen}
@@ -99,7 +100,6 @@ export default function Navbar() {
           onClearAll={clearAll}
         />
 
-        {/* Profile dropdown */}
         <div className="relative" ref={dropdownRef}>
           <div
             onClick={() => {
@@ -126,6 +126,7 @@ export default function Navbar() {
                   alt="avatar"
                   className="w-10 h-10 rounded-full object-cover"
                 />
+
                 <div>
                   <p className="text-sm font-medium text-gray-800">
                     <UserDisplayName user={user} showYou={false}>
@@ -135,6 +136,7 @@ export default function Navbar() {
                       })}
                     </UserDisplayName>
                   </p>
+
                   <p className="text-xs text-gray-500">
                     {user?.role || "User"}
                   </p>
@@ -145,17 +147,19 @@ export default function Navbar() {
 
               <div className="flex flex-col">
                 <button
+                  type="button"
                   onClick={() => {
-                    navigate(settingsPath);
+                    navigate(profilePath);
                     setOpen(false);
                   }}
                   className="flex items-center gap-3 px-2 py-2 rounded-md hover:bg-gray-200 transition"
                 >
-                  <Settings className="w-4 h-4 text-gray-600" />
-                  <span className="text-sm text-gray-700">Settings</span>
+                  <UserIcon className="w-4 h-4 text-gray-600" />
+                  <span className="text-sm text-gray-700">View Profile</span>
                 </button>
 
                 <button
+                  type="button"
                   onClick={handleLogoutClick}
                   className="flex items-center gap-3 px-2 py-2 rounded-md hover:bg-gray-200 transition"
                 >

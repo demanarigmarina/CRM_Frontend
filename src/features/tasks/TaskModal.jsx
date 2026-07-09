@@ -51,7 +51,7 @@ import {
   getTaskEditDisabledReason,
 } from "./utils/taskPermissions";
 
-const STATUSES = ["To Do", "In Progress", "Completed"];
+const STATUSES = ["Pending", "Ongoing", "Completed","Overdue"];
 const REPEATS = ["None", "Daily", "Weekly", "Monthly"];
 const RELATED_TYPES = ["Lead", "Client", "Quotation"];
 
@@ -62,9 +62,10 @@ const PRIORITY_COLORS = {
 };
 
 const STATUS_COLORS = {
-  "To Do": "gray",
-  "In Progress": "amber",
-  Completed: "green",
+  "Pending": "gray",
+  "Ongoing": "amber",
+  "Completed": "green",
+  "Overdue": "red",
 };
 
 const TASK_TYPE_LABELS = {
@@ -564,7 +565,7 @@ export default function TaskModal({
                     : null
                 }
                 onChange={(opt) =>
-                  onSelectChange("status", opt?.value || "To Do")
+                  onSelectChange("status", opt?.value || "Pending")
                 }
               />
             </div>
