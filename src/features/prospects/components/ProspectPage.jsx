@@ -185,7 +185,7 @@ export default function ProspectPage() {
             <button
               type="button"
               onClick={handleOpenCreate}
-              className="bg-red-500 hover:bg-red-600 text-white py-2 px-5 rounded-md cursor-pointer min-w-[150px]"
+              className="bg-red-500 hover:bg-red-600 text-white py-2 px-5 rounded-md cursor-pointer min-w-37.5"
             >
               <span className="flex items-center justify-center gap-2 text-sm whitespace-nowrap">
                 <FaPlus size={11} />

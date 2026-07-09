@@ -4,7 +4,7 @@ export default function MeetingCard({ meeting, onClick }) {
   return (
     <div 
       onClick={() => onClick(meeting)}
-      className={`p-3 rounded-lg border text-xs cursor-pointer transition-all hover:shadow-sm ${meeting.color}`}
+      className={`p-5 rounded-lg border text-xs cursor-pointer transition-all hover:shadow-sm ${meeting.color}`}
     >
       <div className="flex justify-between font-bold mb-1">
         <span>{meeting.time}</span>

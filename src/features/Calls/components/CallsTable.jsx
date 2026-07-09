@@ -9,7 +9,6 @@ import {
 } from "../../../components/table";
 
 const columns = [
-  { key: "number", label: "#" },
   { key: "clientName", label: "Client" },
   { key: "companyName", label: "Company" },
   { key: "contact", label: "Contact" },
@@ -27,7 +26,7 @@ const formatDateTime = (value) => {
   if (Number.isNaN(date.getTime())) return "-";
 
   return date.toLocaleString("en-PH", {
-    month: "short",
+    month: "long",
     day: "2-digit",
     year: "numeric",
     hour: "numeric",
@@ -87,9 +86,8 @@ export default function CallsTable({
         minHeightClass="min-h-[calc(100vh-345px)]"
         heightClass="h-[450px]"
       >
-        {paginatedItems.map((call, index) => (
+        {paginatedItems.map((call) => (
           <TableRow key={call._id} title="Call record">
-            <TableCell>{from + index}</TableCell>
 
             <TableCell>
               <div className="flex items-center gap-2">

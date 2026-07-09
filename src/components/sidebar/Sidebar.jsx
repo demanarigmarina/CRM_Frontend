@@ -167,37 +167,26 @@ export default function Sidebar() {
 
 
         {/* MODULE */}
-        <button
-          type="button"
-          onClick={() => {
-
-            if (isCollapsed) {
-              setIsCollapsed(false);
-              setModuleOpen(true);
-            } else {
-              setModuleOpen((prev) => !prev);
-            }
-
-          }}
-          className={`w-full py-3 rounded-md hover:bg-gray-100 transition flex items-center ${
-            isCollapsed
-              ? "justify-center px-0"
-              : "justify-between px-4"
-          }`}
-        >
-
-          <div className="flex items-center gap-4">
-
-            <Folder size={20}/>
-
-            {!isCollapsed && (
-              <span>
-                Module
-              </span>
-            )}
-
-          </div>
-
+          <button
+            type="button"
+            onClick={() => {
+              if (isCollapsed) {
+                setIsCollapsed(false);
+                setModuleOpen(true);
+              } else {
+                setModuleOpen((prev) => !prev);
+              }
+            }}
+            className={`w-full py-3 rounded-md hover:bg-gray-100 transition flex items-center ${
+              isCollapsed
+                ? "justify-center px-0"
+                : "justify-between px-4"
+            }`}
+          >
+            <div className="flex items-center gap-4">
+              <Folder size={20} />
+              {!isCollapsed && <span>Module</span>}
+            </div>
 
           {!isCollapsed &&
             (

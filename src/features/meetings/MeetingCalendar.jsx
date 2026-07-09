@@ -6,7 +6,14 @@ const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 export default function MeetingCalendar({ currentMonth, meetings, onSelectMeeting, activeMeetingId, activeView = 'Month' }) {
   const calendarCells = getDaysInMonth(currentMonth);
 
-  const getDateKey = (date) => date.toISOString().split('T')[0];
+  const getDateKey = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+  
+    return `${year}-${month}-${day}`;
+  };
+
   const getMeetingsForDate = (date) => meetings.filter((meeting) => meeting.date === getDateKey(date));
 
   const renderMeetingCard = (meeting) => {
@@ -23,14 +30,14 @@ export default function MeetingCalendar({ currentMonth, meetings, onSelectMeetin
         key={meeting.id}
         type="button"
         onClick={() => onSelectMeeting(meeting)}
-        className={`flex w-full items-start gap-1.5 rounded-md border px-2 py-1.5 text-left text-[11px] transition-colors hover:brightness-95 ${meeting.color} ${
+        className={`flex w-full items-center gap-1 rounded-sm border px-2 py-1 text-left text-[10px] transition-colors hover:brightness-95 ${meeting.color} ${
           activeMeetingId === meeting.id ? 'ring-2 ring-red-200' : ''
         }`}
       >
-        <span className={`mt-0.5 h-7 w-1.5 shrink-0 rounded-full ${accentClass}`} />
-        <span className="min-w-0">
-          <div className="truncate font-semibold">{meeting.time}</div>
-          <div className="truncate">{meeting.title}</div>
+        <span className={`mt-0.5 h-5 w-1.5 shrink-0 rounded-full ${accentClass}`} />
+        <span className="min-w-0 overflow-hidden">
+          <div className="truncate font-medium">{meeting.time}</div>
+          <div className="truncate text-[10px] text-gray-700">{meeting.title}</div>
         </span>
       </button>
     );
@@ -98,27 +105,28 @@ export default function MeetingCalendar({ currentMonth, meetings, onSelectMeetin
   }
 
   return (
-    <div className="h-full overflow-auto bg-white">
-      <div className="grid grid-cols-7 border-b border-gray-100 bg-gray-50/70 py-2 text-center">
+    <div className="h-full flex flex-col overflow-hidden bg-white">
+      <div className="shrink-0 grid grid-cols-7 border-b border-gray-100 bg-gray-50/70 py-2 text-center">
         {WEEKDAYS.map((day) => (
-          <span key={day} className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+          <span key={day} className="text-[15px] font-semibold uppercase tracking-wide text-gray-500">
             {day}
           </span>
         ))}
       </div>
 
-      <div className="grid min-h-180 grid-cols-7 grid-rows-6">
-        {calendarCells.map((cell, idx) => {
-          const dateStr = cell.date.toISOString().split('T')[0];
-          const dayMeetings = meetings.filter((m) => m.date === dateStr);
+      <div className="flex-1 overflow-auto">
+      <div className="grid h-230 grid-cols-7 grid-rows-6">
+          {calendarCells.map((cell, idx) => {
+            const dateStr = getDateKey(cell.date);
+            const dayMeetings = meetings.filter((m) => m.date === dateStr);
 
           return (
             <div
-              key={idx}
-              className={`flex min-h-30 flex-col gap-1 border-r border-b border-gray-100 p-2 ${
-                cell.isCurrentMonth ? 'bg-white' : 'bg-gray-50/70 text-gray-400'
-              }`}
-            >
+                key={idx}
+                className={`flex h-full flex-col gap-4 overflow-hidden border-r border-b border-gray-100 p-2 ${
+                  cell.isCurrentMonth ? 'bg-white' : 'bg-gray-50/70 text-gray-400'
+                }`}
+              >
               <div className="flex items-center justify-between">
                 <span className={`text-[11px] font-semibold ${cell.isCurrentMonth ? 'text-gray-600' : 'text-gray-400'}`}>
                   {cell.date.getDate()}
@@ -128,7 +136,7 @@ export default function MeetingCalendar({ currentMonth, meetings, onSelectMeetin
                 )}
               </div>
 
-              <div className="flex-1 space-y-1 overflow-y-auto">
+              <div className="flex-1 min-h-0 space-y-1 overflow-y-auto pr-1 scrollbar-thin">
                 {dayMeetings.map((meeting) => renderMeetingCard(meeting))}
               </div>
             </div>
@@ -136,5 +144,6 @@ export default function MeetingCalendar({ currentMonth, meetings, onSelectMeetin
         })}
       </div>
     </div>
+  </div>
   );
 }

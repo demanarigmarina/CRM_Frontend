@@ -106,11 +106,11 @@ export default function MeetingsPage() {
         </div>
       </div>
 
-      <div className="grid flex-1 min-h-0 grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
+      <div className={`grid flex-1 min-h-0 grid-cols-1 gap-4 ${selectedMeeting ? 'xl:grid-cols-[minmax(0,1fr)_320px]' : 'xl:grid-cols-1'}`}>
         <div className="flex min-h-0 flex-col gap-4">
 
           <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-md border border-gray-200 bg-white">
-            <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
+            <div className="relative flex items-center justify-between border-b border-gray-100 px-4 py-3">
               <div className="flex items-center gap-2">
                 <button
                   type="button"
@@ -126,9 +126,10 @@ export default function MeetingsPage() {
                 >
                   <ChevronRight size={14} />
                 </button>
-                <span className="ml-1 text-sm font-semibold text-gray-700">
-                  {formatMonthYear(currentMonth)}
-                </span>
+              </div>
+
+              <div className="pointer-events-none absolute inset-x-0 flex justify-center">
+                <span className="text-lg font-semibold text-gray-600">{formatMonthYear(currentMonth)}</span>
               </div>
 
               <div className="flex items-center rounded-md border border-gray-200 bg-gray-50 p-0.5">
@@ -161,12 +162,14 @@ export default function MeetingsPage() {
           </div>
         </div>
 
-        <MeetingDetails
-          meeting={selectedMeeting}
-          onClose={() => setSelectedMeeting(null)}
-          onEdit={() => openEditMeeting(selectedMeeting)}
-          onDelete={() => handleDeleteMeeting(selectedMeeting?.id)}
-        />
+        {selectedMeeting && (
+          <MeetingDetails
+            meeting={selectedMeeting}
+            onClose={() => setSelectedMeeting(null)}
+            onEdit={() => openEditMeeting(selectedMeeting)}
+            onDelete={() => handleDeleteMeeting(selectedMeeting?.id)}
+          />
+        )}
       </div>
 
       <MeetingForm
