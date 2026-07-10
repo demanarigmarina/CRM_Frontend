@@ -21,6 +21,7 @@ import UserDisplayName from "../../components/UserDisplayName";
 
 import ActivityTimeline from "../../components/activity/ActivityTimeline";
 import TaskTimeline from "../../components/task/TaskTimeline"; 
+import QuotationWizard from "./components/QuotationWizard";
 
 import { getDisplayName } from "../../utils/name";
 import { formatDate, formatDateTime } from "../../utils/date";
@@ -57,6 +58,7 @@ export default function QuotationModal({
   tasksLoading = false, 
   clients = [],
   salesAgents = [],
+  currentUser,
   permissions = {},
   loading = false,
   onChange,
@@ -95,6 +97,23 @@ export default function QuotationModal({
   const isCreate = mode === "create";
   const stageColor =
     STAGE_COLORS[isView ? viewingQuotation?.stage : formData.stage] || "";
+
+  if (isCreate) {
+    return (
+      <QuotationWizard
+        clients={clients}
+        currentUser={currentUser}
+        formData={formData}
+        loading={loading}
+        onClose={onClose}
+        onSubmit={onSubmit}
+        open={open}
+        permissions={permissions}
+        salesAgents={salesAgents}
+        stages={stages}
+      />
+    );
+  }
 
   const renderView = () => {
     const d = viewingQuotation;
