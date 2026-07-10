@@ -13,36 +13,6 @@ const Toast = Swal.mixin({
 
 const STORAGE_KEY = "intellicrm.calls";
 
-const seedCalls = [
-  {
-    _id: "seed-call-1",
-    clientName: "Ava Santos",
-    companyName: "Northstar Logistics",
-    contactMethod: "Phone",
-    contactValue: "09171234567",
-    callType: "Follow-up Call",
-    status: "Scheduled",
-    category: "Future Call",
-    scheduledAt: new Date(Date.now() + 1000 * 60 * 60 * 24).toISOString(),
-    notes: "Discussed delivery schedule.",
-    createdAt: new Date().toISOString(),
-  },
-  {
-    _id: "seed-call-2",
-    clientName: "Miguel Tan",
-    companyName: "BluePeak Studio",
-    contactMethod: "Email",
-    contactValue: "miguel@bluepeak.com",
-    callType: "Initial Client Contact",
-    status: "Completed",
-    category: "Past Call",
-    scheduledAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
-    completedAt: new Date(Date.now() - 1000 * 60 * 60 * 12).toISOString(),
-    outcome: "Client confirmed project scope.",
-    createdAt: new Date().toISOString(),
-  },
-];
-
 const getErrorMessage = (error, fallback) => {
   console.error("Full API error response:", error.response?.data);
 
@@ -157,7 +127,7 @@ export default function useCalls() {
         if (stored.length > 0) {
           syncCalls(stored);
         } else {
-          syncCalls(seedCalls);
+          syncCalls([]);
         }
       }
     } catch (error) {
@@ -167,7 +137,7 @@ export default function useCalls() {
       if (stored.length > 0) {
         syncCalls(stored);
       } else {
-        syncCalls(seedCalls);
+        syncCalls([]);
       }
 
       Toast.fire({

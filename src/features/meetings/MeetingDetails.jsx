@@ -31,11 +31,11 @@ export default function MeetingDetails({ meeting, onClose, onEdit, onDelete }) {
       label: 'Location',
       value: meeting.location || 'Enter location...',
     },
-    {
-      icon: <CalendarDays size={14} />,
-      label: 'All day',
-      value: meeting.allDay ? 'Yes' : 'No',
-    },
+    // {
+    //   icon: <CalendarDays size={14} />,
+    //   label: 'All day',
+    //   value: meeting.allDay ? 'Yes' : 'No',
+    // },
     {
       icon: <CalendarDays size={14} />,
       label: 'Date',

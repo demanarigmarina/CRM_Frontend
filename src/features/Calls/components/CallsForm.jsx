@@ -12,14 +12,13 @@ import {
 const FORM_ID = "calls-form";
 
 const initialFormData = {
-  companyName: "",
-  contactPerson: "",
-  contactNumber: "Mobile",
-  contactValue: "",
-  callType: "Follow-up Call",
+  client: "",
+  company: "",
+  contactMethod: "Mobile",
+  contactNumber: "",
+  callType: "Outbound", // Ginawang 'Outbound' para valid sa backend schema enum
   status: "Scheduled",
-  scheduledAt: "",
-  completedAt: "",
+  schedule: "",
   notes: "",
 };
 
@@ -36,8 +35,8 @@ const toDateTimeLocal = (value) => {
   return localDate.toISOString().slice(0, 16);
 };
 
-const getContactPlaceholder = (contactNumber) => {
-  switch (contactNumber) {
+const getContactPlaceholder = (contactMethod) => {
+  switch (contactMethod) {
     case "WhatsApp":
       return "Enter WhatsApp number...";
     case "Viber":
@@ -45,11 +44,6 @@ const getContactPlaceholder = (contactNumber) => {
     default:
       return "Enter Mobile number...";
   }
-};
-
-const getContactInputType = (contactNumber) => {
-  if (contactNumber === "WhatsApp") return "WhatsApp";
-  return "text";
 };
 
 export default function CallsForm({
@@ -67,21 +61,14 @@ export default function CallsForm({
 
     if (editingCall) {
       setFormData({
-        companyName: editingCall.companyName || "",
-        contactPerson: editingCall.contactPerson || "",
+        client: editingCall.client || "",
+        company: editingCall.company || "",
         contactMethod: editingCall.contactMethod || "Mobile",
-        contactValue:
-          editingCall.contactValue ||
-          editingCall.mobile||
-          editingCall.WhatsApp||
-          editingCall.Viber||
-          "",
-        callType: editingCall.callType || "Follow-up Call",
+        contactNumber: editingCall.contactNumber || "",
+        callType: editingCall.callType || "Outbound",
         status: editingCall.status || "Scheduled",
-        scheduledAt: toDateTimeLocal(editingCall.scheduledAt),
-        completedAt: toDateTimeLocal(editingCall.completedAt),
+        schedule: toDateTimeLocal(editingCall.schedule),
         notes: editingCall.notes || "",
-        outcome: editingCall.outcome || "",
       });
     } else {
       setFormData(initialFormData);
@@ -103,7 +90,7 @@ export default function CallsForm({
     setFormData((previous) => ({
       ...previous,
       contactMethod: value,
-      contactValue: "",
+      contactNumber: "", // Reset field values pag nagbago ng option
     }));
   };
 
@@ -111,19 +98,13 @@ export default function CallsForm({
     event.preventDefault();
 
     const payload = {
-      ...formData,
-      Mobile:
-        formData.contactMethod === "Mobile" || formData.contactMethod === ""
-          ? formData.contactValue
-          : "",
-      WhatsApp: formData.contactMethod === "WhatsApp" ? formData.contactValue : "",
-      Viber: formData.contactMethod === "Viber" ? formData.contactValue : "",
-      completedAt:
-        formData.status === "Completed" && formData.completedAt
-          ? formData.completedAt
-          : null,
-      scheduledAt: formData.scheduledAt || null,
-      contactValue: formData.contactValue || "",
+      client: formData.client,
+      company: formData.company,
+      contactNumber: formData.contactNumber || "",
+      callType: formData.callType,
+      schedule: formData.schedule || null,
+      status: formData.status || "Scheduled",
+      notes: formData.notes || "",
     };
 
     await onSubmit(payload);
@@ -141,23 +122,23 @@ export default function CallsForm({
       <form id={FORM_ID} onSubmit={handleSubmit} className="space-y-5">
         <FormSection title="Call Information">
           <div>
-            <FormLabel required>Company Name</FormLabel>
+            <FormLabel required>Client Name</FormLabel>
             <FormInput
-              name="clientName"
-              value={formData.clientName}
+              name="client"
+              value={formData.client}
               onChange={handleChange}
               required
-              placeholder="Enter comapany name..."
+              placeholder="Enter client name..."
             />
           </div>
 
           <div>
-            <FormLabel>Contact Person</FormLabel>
+            <FormLabel>Company Name</FormLabel>
             <FormInput
-              name="companyName"
-              value={formData.companyName}
+              name="company"
+              value={formData.company}
               onChange={handleChange}
-              placeholder="Enter client name..."
+              placeholder="Enter company name..."
             />
           </div>
 
@@ -178,14 +159,16 @@ export default function CallsForm({
 
           <div>
             <FormLabel required>
-              {formData.contactMethod === "WhatsApp" || formData.contactMethod === "Viber"
+              {formData.contactMethod === "WhatsApp"
                 ? "WhatsApp Number"
-                : "Viber Number"}
+                : formData.contactMethod === "Viber"
+                ? "Viber Number"
+                : "Mobile Number"}
             </FormLabel>
             <FormInput
-              type={getContactInputType(formData.contactMethod)}
-              name="contactValue"
-              value={formData.contactValue}
+              type="text"
+              name="contactNumber"
+              value={formData.contactNumber}
               onChange={handleChange}
               required
               placeholder={getContactPlaceholder(formData.contactMethod)}
@@ -201,12 +184,9 @@ export default function CallsForm({
               required
               className={inputClass}
             >
-              <option value="Follow-up Call">Follow-up Call</option>
-              <option value="Initial Client Contact">
-                Initial Client Contact
-              </option>
-              <option value="Sales Discussion">Sales Discussion</option>
-              <option value="Other">Other</option>
+              {/* 3. 🟢 ITINAMA: Ginawang Inbound/Outbound para tumugma sa enum restriction ng controller at model */}
+              <option value="Outbound">Outbound (We called client)</option>
+              <option value="Inbound">Inbound (Client called us)</option>
             </select>
           </div>
         </FormSection>
@@ -216,8 +196,8 @@ export default function CallsForm({
             <FormLabel required>Scheduled Date and Time</FormLabel>
             <FormInput
               type="datetime-local"
-              name="scheduledAt"
-              value={formData.scheduledAt}
+              name="schedule"
+              value={formData.schedule}
               onChange={handleChange}
               required
             />
@@ -238,18 +218,6 @@ export default function CallsForm({
               <option value="Missed">Missed</option>
             </select>
           </div>
-
-          {formData.status === "Completed" && (
-            <div>
-              <FormLabel>Completed Date and Time</FormLabel>
-              <FormInput
-                type="datetime-local"
-                name="completedAt"
-                value={formData.completedAt}
-                onChange={handleChange}
-              />
-            </div>
-          )}
         </FormSection>
 
         <FormSection title="Notes">
@@ -260,10 +228,8 @@ export default function CallsForm({
               value={formData.notes}
               onChange={handleChange}
               rows={4}
-              placeholder="Add notes if it's done through email or text..."
+              placeholder="Add short description or context about the call..."
             />
-          </div>
-            <div>
           </div>
         </FormSection>
       </form>

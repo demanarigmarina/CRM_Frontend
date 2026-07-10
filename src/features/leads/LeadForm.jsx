@@ -370,7 +370,7 @@ export default function LeadForm({
                   </FormLabel>
 
                   <div
-                    className={`flex items-center gap-2 px-3 py-2 border rounded-md min-h-[38px] ${
+                    className={`flex items-center gap-2 px-3 py-2 border rounded-md min-h-9.5 ${
                       permissions.canAssign && !formData.leadAssignee
                         ? "bg-amber-50 border-amber-200"
                         : "bg-gray-50 border-gray-200"
@@ -389,7 +389,7 @@ export default function LeadForm({
                               <img
                                 src={getProfileImage(agent.user)}
                                 alt="avatar"
-                                className="w-5 h-5 rounded-full object-cover border flex-shrink-0"
+                                className="w-5 h-5 rounded-full object-cover border shrink-0"
                               />
                               <span className="text-sm text-gray-600">
                                 {getDisplayName(agent.user, {
@@ -401,7 +401,7 @@ export default function LeadForm({
                         })()
                       ) : (
                         <div className="flex items-center gap-1.5">
-                          <UserRound className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                          <UserRound className="w-4 h-4 text-amber-400 shrink-0" />
                           <span className="text-sm text-amber-600">
                             Personal task — assign an agent above to delegate
                           </span>
@@ -410,7 +410,7 @@ export default function LeadForm({
                     ) : (
                       // Agent — always personal, always theirs
                       <div className="flex items-center gap-1.5">
-                        <UserRound className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                        <UserRound className="w-4 h-4 text-gray-400 shrink-0" />
                         <span className="text-sm text-gray-500">
                           You (personal task)
                         </span>

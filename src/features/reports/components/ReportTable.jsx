@@ -39,7 +39,7 @@ export default function ReportTable({
       paginatedItems={isLoading ? "loading" : paginatedItems}
       headers={HEADERS.map((h) => h.label)}
       emptyMessage="No reports found."
-      heightClass="h-[450px]"
+      heightClass="h-[540px]"
       currentPage={currentPage}
       totalPages={totalPages}
       totalRows={totalRows}

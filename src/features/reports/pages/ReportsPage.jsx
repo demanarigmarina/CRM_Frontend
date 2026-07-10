@@ -11,29 +11,29 @@ import { getSelectProps } from "../../../components/select/selectConfig";
 import ReportTable from "../components/ReportTable";
 import ReportModal from "../components/ReportModal";
 
-const initialReports = [
-  {
-    id: 1,
-    title: "Sales Report",
-    description: "Monitor sales progress and revenue",
-    category: "Sales",
-    route: "/reports/sales",
-  },
-  {
-    id: 2,
-    title: "Lead Conversion Report",
-    description: "View lead conversion statistics",
-    category: "Leads",
-    route: "/reports/leads",
-  },
-  {
-    id: 3,
-    title: "Client Report",
-    description: "Generate client information reports",
-    category: "Clients",
-    route: "/reports/clients",
-  },
-];
+// const initialReports = [
+//   {
+//     id: 1,
+//     title: "Sales Report",
+//     description: "Monitor sales progress and revenue",
+//     category: "Sales",
+//     route: "/reports/sales",
+//   },
+//   {
+//     id: 2,
+//     title: "Lead Conversion Report",
+//     description: "View lead conversion statistics",
+//     category: "Leads",
+//     route: "/reports/leads",
+//   },
+//   {
+//     id: 3,
+//     title: "Client Report",
+//     description: "Generate client information reports",
+//     category: "Clients",
+//     route: "/reports/clients",
+//   },
+// ];
 
 const emptyForm = {
   title: "",
@@ -51,7 +51,7 @@ const Toast = Swal.mixin({
 });
 
 export default function ReportsPage() {
-  const [reports, setReports] = useState(initialReports);
+  const [reports, setReports] = useState([]);
   const [search, setSearch] = useState("");
   const [filterCategory, setFilterCategory] = useState("All");
   const [isModalOpen, setIsModalOpen] = useState(false);

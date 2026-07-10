@@ -10,21 +10,21 @@ const Toast = Swal.mixin({
   width: 'auto',
 });
 
-const MOCK_MEETINGS = [
-  {
-    id: 1,
-    title: 'ABC Corporation Consultation',
-    type: 'Client Consultation',
-    date: '2026-07-17',
-    time: '10:00 AM - 11:30 AM',
-    location: 'Conference Room A',
-    organizer: 'John Doe (Sales Manager)',
-    client: 'ABC Corporation',
-    color: 'bg-blue-50 text-blue-600 border-blue-200',
-    notes: 'Discuss project requirements, quotation details, and expected timeline for the upcoming campaign.',
-    participants: ['John Doe', 'Jane Smith', 'Michael Cruz', 'Sarah Santos', 'Kevin Reyes'],
-  },
-];
+// const MOCK_MEETINGS = [
+//   {
+//     id: 1,
+//     title: 'ABC Corporation Consultation',
+//     type: 'Client Consultation',
+//     date: '2026-07-17',
+//     time: '10:00 AM - 11:30 AM',
+//     location: 'Conference Room A',
+//     organizer: 'John Doe (Sales Manager)',
+//     client: 'ABC Corporation',
+//     color: 'bg-blue-50 text-blue-600 border-blue-200',
+//     notes: 'Discuss project requirements, quotation details, and expected timeline for the upcoming campaign.',
+//     participants: ['John Doe', 'Jane Smith', 'Michael Cruz', 'Sarah Santos', 'Kevin Reyes'],
+//   },
+// ];
 
 const getMeetingColor = (type = "") => {
   switch (type.trim().toLowerCase()) {
@@ -55,7 +55,7 @@ const getMeetingColor = (type = "") => {
 };
 
 export function useMeetings() {
-  const [meetings, setMeetings] = useState(MOCK_MEETINGS);
+  const [meetings, setMeetings] = useState([]);
   const [selectedMeeting, setSelectedMeeting] = useState(null);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [searchQuery, setSearchQuery] = useState('');
@@ -116,15 +116,15 @@ export function useMeetings() {
       type: meetingData.type,
       client: meetingData.client,
       time:
-        (meetingData.startTime && meetingData.endTime && `${meetingData.startTime} - ${meetingData.endTime}`) ||
-        meetingData.time ||
-        '12:00 PM - 1:00 PM',
-      location: meetingData.location || 'Main Office',
-      locationScope: meetingData.locationScope || 'Inside the Philippines',
-      organizer: meetingData.host || meetingData.organizer || 'John Doe',
+        meetingData.startTime && meetingData.endTime
+          ? `${meetingData.startTime} - ${meetingData.endTime}`
+          : meetingData.time,
+      location: meetingData.location,
+      locationScope: meetingData.locationScope,
+      organizer: meetingData.host || meetingData.organizer,
       color: getMeetingColor(meetingData.type),
-      notes: meetingData.notes || 'Prepared for backend integration',
-      participants: meetingData.participants || ['John Doe'],
+      notes: meetingData.notes,
+      participants: meetingData.participants,
     };
 
     if (meetingToEdit) {

@@ -1,7 +1,7 @@
-import BaseKanban from "../../components/kanban/BaseKanban";
-import KanbanColumnHeader from "../../components/kanban/KanbanColumnHeader";
+import BaseKanban from "../../../components/kanban/BaseKanban";
+import KanbanColumnHeader from "../../../components/kanban/KanbanColumnHeader";
 import QuotationCard from "./QuotationCard";
-import LoaderCards from "../../components/loader/CardsLazyLoader";
+import LoaderCards from "../../../components/loader/CardsLazyLoader";
 
 const formatTotal = (quotations) => {
   const totals = quotations.reduce((acc, d) => {

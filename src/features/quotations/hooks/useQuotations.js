@@ -143,6 +143,7 @@ export function useQuotations() {
         stage: formData.stage || "Draft",
         expectedCloseDate: formData.expectedCloseDate || null,
         notes: formData.notes || "",
+        templateId: formData.templateId || "standard",
       };
       if (formData.assignedTo) {
         payload.assignedTo = formData.assignedTo;
@@ -176,6 +177,7 @@ export function useQuotations() {
         stage: formData.stage,
         expectedCloseDate: formData.expectedCloseDate || null,
         notes: formData.notes || "",
+        templateId: formData.templateId || "standard",
       };
       if (formData.assignedTo !== undefined) {
         payload.assignedTo = formData.assignedTo || null;

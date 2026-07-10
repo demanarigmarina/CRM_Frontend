@@ -21,6 +21,7 @@ const EMPTY_FORM = {
   expectedCloseDate: "",
   assignedTo: "",
   notes: "",
+  templateId: "standard",
 };
 
 const mapQuotationToForm = (quotation) => ({
@@ -34,6 +35,7 @@ const mapQuotationToForm = (quotation) => ({
     : "",
   assignedTo: quotation.assignedTo?._id || "",
   notes: quotation.notes || "",
+  templateId: quotation.templateId || "standard",
 });
 
 export function useQuotationModal() {
@@ -86,6 +88,7 @@ export function useQuotationModal() {
     setFormData({
       ...EMPTY_FORM,
       stage,
+      templateId: "standard",
       // probability: STAGE_PROBABILITY[stage] ?? 10,
     });
     setViewingQuotation(null);
