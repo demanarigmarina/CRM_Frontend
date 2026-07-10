@@ -17,6 +17,7 @@ const EMPTY_FORM = {
   client: "",
   value: "",
   currency: "PHP",
+  stage: "Draft",
   // probability: 10,
   expectedCloseDate: "",
   assignedTo: "",
@@ -82,7 +83,7 @@ export function useQuotationModal() {
   );
 
   const openCreate = useCallback((presetStage) => {
-    const stage = presetStage || "Prospecting";
+    const stage = presetStage || "Draft";
     setFormData({
       ...EMPTY_FORM,
       stage,
