@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import FormDrawer from "../../../components/form/FormDrawer";
 import FormSection from "../../../components/form/FormSection";
+
 import {
   FormInput,
   FormLabel,
@@ -9,48 +10,57 @@ import {
   inputClass,
 } from "../../../components/form/FormField";
 
+
 const FORM_ID = "calls-form";
 
+
 const initialFormData = {
-  companyName: "",
-  contactPerson: "",
-  contactNumber: "Mobile",
+  contactName: "",
+  companyPerson: "",
+  contactMethod: "Mobile",
   contactValue: "",
   callType: "Follow-up Call",
   status: "Scheduled",
   scheduledAt: "",
   completedAt: "",
   notes: "",
+  outcome: "",
 };
 
-const toDateTimeLocal = (value) => {
+
+const toDateTimeLocal = (value) =>  
+    {
   if (!value) return "";
 
   const date = new Date(value);
 
-  if (Number.isNaN(date.getTime())) return "";
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
 
   const offset = date.getTimezoneOffset();
-  const localDate = new Date(date.getTime() - offset * 60 * 1000);
 
-  return localDate.toISOString().slice(0, 16);
+  return new Date(
+    date.getTime() - offset * 60000,
+  )
+    .toISOString()
+    .slice(0, 16);
 };
 
-const getContactPlaceholder = (contactNumber) => {
-  switch (contactNumber) {
+
+const getContactPlaceholder = (method) => {
+  switch (method) {
     case "WhatsApp":
       return "Enter WhatsApp number...";
+
     case "Viber":
       return "Enter Viber number...";
+
     default:
-      return "Enter Mobile number...";
+      return "Enter mobile number...";
   }
 };
 
-const getContactInputType = (contactNumber) => {
-  if (contactNumber === "WhatsApp") return "WhatsApp";
-  return "text";
-};
 
 export default function CallsForm({
   open,
@@ -60,36 +70,64 @@ export default function CallsForm({
   onCancel,
   loading,
 }) {
-  const [formData, setFormData] = useState(initialFormData);
+  const [formData, setFormData] =
+    useState(initialFormData);
+
 
   useEffect(() => {
     if (!open) return;
 
     if (editingCall) {
       setFormData({
-        companyName: editingCall.companyName || "",
-        contactPerson: editingCall.contactPerson || "",
-        contactMethod: editingCall.contactMethod || "Mobile",
+        contactPerson:
+          editingCall.contactPerson || "",
+
+        companyName:
+          editingCall.companyName || "",
+
+        contactMethod:
+          editingCall.contactMethod || "Mobile",
+
         contactValue:
           editingCall.contactValue ||
-          editingCall.mobile||
-          editingCall.WhatsApp||
-          editingCall.Viber||
+          editingCall.phone ||
           "",
-        callType: editingCall.callType || "Follow-up Call",
-        status: editingCall.status || "Scheduled",
-        scheduledAt: toDateTimeLocal(editingCall.scheduledAt),
-        completedAt: toDateTimeLocal(editingCall.completedAt),
-        notes: editingCall.notes || "",
-        outcome: editingCall.outcome || "",
+
+        callType:
+          editingCall.callType ||
+          "Follow-up Call",
+
+        status:
+          editingCall.status ||
+          "Scheduled",
+
+        scheduledAt:
+          toDateTimeLocal(
+            editingCall.scheduledAt,
+          ),
+
+        completedAt:
+          toDateTimeLocal(
+            editingCall.completedAt,
+          ),
+
+        notes:
+          editingCall.notes || "",
+
+        outcome:
+          editingCall.outcome || "",
       });
     } else {
       setFormData(initialFormData);
     }
   }, [open, editingCall]);
 
+
   const handleChange = (event) => {
-    const { name, value } = event.target;
+    const {
+      name,
+      value,
+    } = event.target;
 
     setFormData((previous) => ({
       ...previous,
@@ -97,175 +135,265 @@ export default function CallsForm({
     }));
   };
 
-  const handleContactMethodChange = (event) => {
-    const { value } = event.target;
 
+  const handleContactMethodChange = (event) => {
     setFormData((previous) => ({
       ...previous,
-      contactMethod: value,
+      contactMethod: event.target.value,
       contactValue: "",
     }));
   };
+
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
     const payload = {
       ...formData,
-      Mobile:
-        formData.contactMethod === "Mobile" || formData.contactMethod === ""
+
+      phone:
+        formData.contactMethod === "Mobile"
           ? formData.contactValue
           : "",
-      WhatsApp: formData.contactMethod === "WhatsApp" ? formData.contactValue : "",
-      Viber: formData.contactMethod === "Viber" ? formData.contactValue : "",
+
+      WhatsApp:
+        formData.contactMethod === "WhatsApp"
+          ? formData.contactValue
+          : "",
+
+      Viber:
+        formData.contactMethod === "Viber"
+          ? formData.contactValue
+          : "",
+
+      scheduledAt:
+        formData.scheduledAt || null,
+
       completedAt:
-        formData.status === "Completed" && formData.completedAt
-          ? formData.completedAt
+        formData.status === "Completed"
+          ? formData.completedAt || null
           : null,
-      scheduledAt: formData.scheduledAt || null,
-      contactValue: formData.contactValue || "",
     };
 
     await onSubmit(payload);
   };
 
+
   return (
     <FormDrawer
       open={open}
-      title={editingCall ? "Edit Call" : "Add Call"}
+      title={
+        editingCall
+          ? "Edit Call"
+          : "Add Call"
+      }
       formId={FORM_ID}
       loading={loading}
       onClose={onClose}
       onCancel={onCancel}
     >
-      <form id={FORM_ID} onSubmit={handleSubmit} className="space-y-5">
-        <FormSection title="Call Information">
-          <div>
-            <FormLabel required>Company Name</FormLabel>
-            <FormInput
-              name="clientName"
-              value={formData.clientName}
-              onChange={handleChange}
-              required
-              placeholder="Enter comapany name..."
-            />
-          </div>
+      <form
+        id={FORM_ID}
+        onSubmit={handleSubmit}
+        className="space-y-5"
+      >
 
-          <div>
-            <FormLabel>Contact Person</FormLabel>
+        <FormSection title="Call Information">
+
+            <div>
+            <FormLabel>
+              Company Name
+            </FormLabel>
+
             <FormInput
               name="companyName"
               value={formData.companyName}
               onChange={handleChange}
-              placeholder="Enter client name..."
+              placeholder="Enter company name..."
             />
-          </div>
-
-          <div>
-            <FormLabel required>Contact Method</FormLabel>
-            <select
-              name="contactMethod"
-              value={formData.contactMethod}
-              onChange={handleContactMethodChange}
-              required
-              className={inputClass}
-            >
-              <option value="Mobile">Mobile</option>
-              <option value="WhatsApp">WhatsApp</option>
-              <option value="Viber">Viber</option>
-            </select>
           </div>
 
           <div>
             <FormLabel required>
-              {formData.contactMethod === "WhatsApp" || formData.contactMethod === "Viber"
-                ? "WhatsApp Number"
-                : "Viber Number"}
+              Contact Person
             </FormLabel>
+
             <FormInput
-              type={getContactInputType(formData.contactMethod)}
-              name="contactValue"
-              value={formData.contactValue}
+              name="contactPerson"
+              value={formData.contactPerson}
               onChange={handleChange}
+              placeholder="Enter contact person..."
               required
-              placeholder={getContactPlaceholder(formData.contactMethod)}
             />
           </div>
 
+
+        
+
+          <div className="grid grid-cols-2 gap-4">
+
+            <div>
+              <FormLabel required>
+                Contact Method
+              </FormLabel>
+
+              <select
+                name="contactMethod"
+                value={formData.contactMethod}
+                onChange={handleContactMethodChange}
+                className={inputClass}
+                required
+              >
+                <option value="Mobile">
+                  Mobile
+                </option>
+
+                <option value="WhatsApp">
+                  WhatsApp
+                </option>
+
+                <option value="Viber">
+                  Viber
+                </option>
+              </select>
+            </div>
+
+
+            <div>
+              <FormLabel required>
+                Contact Number
+              </FormLabel>
+
+              <FormInput
+                name="contactValue"
+                value={formData.contactValue}
+                onChange={handleChange}
+                placeholder={
+                  getContactPlaceholder(
+                    formData.contactMethod,
+                  )
+                }
+                required
+              />
+            </div>
+
+          </div>
+
+
           <div>
-            <FormLabel required>Call Type</FormLabel>
+            <FormLabel required>
+              Call Type
+            </FormLabel>
+
             <select
               name="callType"
               value={formData.callType}
               onChange={handleChange}
-              required
               className={inputClass}
+              required
             >
-              <option value="Follow-up Call">Follow-up Call</option>
+              <option value="Follow-up Call">
+                Follow-up Call
+              </option>
+
               <option value="Initial Client Contact">
                 Initial Client Contact
               </option>
-              <option value="Sales Discussion">Sales Discussion</option>
-              <option value="Other">Other</option>
+
+              <option value="Sales Discussion">
+                Sales Discussion
+              </option>
+
+              <option value="Other">
+                Other
+              </option>
             </select>
           </div>
+
         </FormSection>
 
-        <FormSection title="Schedule">
-          <div>
-            <FormLabel required>Scheduled Date and Time</FormLabel>
-            <FormInput
-              type="datetime-local"
-              name="scheduledAt"
-              value={formData.scheduledAt}
-              onChange={handleChange}
-              required
-            />
-          </div>
+            <FormSection title="Schedule">
 
-          <div>
-            <FormLabel required>Status</FormLabel>
-            <select
-              name="status"
-              value={formData.status}
-              onChange={handleChange}
-              required
-              className={inputClass}
-            >
-              <option value="Scheduled">Scheduled</option>
-              <option value="Completed">Completed</option>
-              <option value="Cancelled">Cancelled</option>
-              <option value="Missed">Missed</option>
-            </select>
-          </div>
+            <div className="grid grid-cols-2 gap-4">
 
-          {formData.status === "Completed" && (
-            <div>
-              <FormLabel>Completed Date and Time</FormLabel>
-              <FormInput
-                type="datetime-local"
-                name="completedAt"
-                value={formData.completedAt}
-                onChange={handleChange}
-              />
+                <div>
+                <FormLabel required>
+                    Scheduled Date and Time
+                </FormLabel>
+
+                <FormInput
+                    type="datetime-local"
+                    name="scheduledAt"
+                    value={formData.scheduledAt}
+                    onChange={handleChange}
+                    required
+                />
+                </div>
+
+
+                <div>
+                <FormLabel required>
+                    Status
+                </FormLabel>
+
+                <select
+                    name="status"
+                    value={formData.status}
+                    onChange={handleChange}
+                    className={inputClass}
+                    required
+                >
+                    <option value="Scheduled">
+                    Scheduled
+                    </option>
+
+                    <option value="Completed">
+                    Completed
+                    </option>
+
+                    <option value="Cancelled">
+                    Cancelled
+                    </option>
+
+                    <option value="Missed">
+                    Missed
+                    </option>
+                </select>
+                </div>
+
             </div>
-          )}
-        </FormSection>
+
+
+            {formData.status === "Completed" && (
+                <div>
+                <FormLabel>
+                    Completed Date and Time
+                </FormLabel>
+
+                <FormInput
+                    type="datetime-local"
+                    name="completedAt"
+                    value={formData.completedAt}
+                    onChange={handleChange}
+                />
+                </div>
+            )}
+
+            </FormSection>
+
 
         <FormSection title="Notes">
-          <div>
-            <FormLabel>Notes</FormLabel>
-            <FormTextarea
-              name="notes"
-              value={formData.notes}
-              onChange={handleChange}
-              rows={4}
-              placeholder="Add notes if it's done through email or text..."
-            />
-          </div>
-            <div>
-          </div>
+
+          <FormTextarea
+            name="notes"
+            value={formData.notes}
+            onChange={handleChange}
+            rows={4}
+            placeholder="Add call notes..."
+          />
+
         </FormSection>
+
       </form>
     </FormDrawer>
   );
