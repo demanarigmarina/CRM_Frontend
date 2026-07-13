@@ -14,7 +14,22 @@ export default function MeetingCalendar({ currentMonth, meetings, onSelectMeetin
     return `${year}-${month}-${day}`;
   };
 
-  const getMeetingsForDate = (date) => meetings.filter((meeting) => meeting.date === getDateKey(date));
+  const formatMeetingDate = (date) => {
+    if (!date) return "";
+  
+    const d = new Date(date);
+  
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+  
+    return `${year}-${month}-${day}`;
+  };
+
+  const getMeetingsForDate = (date) =>
+    meetings.filter(
+      (meeting) => formatMeetingDate(meeting.date) === getDateKey(date)
+    );
 
   const renderMeetingCard = (meeting) => {
     const accentClass = meeting.color.includes('red')
@@ -117,8 +132,7 @@ export default function MeetingCalendar({ currentMonth, meetings, onSelectMeetin
       <div className="flex-1 overflow-auto">
       <div className="grid h-230 grid-cols-7 grid-rows-6">
           {calendarCells.map((cell, idx) => {
-            const dateStr = getDateKey(cell.date);
-            const dayMeetings = meetings.filter((m) => m.date === dateStr);
+            const dayMeetings = getMeetingsForDate(cell.date);
 
           return (
             <div

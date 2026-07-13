@@ -17,11 +17,11 @@ const EMPTY_FORM = {
   client: "",
   value: "",
   currency: "PHP",
+  stage: "Draft",
   // probability: 10,
   expectedCloseDate: "",
   assignedTo: "",
   notes: "",
-  templateId: "standard",
 };
 
 const mapQuotationToForm = (quotation) => ({
@@ -35,7 +35,6 @@ const mapQuotationToForm = (quotation) => ({
     : "",
   assignedTo: quotation.assignedTo?._id || "",
   notes: quotation.notes || "",
-  templateId: quotation.templateId || "standard",
 });
 
 export function useQuotationModal() {
@@ -84,11 +83,10 @@ export function useQuotationModal() {
   );
 
   const openCreate = useCallback((presetStage) => {
-    const stage = presetStage || "Prospecting";
+    const stage = presetStage || "Draft";
     setFormData({
       ...EMPTY_FORM,
       stage,
-      templateId: "standard",
       // probability: STAGE_PROBABILITY[stage] ?? 10,
     });
     setViewingQuotation(null);

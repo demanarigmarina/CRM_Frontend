@@ -1,8 +1,8 @@
 import { Pencil, Calendar, User } from "lucide-react";
-import { getProfileImage } from "../../../utils/avatar";
-import { getDisplayName } from "../../../utils/name";
-import { formatDate } from "../../../utils/date";
-import { formatCurrencyCompact } from "../../../utils/currency";
+import { getProfileImage } from "../../utils/avatar";
+import { getDisplayName } from "../../utils/name";
+import { formatDate } from "../../utils/date";
+import { formatCurrencyCompact } from "../../utils/currency";
 // import { getProbabilityTone } from "./utils/quotationPresentation";
 
 import {
@@ -11,11 +11,11 @@ import {
   TableCell,
   TablePagination,
   useTablePagination,
-} from "../../../components/table";
-import LoaderTables from "../../../components/loader/TablesLazyLoader";
+} from "../../components/table";
+import LoaderTables from "../../components/loader/TablesLazyLoader";
 
-import BaseBadge from "../../../components/badge/BaseBadge";
-import UserDisplayName from "../../../components/UserDisplayName";
+import BaseBadge from "../../components/badge/BaseBadge";
+import UserDisplayName from "../../components/UserDisplayName";
 
 const STAGE_CONFIG = {
   Prospecting: { tone: "blue" },

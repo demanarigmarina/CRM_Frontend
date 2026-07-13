@@ -13,9 +13,6 @@ import {
 import FilterPopover from "../../components/filters/FilterPopover";
 import { useFilterPopover } from "../../components/filters/useFilterPopover";
 import { getSelectProps } from "../../components/select/selectConfig";
-import Modal from "../../components/modal/Modal";
-import TemplateBuilder from "./Builder/TemplateBuilder";
-import { useQuotationTemplates } from "./hooks/useQuotationTemplates";
 
 import { getDisplayName } from "../../utils/name";
 
@@ -26,9 +23,9 @@ import { useQuotationModal } from "./hooks/useQuotationModal";
 import { useClients } from "../clients/hooks/useClients";
 import { useUsers } from "../users/hooks/useUsers";
 
-import QuotationKanban from "./components/QuotationKanban";
-import QuotationTable from "./components/QuotationTable";
-import QuotationModal from "./components/QuotationModal";
+import QuotationKanban from "./QuotationKanban";
+import QuotationTable from "./QuotationTable";
+import QuotationModal from "./QuotationModal";
 
 export default function QuotationsPage() {
   const permissions = usePermissions("quotations");
@@ -84,47 +81,6 @@ export default function QuotationsPage() {
     handleChange,
     handleSelectChange,
   } = useQuotationModal();
-
-  const {
-    templates,
-    selectTemplate,
-    saveTemplate,
-  } = useQuotationTemplates();
-
-  const [templateBuilderOpen, setTemplateBuilderOpen] = useState(false);
-  const [builderTemplate, setBuilderTemplate] = useState(null);
-
-  const openTemplateBuilder = useCallback((template = null) => {
-    setBuilderTemplate(
-      template ?? {
-        id: `custom_${Date.now()}`,
-        name: "My Custom Template",
-        description: "User-defined layout template",
-        icon: null,
-        sections: [],
-      },
-    );
-    setTemplateBuilderOpen(true);
-  }, []);
-
-  const closeTemplateBuilder = useCallback(() => {
-    setTemplateBuilderOpen(false);
-    setBuilderTemplate(null);
-  }, []);
-
-  const handleSaveTemplate = useCallback(
-    (template) => {
-      saveTemplate(template);
-      selectTemplate(template.id);
-      handleSelectChange("templateId", template.id);
-      closeTemplateBuilder();
-    },
-    [saveTemplate, selectTemplate, handleSelectChange, closeTemplateBuilder],
-  );
-
-  const handleCreateCustomTemplate = useCallback(() => {
-    openTemplateBuilder();
-  }, [openTemplateBuilder]);
 
   const [view, setView] = useState("table");
   const [search, setSearch] = useState("");
@@ -254,13 +210,16 @@ export default function QuotationsPage() {
     );
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e, submittedFormData = formData) => {
     e.preventDefault();
     if (mode === "create") {
-      const created = await createQuotation(formData);
+      const created = await createQuotation(submittedFormData);
       if (created) closeModal();
     } else if (mode === "edit" && viewingQuotation) {
-      const updated = await updateQuotation(viewingQuotation._id, formData);
+      const updated = await updateQuotation(
+        viewingQuotation._id,
+        submittedFormData,
+      );
       if (updated) closeModal();
     }
   };
@@ -391,9 +350,9 @@ export default function QuotationsPage() {
         tasks={tasks}
         tasksLoading={tasksLoading}
         clients={clients}
+        currentUser={currentUser}
         salesAgents={salesAgents}
         permissions={permissions}
-        templates={templates}
         loading={submitting}
         onChange={handleChange}
         onSelectChange={handleSelectChange}
@@ -403,24 +362,7 @@ export default function QuotationsPage() {
         onDelete={handleDelete}
         onClose={closeModal}
         onAddTask={handleAddTask}
-        onCreateCustomTemplate={handleCreateCustomTemplate}
       />
-
-      {templateBuilderOpen && (
-        <Modal
-          open={templateBuilderOpen}
-          title={builderTemplate?.name || "Custom Quotation Template"}
-          onClose={closeTemplateBuilder}
-          maxWidth="max-w-7xl"
-          className="min-h-[85vh]"
-        >
-          <TemplateBuilder
-            template={builderTemplate}
-            onSave={handleSaveTemplate}
-            onCancel={closeTemplateBuilder}
-          />
-        </Modal>
-      )}
     </PageBase>
   );
 }

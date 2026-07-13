@@ -1,13 +1,13 @@
 import { FiCalendar } from "react-icons/fi";
 
-import BaseDraggableCard from "../../../components/kanban/BaseDraggableCard";
-import BaseBadge from "../../../components/badge/BaseBadge";
-import UserDisplayName from "../../../components/UserDisplayName";
+import BaseDraggableCard from "../../components/kanban/BaseDraggableCard";
+import BaseBadge from "../../components/badge/BaseBadge";
+import UserDisplayName from "../../components/UserDisplayName";
 
-import { getProfileImage } from "../../../utils/avatar";
-import { getDisplayName } from "../../../utils/name";
-import { formatCurrencyCompact } from "../../../utils/currency";
-import { formatDate } from "../../../utils/date";
+import { getProfileImage } from "../../utils/avatar";
+import { getDisplayName } from "../../utils/name";
+import { formatCurrencyCompact } from "../../utils/currency";
+import { formatDate } from "../../utils/date";
 // import { getProbabilityTone } from "./utils/quotationPresentation";
 
 export default function QuotationCard({ quotation, index, isLast, onClick }) {
