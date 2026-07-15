@@ -36,7 +36,8 @@ export function useDashboard() {
       });
 
       setError(
-        err.response?.data?.error || ""
+        err.response?.data?.error ||
+          "Failed to load dashboard data. Please try again.",
       );
 
     } finally {
