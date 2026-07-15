@@ -1,30 +1,75 @@
-import axios from "axios";
+import api from "./api";
 
-const authAxios = axios.create({
-  baseURL: `${import.meta.env.VITE_API_URL}/api/auth`,
-  withCredentials: true,
-});
+const unwrap=response=>response?.data??response;
 
-export const login = async (data) => {
-  const res = await authAxios.post("/login", data);
-  return res.data;
+export const login=async(emailOrPayload,password)=>{
+  const payload=
+    typeof emailOrPayload==="object"&&
+    emailOrPayload!==null
+      ?emailOrPayload
+      :{
+        email:emailOrPayload,
+        password,
+      };
+
+  const response=await api.post(
+    "/api/auth/login",
+    payload,
+  );
+
+  return unwrap(response);
 };
 
-export const logout = async () => {
-  await authAxios.post("/logout");
+export const refreshToken=async()=>{
+  const response=await api.post(
+    "/api/auth/refresh",
+  );
+
+  return unwrap(response);
 };
 
-export const forgotPassword = async (email) => {
-  const res = await authAxios.post("/forgot-password", { email });
-  return res.data;
+export const logout=async()=>{
+  const response=await api.post(
+    "/api/auth/logout",
+  );
+
+  return unwrap(response);
 };
 
-export const resetPassword = async (token, newPassword) => {
-  const res = await authAxios.post("/reset-password", { token, newPassword });
-  return res.data;
+export const forgotPassword=async emailOrPayload=>{
+  const payload=
+    typeof emailOrPayload==="object"&&
+    emailOrPayload!==null
+      ?emailOrPayload
+      :{
+        email:emailOrPayload,
+      };
+
+  const response=await api.post(
+    "/api/auth/forgot-password",
+    payload,
+  );
+
+  return unwrap(response);
 };
 
-export const refreshToken = async () => {
-  const res = await authAxios.post("/refresh");
-  return res.data;
+export const resetPassword=async(
+  tokenOrPayload,
+  newPassword,
+)=>{
+  const payload=
+    typeof tokenOrPayload==="object"&&
+    tokenOrPayload!==null
+      ?tokenOrPayload
+      :{
+        token:tokenOrPayload,
+        newPassword,
+      };
+
+  const response=await api.post(
+    "/api/auth/reset-password",
+    payload,
+  );
+
+  return unwrap(response);
 };

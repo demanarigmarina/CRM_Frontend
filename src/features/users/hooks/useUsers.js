@@ -1,6 +1,13 @@
-import {useCallback,useEffect,useState} from "react";
-import Swal from "sweetalert2";
-import api from "../../../services/api";
+import{
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+}from"react";
+import{useLocation}from"react-router-dom";
+import Swal from"sweetalert2";
+import api from"../../../services/api";
+import{useAuth}from"../../../context/AuthContext";
 
 const Toast=Swal.mixin({
   toast:true,
@@ -10,7 +17,34 @@ const Toast=Swal.mixin({
   timerProgressBar:true,
 });
 
-const isFile=value=>typeof File!=="undefined"&&value instanceof File;
+const ASSIGNABLE_RESOURCE_ALIASES={
+  lead:"lead",
+  leads:"lead",
+  prospect:"lead",
+  prospects:"lead",
+  client:"customer",
+  clients:"customer",
+  customer:"customer",
+  customers:"customer",
+  quotation:"deal",
+  quotations:"deal",
+  deal:"deal",
+  deals:"deal",
+  task:"task",
+  tasks:"task",
+};
+
+const normalizeAssignableResource=value=>{
+  const normalized=String(value||"lead")
+    .trim()
+    .toLowerCase();
+
+  return ASSIGNABLE_RESOURCE_ALIASES[normalized]||"lead";
+};
+
+const isFile=value=>
+  typeof File!=="undefined"&&
+  value instanceof File;
 
 const getErrorMessage=error=>
   error?.response?.data?.error||
@@ -24,14 +58,25 @@ const unwrapUsers=data=>{
   return[];
 };
 
-const unwrapUser=data=>data?.data&& !Array.isArray(data.data)?data.data:data;
+const unwrapUser=data=>
+  data?.data&&
+  !Array.isArray(data.data)
+    ?data.data
+    :data;
 
 const inputToObject=input=>{
-  if(!(input instanceof FormData))return{...input};
-  const values={};
-  for(const[key,value]of input.entries()){
-    if(!isFile(value))values[key]=value;
+  if(!(input instanceof FormData)){
+    return{...input};
   }
+
+  const values={};
+
+  for(const[key,value]of input.entries()){
+    if(!isFile(value)){
+      values[key]=value;
+    }
+  }
+
   return values;
 };
 
@@ -39,35 +84,67 @@ const getProfilePicture=input=>{
   const value=input instanceof FormData
     ?input.get("profilePicture")
     :input?.profilePicture;
+
   return isFile(value)?value:null;
 };
 
 const normalizeTeam=team=>{
   if(!team)return null;
-  if(typeof team==="object")return team._id||team.id||null;
+
+  if(typeof team==="object"){
+    return team._id||team.id||null;
+  }
+
   return team;
 };
 
 const getAddress=values=>{
-  if(values.currentAddress&&typeof values.currentAddress==="object"){
+  if(
+    values.currentAddress&&
+    typeof values.currentAddress==="object"
+  ){
     return values.currentAddress;
   }
 
   if(typeof values.currentAddress==="string"){
     try{
       const parsed=JSON.parse(values.currentAddress);
-      if(parsed&&typeof parsed==="object")return parsed;
+
+      if(parsed&&typeof parsed==="object"){
+        return parsed;
+      }
     }catch{}
   }
 
   return{
-    houseNumber:values["currentAddress.houseNumber"]??values.houseNumber??"",
-    street:values["currentAddress.street"]??values.street??"",
-    barangay:values["currentAddress.barangay"]??values.barangay??"",
-    municipality:values["currentAddress.municipality"]??values.municipality??"",
-    province:values["currentAddress.province"]??values.province??"",
-    zipCode:values["currentAddress.zipCode"]??values.zipCode??"",
-    country:values["currentAddress.country"]??values.country??"Philippines",
+    houseNumber:
+      values["currentAddress.houseNumber"]??
+      values.houseNumber??
+      "",
+    street:
+      values["currentAddress.street"]??
+      values.street??
+      "",
+    barangay:
+      values["currentAddress.barangay"]??
+      values.barangay??
+      "",
+    municipality:
+      values["currentAddress.municipality"]??
+      values.municipality??
+      "",
+    province:
+      values["currentAddress.province"]??
+      values.province??
+      "",
+    zipCode:
+      values["currentAddress.zipCode"]??
+      values.zipCode??
+      "",
+    country:
+      values["currentAddress.country"]??
+      values.country??
+      "Philippines",
   };
 };
 
@@ -100,7 +177,10 @@ const buildUpdatePayload=(input,profilePicture=null)=>{
     if(value===undefined)return;
 
     if(payload instanceof FormData){
-      payload.append(key,value===null?"":value);
+      payload.append(
+        key,
+        value===null?"":value,
+      );
     }else{
       payload[key]=value;
     }
@@ -117,48 +197,132 @@ const buildUpdatePayload=(input,profilePicture=null)=>{
   append("sex",values.sex);
   append("dateOfBirth",values.dateOfBirth);
   append("placeOfBirth",values.placeOfBirth);
-  append("currentAddress.houseNumber",address.houseNumber??"");
-  append("currentAddress.street",address.street??"");
-  append("currentAddress.barangay",address.barangay??"");
-  append("currentAddress.municipality",address.municipality??"");
-  append("currentAddress.province",address.province??"");
-  append("currentAddress.zipCode",address.zipCode??"");
-  append("currentAddress.country",address.country??"Philippines");
+  append(
+    "currentAddress.houseNumber",
+    address.houseNumber??"",
+  );
+  append(
+    "currentAddress.street",
+    address.street??"",
+  );
+  append(
+    "currentAddress.barangay",
+    address.barangay??"",
+  );
+  append(
+    "currentAddress.municipality",
+    address.municipality??"",
+  );
+  append(
+    "currentAddress.province",
+    address.province??"",
+  );
+  append(
+    "currentAddress.zipCode",
+    address.zipCode??"",
+  );
+  append(
+    "currentAddress.country",
+    address.country??"Philippines",
+  );
 
-  if(values.password)append("password",values.password);
-  if(values.removeProfilePicture!==undefined){
-    append("removeProfilePicture",String(values.removeProfilePicture));
+  if(values.password){
+    append("password",values.password);
   }
-  if(profilePicture)append("profilePicture",profilePicture);
+
+  if(values.removeProfilePicture!==undefined){
+    append(
+      "removeProfilePicture",
+      String(values.removeProfilePicture),
+    );
+  }
+
+  if(profilePicture){
+    append("profilePicture",profilePicture);
+  }
 
   return payload;
 };
 
-export function useUsers(){
+export function useUsers({
+  skip=false,
+  mode="auto",
+  resource=null,
+}={}){
+  const{user}=useAuth();
+  const location=useLocation();
   const[users,setUsers]=useState([]);
-  const[loading,setLoading]=useState(true);
+  const[loading,setLoading]=useState(!skip);
+
+  const endpoint=useMemo(()=>{
+    if(mode==="all"){
+      return"/api/users";
+    }
+
+    if(mode==="assignable"){
+      const normalizedResource=
+        normalizeAssignableResource(resource);
+
+      return(
+        "/api/users/assignable?resource="+
+        encodeURIComponent(normalizedResource)
+      );
+    }
+
+    if(mode==="directory"){
+      return"/api/users/directory";
+    }
+
+    const isUserManagementPage=
+      user?.role==="Admin"&&
+      /\/users\/?$/.test(location.pathname);
+
+    return isUserManagementPage
+      ?"/api/users"
+      :"/api/users/directory";
+  },[
+    mode,
+    resource,
+    user?.role,
+    location.pathname,
+  ]);
 
   const fetchUsers=useCallback(async()=>{
+    if(skip){
+      setLoading(false);
+      return[];
+    }
+
     setLoading(true);
 
     try{
-      const response=await api.get("/api/users");
-      setUsers(unwrapUsers(response.data));
+      const response=await api.get(endpoint);
+      const loadedUsers=unwrapUsers(response.data);
+
+      setUsers(loadedUsers);
+
+      return loadedUsers;
     }catch(error){
       console.error("Fetch users error:",error);
+
       setUsers([]);
 
       Toast.fire({
         icon:"error",
         title:getErrorMessage(error),
       });
+
+      return[];
     }finally{
       setLoading(false);
     }
-  },[]);
+  },[
+    endpoint,
+    skip,
+  ]);
 
   useEffect(()=>{
-    fetchUsers();
+    void fetchUsers();
   },[fetchUsers]);
 
   const createUser=async formData=>{
@@ -168,11 +332,21 @@ export function useUsers(){
       const profilePicture=getProfilePicture(formData);
       const createPayload=buildCreatePayload(formData);
 
-      const response=await api.post("/api/users",createPayload);
+      const response=await api.post(
+        "/api/users",
+        createPayload,
+      );
+
       let createdUser=unwrapUser(response.data);
 
-      if(profilePicture&&createdUser?.employeeId){
-        const uploadPayload=buildUpdatePayload(createPayload,profilePicture);
+      if(
+        profilePicture&&
+        createdUser?.employeeId
+      ){
+        const uploadPayload=buildUpdatePayload(
+          createPayload,
+          profilePicture,
+        );
 
         const uploadResponse=await api.patch(
           `/api/users/${createdUser.employeeId}`,
@@ -182,7 +356,10 @@ export function useUsers(){
         createdUser=unwrapUser(uploadResponse.data);
       }
 
-      setUsers(previous=>[...previous,createdUser]);
+      setUsers(previous=>[
+        ...previous,
+        createdUser,
+      ]);
 
       Toast.fire({
         icon:"success",
@@ -209,7 +386,11 @@ export function useUsers(){
 
     try{
       const profilePicture=getProfilePicture(formData);
-      const payload=buildUpdatePayload(formData,profilePicture);
+
+      const payload=buildUpdatePayload(
+        formData,
+        profilePicture,
+      );
 
       const response=await api.patch(
         `/api/users/${employeeId}`,
@@ -219,9 +400,11 @@ export function useUsers(){
       const updatedUser=unwrapUser(response.data);
 
       setUsers(previous=>
-        previous.map(user=>
-          user.employeeId===employeeId?updatedUser:user
-        )
+        previous.map(currentUser=>
+          currentUser.employeeId===employeeId
+            ?updatedUser
+            :currentUser,
+        ),
       );
 
       Toast.fire({
@@ -248,20 +431,25 @@ export function useUsers(){
     const selectedUser=
       typeof identifier==="object"
         ?identifier
-        :users.find(user=>
-          user.employeeId===identifier||
-          user._id===identifier
+        :users.find(currentUser=>
+          currentUser.employeeId===identifier||
+          currentUser._id===identifier,
         );
 
     const employeeId=
       selectedUser?.employeeId||
-      (typeof identifier==="string"?identifier:null);
+      (
+        typeof identifier==="string"
+          ?identifier
+          :null
+      );
 
     if(!employeeId){
       Toast.fire({
         icon:"error",
         title:"User identifier was not found",
       });
+
       return false;
     }
 
@@ -275,15 +463,22 @@ export function useUsers(){
       confirmButtonColor:"#ef4444",
     });
 
-    if(!confirmation.isConfirmed)return false;
+    if(!confirmation.isConfirmed){
+      return false;
+    }
 
     setLoading(true);
 
     try{
-      await api.delete(`/api/users/${employeeId}`);
+      await api.delete(
+        `/api/users/${employeeId}`,
+      );
 
       setUsers(previous=>
-        previous.filter(user=>user.employeeId!==employeeId)
+        previous.filter(
+          currentUser=>
+            currentUser.employeeId!==employeeId,
+        ),
       );
 
       Toast.fire({
