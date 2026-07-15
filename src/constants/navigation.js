@@ -39,10 +39,10 @@ export const BASE_NAV = {
     label: "My Team",
   },
 
-  reports: {
-    icon: createIcon(BarChart2),
-    label: "Reports",
-  },
+  // reports: {
+  //   icon: createIcon(BarChart2),
+  //   label: "Reports",
+  // },
 
   // Module Header
   module: {
