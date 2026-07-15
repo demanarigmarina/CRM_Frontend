@@ -1,4 +1,4 @@
-import {
+import{
   LayoutDashboard,
   Users,
   Network,
@@ -11,92 +11,75 @@ import {
   CalendarDays,
   Phone,
   FileText,
-} from "lucide-react";
+}from"lucide-react";
 
-const createIcon = (Icon) => ({
-  default: Icon,
-  active: Icon,
+const createIcon=Icon=>({
+  default:Icon,
+  active:Icon,
 });
 
-export const BASE_NAV = {
-  dashboard: {
-    icon: createIcon(LayoutDashboard),
-    label: "Dashboard",
+export const BASE_NAV={
+  dashboard:{
+    icon:createIcon(LayoutDashboard),
+    label:"Dashboard",
   },
-
-  users: {
-    icon: createIcon(Users),
-    label: "Users",
+  users:{
+    icon:createIcon(Users),
+    label:"Users",
   },
-
-  teams: {
-    icon: createIcon(Network),
-    label: "Teams",
+  teams:{
+    icon:createIcon(Network),
+    label:"Teams",
   },
-
-  team: {
-    icon: createIcon(UsersRound),
-    label: "My Team",
+  team:{
+    icon:createIcon(UsersRound),
+    label:"My Team",
   },
-
-  // reports: {
-  //   icon: createIcon(BarChart2),
-  //   label: "Reports",
+  // reports:{
+  //   icon:createIcon(BarChart2),
+  //   label:"Reports",
   // },
-
-  // Module Header
-  module: {
-    label: "Modules",
-    type: "group",
+  module:{
+    label:"Modules",
+    type:"group",
   },
-
-  prospects: {
-    icon: createIcon(Briefcase),
-    label: "Prospects",
+  prospects:{
+    icon:createIcon(Briefcase),
+    label:"Prospects",
   },
-
-  leads: {
-    icon: createIcon(Magnet),
-    label: "Leads",
+  leads:{
+    icon:createIcon(Magnet),
+    label:"Leads",
   },
-
-  clients: {
-    icon: createIcon(UserCheck),
-    label: "Clients",
+  clients:{
+    icon:createIcon(UserCheck),
+    label:"Clients",
   },
-
-  quotations: {
-    icon: createIcon(FileText),
-    label: "Quotations",
+  quotations:{
+    icon:createIcon(FileText),
+    label:"Quotations",
   },
-
-  tasks: {
-    icon: createIcon(ListTodo),
-    label: "Tasks",
+  tasks:{
+    icon:createIcon(ListTodo),
+    label:"Tasks",
   },
-
-  meetings: {
-    icon: createIcon(CalendarDays),
-    label: "Meetings",
+  meetings:{
+    icon:createIcon(CalendarDays),
+    label:"Meetings",
   },
-
-  calls: {
-    icon: createIcon(Phone),
-    label: "Calls",
+  calls:{
+    icon:createIcon(Phone),
+    label:"Calls",
   },
 };
 
-export const ROLE_ROUTES = {
-  Admin: [
+export const ROLE_ROUTES={
+  Admin:[
     "dashboard",
-
     "users",
     "teams",
-
     "reports",
-
     "module",
-
     "prospects",
     "leads",
     "clients",
@@ -105,14 +88,11 @@ export const ROLE_ROUTES = {
     "meetings",
     "calls",
   ],
-
-  "Sales Manager": [
+  "Sales Manager":[
     "dashboard",
-
     "team",
-
+    "reports",
     "module",
-
     "prospects",
     "leads",
     "clients",
@@ -121,12 +101,10 @@ export const ROLE_ROUTES = {
     "meetings",
     "calls",
   ],
-
-  "Sales Agent": [
+  "Sales Agent":[
     "dashboard",
-
+    "reports",
     "module",
-
     "prospects",
     "leads",
     "clients",
@@ -135,15 +113,14 @@ export const ROLE_ROUTES = {
     "meetings",
     "calls",
   ],
-
-  "Support Staff": [
+  "Support Staff":[
     "dashboard",
   ],
 };
 
-export const ROLE_BASE_PATH = {
-  Admin: "/admin",
-  "Sales Manager": "/sales-manager",
-  "Sales Agent": "/sales-agent",
-  "Support Staff": "/support-staff",
+export const ROLE_BASE_PATH={
+  Admin:"/admin",
+  "Sales Manager":"/sales-manager",
+  "Sales Agent":"/sales-agent",
+  "Support Staff":"/support-staff",
 };

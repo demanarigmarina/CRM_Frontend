@@ -10,52 +10,59 @@ import {TablePagination,useTablePagination} from "../../../components/table";
 import ReportTable from "../components/ReportTable";
 import ReportModal from "../components/ReportModal";
 
-const initialReports = [
+const STORAGE_KEY="crm_reports";
+
+const initialReports=[
   {
-    id: 1,
-    title: "Sales Report",
-    description: "Monitor sales progress and revenue",
-    category: "Sales",
-    route: "/reports/sales",
+    id:1,
+    title:"Sales Report",
+    description:"Monitor sales progress and revenue",
+    category:"Sales",
+    route:"/reports/sales",
   },
   {
-    id: 2,
-    title: "Lead Conversion Report",
-    description: "View lead conversion statistics",
-    category: "Leads",
-    route: "/reports/leads",
+    id:2,
+    title:"Lead Conversion Report",
+    description:"View lead conversion statistics",
+    category:"Leads",
+    route:"/reports/leads",
   },
   {
-    id: 3,
-    title: "Client Report",
-    description: "Generate client information reports",
-    category: "Clients",
-    route: "/reports/clients",
+    id:3,
+    title:"Client Report",
+    description:"Generate client information reports",
+    category:"Clients",
+    route:"/reports/clients",
   },
 ];
 
-const emptyForm = {
-  title: "",
-  description: "",
-  category: "Sales",
+const emptyForm={
+  title:"",
+  description:"",
+  category:"Sales",
 };
 
-const Toast = Swal.mixin({
-  toast: true,
-  position: "top-end",
-  showConfirmButton: false,
-  timer: 3000,
-  timerProgressBar: true,
-  width: "auto",
+const Toast=Swal.mixin({
+  toast:true,
+  position:"top-end",
+  showConfirmButton:false,
+  timer:3000,
+  timerProgressBar:true,
+  width:"auto",
 });
 
 const loadReports=()=>{
   try{
     const stored=localStorage.getItem(STORAGE_KEY);
+
     if(!stored){
-      localStorage.setItem(STORAGE_KEY,JSON.stringify(initialReports));
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(initialReports),
+      );
       return initialReports;
     }
+
     const parsed=JSON.parse(stored);
     return Array.isArray(parsed)?parsed:initialReports;
   }catch{
@@ -63,21 +70,57 @@ const loadReports=()=>{
   }
 };
 
-export default function ReportsPage() {
-  const [reports, setReports] = useState(initialReports);
-  const [search, setSearch] = useState("");
-  const [filterCategory, setFilterCategory] = useState("All");
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingReport, setEditingReport] = useState(null);
-  const [formData, setFormData] = useState(emptyForm);
-  const [submitting, setSubmitting] = useState(false);
+export default function ReportsPage({
+  settingsMode=false,
+  embedded=false,
+}){
+  const[reports,setReports]=useState(loadReports);
+  const[search,setSearch]=useState("");
+  const[filterCategory,setFilterCategory]=useState("All");
+  const[isModalOpen,setIsModalOpen]=useState(false);
+  const[editingReport,setEditingReport]=useState(null);
+  const[formData,setFormData]=useState(emptyForm);
+  const[submitting,setSubmitting]=useState(false);
 
   useEffect(()=>{
-    localStorage.setItem(STORAGE_KEY,JSON.stringify(reports));
+    try{
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(reports),
+      );
+    }catch(error){
+      console.error("Save reports error:",error);
+    }
   },[reports]);
 
-  const clearAllFilters=()=>setFilterCategory("All");
-  const {filterOpen,setFilterOpen,filterRef,activeFilterCount}=useFilterPopover(
+  const categoryOptions=useMemo(()=>{
+    const categories=[
+      ...new Set(
+        reports
+          .map(report=>report.category)
+          .filter(Boolean),
+      ),
+    ].sort();
+
+    return[
+      {label:"All Reports",value:"All"},
+      ...categories.map(category=>({
+        label:category,
+        value:category,
+      })),
+    ];
+  },[reports]);
+
+  const clearAllFilters=()=>{
+    setFilterCategory("All");
+  };
+
+  const{
+    filterOpen,
+    setFilterOpen,
+    filterRef,
+    activeFilterCount,
+  }=useFilterPopover(
     {filterCategory},
     clearAllFilters,
   );
@@ -91,9 +134,9 @@ export default function ReportsPage() {
   const openEditModal=report=>{
     setEditingReport(report);
     setFormData({
-      title:report.title,
-      description:report.description,
-      category:report.category,
+      title:report.title||"",
+      description:report.description||"",
+      category:report.category||"Sales",
     });
     setIsModalOpen(true);
   };
@@ -105,11 +148,15 @@ export default function ReportsPage() {
   };
 
   const handleFieldChange=(field,value)=>{
-    setFormData(current=>({...current,[field]:value}));
+    setFormData(current=>({
+      ...current,
+      [field]:value,
+    }));
   };
 
   const handleSubmit=async event=>{
     event.preventDefault();
+
     const title=formData.title.trim();
     const description=formData.description.trim();
     const category=formData.category.trim();
@@ -126,28 +173,60 @@ export default function ReportsPage() {
     setSubmitting(true);
 
     try{
-      await new Promise(resolve=>window.setTimeout(resolve,400));
-      const slug=title
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g,"-")
-        .replace(/^-|-$/g,"")||"report";
+      const slug=
+        title
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g,"-")
+          .replace(/^-|-$/g,"")||
+        "report";
 
       if(editingReport){
-        setReports(current=>current.map(report=>
-          report.id===editingReport.id
-            ?{...report,title,description,category,route:`/reports/${slug}`}
-            :report,
-        ));
-        Toast.fire({icon:"success",title:"Report updated successfully"});
+        setReports(current=>
+          current.map(report=>
+            report.id===editingReport.id
+              ?{
+                ...report,
+                title,
+                description,
+                category,
+                route:`/reports/${slug}`,
+              }
+              :report,
+          ),
+        );
+
+        Toast.fire({
+          icon:"success",
+          title:"Report updated successfully",
+        });
       }else{
+        const newReport={
+          id:Date.now(),
+          title,
+          description,
+          category,
+          route:`/reports/${slug}`,
+        };
+
         setReports(current=>[
-          {id:Date.now(),title,description,category,route:`/reports/${slug}`},
+          newReport,
           ...current,
         ]);
-        Toast.fire({icon:"success",title:"Report created successfully"});
+
+        Toast.fire({
+          icon:"success",
+          title:"Report created successfully",
+        });
       }
 
       closeModal();
+    }catch(error){
+      console.error("Save report error:",error);
+
+      Toast.fire({
+        icon:"error",
+        title:"Failed to save report",
+      });
     }finally{
       setSubmitting(false);
     }
@@ -165,12 +244,25 @@ export default function ReportsPage() {
     });
 
     if(!result.isConfirmed)return;
+
     setSubmitting(true);
 
     try{
-      await new Promise(resolve=>window.setTimeout(resolve,350));
-      setReports(current=>current.filter(report=>report.id!==reportId));
-      Toast.fire({icon:"success",title:"Report deleted successfully"});
+      setReports(current=>
+        current.filter(report=>report.id!==reportId),
+      );
+
+      Toast.fire({
+        icon:"success",
+        title:"Report deleted successfully",
+      });
+    }catch(error){
+      console.error("Delete report error:",error);
+
+      Toast.fire({
+        icon:"error",
+        title:"Failed to delete report",
+      });
     }finally{
       setSubmitting(false);
     }
@@ -180,9 +272,17 @@ export default function ReportsPage() {
     const keyword=search.trim().toLowerCase();
 
     return reports.filter(report=>{
-      const searchMatch=[
-        report.title,report.description,report.category,
-      ].some(value=>String(value||"").toLowerCase().includes(keyword));
+      const searchMatch=
+        !keyword||
+        [
+          report.title,
+          report.description,
+          report.category,
+        ].some(value=>
+          String(value||"")
+            .toLowerCase()
+            .includes(keyword),
+        );
 
       const categoryMatch=
         filterCategory==="All"||
@@ -190,13 +290,27 @@ export default function ReportsPage() {
 
       return searchMatch&&categoryMatch;
     });
-  },[reports,search,filterCategory]);
+  },[
+    reports,
+    search,
+    filterCategory,
+  ]);
 
-  const paginationSource=settingsMode?[]:filteredReports;
+  const paginationSource=settingsMode
+    ?[]
+    :filteredReports;
 
-  const {
-    currentPage,rowsPerPage,totalRows,totalPages,paginatedItems,
-    pageWindow,from,to,goTo,setRowsPerPage,
+  const{
+    currentPage,
+    rowsPerPage,
+    totalRows,
+    totalPages,
+    paginatedItems,
+    pageWindow,
+    from,
+    to,
+    goTo,
+    setRowsPerPage,
   }=useTablePagination(paginationSource,10);
 
   const toolbar=(
@@ -214,27 +328,42 @@ export default function ReportsPage() {
           <FilterPopover
             filterRef={filterRef}
             filterOpen={filterOpen}
-            onToggle={()=>setFilterOpen(previous=>!previous)}
-            activeFilterCount={filterCategory==="All"?0:activeFilterCount}
+            onToggle={()=>
+              setFilterOpen(previous=>!previous)
+            }
+            activeFilterCount={
+              filterCategory==="All"
+                ?0
+                :activeFilterCount
+            }
             onClearAll={clearAllFilters}
           >
             <div>
-              <p className="mb-1 text-xs text-gray-400">Report Category</p>
+              <p className="mb-1 text-xs text-gray-400">
+                Report Category
+              </p>
+
               <Select
                 {...getSelectProps({variant:"filter"})}
                 placeholder="All Reports"
                 options={categoryOptions}
                 value={
                   categoryOptions.find(
-                    option=>option.value===filterCategory,
-                  )||categoryOptions[0]
+                    option=>
+                      option.value===filterCategory,
+                  )||
+                  categoryOptions[0]
                 }
-                onChange={option=>setFilterCategory(option?.value||"All")}
+                onChange={option=>
+                  setFilterCategory(
+                    option?.value||"All",
+                  )
+                }
               />
             </div>
           </FilterPopover>
         }
-        actionButton={
+         actionButton={
           <button
             type="button"
             onClick={openCreateModal}
@@ -257,17 +386,21 @@ export default function ReportsPage() {
           <th className="w-[27%] px-3 pb-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
             Report Name
           </th>
+
           <th className="w-[40%] px-3 pb-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
             Description
           </th>
+
           <th className="w-[18%] px-3 pb-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
             Category
           </th>
+
           <th className="w-[15%] px-3 pb-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
             Actions
           </th>
         </tr>
       </thead>
+
       <tbody/>
     </table>
   );
@@ -285,8 +418,7 @@ export default function ReportsPage() {
               onEdit={openEditModal}
               onDelete={handleDelete}
             />
-          )
-        }
+          )}
       </div>
 
       <div className="shrink-0 border-t border-gray-200 bg-white pt-3">
@@ -315,5 +447,7 @@ export default function ReportsPage() {
     </div>
   );
 
-  return embedded?content:<PageBase>{content}</PageBase>;
+  return embedded
+    ?content
+    :<PageBase>{content}</PageBase>;
 }

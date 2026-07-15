@@ -13,8 +13,20 @@ import ReportsTab from "./ReportsTab";
 import {useUsers} from "../hooks/useUsers";
 import {useUserForm} from "../hooks/useUserForm";
 
+const TAB_STORAGE_KEY="settings_active_tab";
+const TABS=["Users","Edit Access","Reports"];
+
+const getInitialTab=()=>{
+  try{
+    const storedTab=sessionStorage.getItem(TAB_STORAGE_KEY);
+    return TABS.includes(storedTab)?storedTab:"Users";
+  }catch{
+    return"Users";
+  }
+};
+
 export default function UsersTab(){
-  const[activeTab,setActiveTab]=useState("Users");
+  const[activeTab,setActiveTab]=useState(getInitialTab);
   const[search,setSearch]=useState("");
   const[viewUser,setViewUser]=useState(null);
   const[filterRole,setFilterRole]=useState(null);
@@ -49,6 +61,18 @@ export default function UsersTab(){
     validateForm,
     buildUserPayload,
   }=useUserForm();
+
+  const changeTab=tab=>{
+    if(!TABS.includes(tab))return;
+
+    setActiveTab(tab);
+
+    try{
+      sessionStorage.setItem(TAB_STORAGE_KEY,tab);
+    }catch(error){
+      console.error("Save active settings tab error:",error);
+    }
+  };
 
   const roleOptions=useMemo(
     ()=>[...new Set(users.map(user=>user.role).filter(Boolean))]
@@ -131,11 +155,24 @@ export default function UsersTab(){
             .includes(query),
         );
 
-      const matchesRole=!filterRole||user.role===filterRole;
-      const matchesTeam=!filterTeam||team===filterTeam;
-      const matchesStatus=!filterStatus||user.status===filterStatus;
+      const matchesRole=
+        !filterRole||
+        user.role===filterRole;
 
-      return matchesSearch&&matchesRole&&matchesTeam&&matchesStatus;
+      const matchesTeam=
+        !filterTeam||
+        team===filterTeam;
+
+      const matchesStatus=
+        !filterStatus||
+        user.status===filterStatus;
+
+      return(
+        matchesSearch&&
+        matchesRole&&
+        matchesTeam&&
+        matchesStatus
+      );
     });
   },[
     users,
@@ -169,7 +206,10 @@ export default function UsersTab(){
   const handleDelete=async user=>{
     const deleted=await deleteUser(user);
 
-    if(deleted&&viewUser?.employeeId===user.employeeId){
+    if(
+      deleted&&
+      viewUser?.employeeId===user.employeeId
+    ){
       setViewUser(null);
     }
   };
@@ -177,11 +217,11 @@ export default function UsersTab(){
   return(
     <div className="flex h-full min-h-0 flex-col px-6 py-5">
       <div className="flex shrink-0 gap-11 border-b border-gray-200">
-        {["Users","Edit Access","Reports"].map(tab=>(
+        {TABS.map(tab=>(
           <button
             key={tab}
             type="button"
-            onClick={()=>setActiveTab(tab)}
+            onClick={()=>changeTab(tab)}
             className={`relative px-1 pb-4 text-sm font-medium transition-colors ${
               activeTab===tab
                 ?"text-red-600"
