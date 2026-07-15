@@ -15,7 +15,6 @@ import CallsKanban from "./CallsKanban";
 import useCalls from "../hooks/useCalls";
 
 
-
 export default function CallsPage() {
 
   const {
@@ -25,37 +24,27 @@ export default function CallsPage() {
     editCall,
     removeCall,
     completeCall,
-    onCategoryChange,
   } = useCalls();
 
 
-
   const [viewMode, setViewMode] = useState("table");
-
   const [search, setSearch] = useState("");
-
   const [formOpen, setFormOpen] = useState(false);
-
   const [editingCall, setEditingCall] = useState(null);
-
-
 
 
 
   const filteredCalls = calls.filter((call) => {
 
-    const query = search
-      .trim()
-      .toLowerCase();
+    const query =
+      search.trim().toLowerCase();
 
 
-    if (!query) {
-      return true;
-    }
+    if (!query) return true;
 
 
     return (
-      call.clientName
+      call.contactPerson
         ?.toLowerCase()
         .includes(query)
 
@@ -70,72 +59,52 @@ export default function CallsPage() {
       call.callType
         ?.toLowerCase()
         .includes(query)
+
+      ||
+
+      call.status
+        ?.toLowerCase()
+        .includes(query)
     );
 
   });
 
 
 
-
-
-
   const handleCreate = () => {
-
     setEditingCall(null);
-
     setFormOpen(true);
-
   };
-
-
 
 
 
   const handleEdit = (call) => {
-
     setEditingCall(call);
-
     setFormOpen(true);
-
   };
-
-
 
 
 
   const handleClose = () => {
-
     setFormOpen(false);
-
     setEditingCall(null);
-
   };
 
 
 
-
-
-
-  const handleSubmit = async(payload) => {
-
+  const handleSubmit = async (payload) => {
 
     const success = editingCall
-
       ? await editCall(
           editingCall._id,
           payload,
         )
-
       : await addCall(payload);
 
 
-
     if (success) {
-
       handleClose();
-
     }
-
 
 
     return success;
@@ -144,14 +113,9 @@ export default function CallsPage() {
 
 
 
-
-
-
-
   return (
 
     <PageBase>
-
 
       <div className="
         mb-4
@@ -160,16 +124,10 @@ export default function CallsPage() {
         justify-between
       ">
 
-
         <PageHeader
-
           title="Calls"
-
-          subtitle="Track future and past client calls."
-
+          subtitle="Manage client calls and schedules."
         />
-
-
 
 
         <PageToolbar
@@ -177,30 +135,21 @@ export default function CallsPage() {
           searchValue={search}
 
           onSearchChange={(event) =>
-            setSearch(
-              event.target.value,
-            )
+            setSearch(event.target.value)
           }
-
 
           searchPlaceholder="Search calls..."
 
-
           view={viewMode}
 
-
           onViewChange={setViewMode}
-
 
 
           actionButton={
 
             <button
-
               type="button"
-
               onClick={handleCreate}
-
               className="
                 flex
                 items-center
@@ -214,26 +163,19 @@ export default function CallsPage() {
                 text-white
                 hover:bg-red-600
               "
-
             >
 
               <FaPlus size={11}/>
 
               Add Call
 
-
             </button>
 
           }
 
-
         />
 
-
       </div>
-
-
-
 
 
 
@@ -245,7 +187,6 @@ export default function CallsPage() {
           viewMode === "table"
 
           ?
-
 
           <CallsTable
 
@@ -262,9 +203,7 @@ export default function CallsPage() {
           />
 
 
-
           :
-
 
           <CallsKanban
 
@@ -272,18 +211,13 @@ export default function CallsPage() {
 
             loading={loading}
 
-            onEdit={handleEdit}
+            onEdit={editCall}
 
             onDelete={removeCall}
-
-            onComplete={completeCall}
-
-            onCategoryChange={onCategoryChange}
 
           />
 
         }
-
 
 
       </PageContentState>
@@ -291,32 +225,21 @@ export default function CallsPage() {
 
 
 
-
-
-
       <CallsForm
-
 
         open={formOpen}
 
-
         editingCall={editingCall}
-
 
         onSubmit={handleSubmit}
 
-
         onClose={handleClose}
-
 
         onCancel={handleClose}
 
-
         loading={loading}
 
-
       />
-
 
 
     </PageBase>

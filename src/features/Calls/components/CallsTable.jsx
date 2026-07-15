@@ -121,7 +121,7 @@ export default function CallsTable({
         }
         colSpan={columns.length}
         minHeightClass="min-h-[calc(100vh-345px)]"
-        heightClass="h-[450px]"
+        heightClass="h-[540px]"
       >
 
         {paginatedItems.map((call) => (

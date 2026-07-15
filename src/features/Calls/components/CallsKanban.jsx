@@ -1,5 +1,4 @@
 import {
-  CheckCircle,
   Edit2,
   PhoneCall,
   Trash2,
@@ -11,23 +10,20 @@ import KanbanColumnHeader from "../../../components/kanban/KanbanColumnHeader";
 import LoaderCards from "../../../components/loader/CardsLazyLoader";
 
 
-const CALL_CATEGORIES = [
-  "Future Call",
-  "Past Call",
+const CALL_STATUS = [
+  "Scheduled",
+  "Completed",
+  "Missed",
+  "Cancelled",
 ];
 
 
-const CATEGORY_LABEL = {
-  "Future Call": "Future Calls",
-  "Past Call": "Past Calls",
+const STATUS_SUBTEXT = {
+  Scheduled: "Upcoming client calls",
+  Completed: "Finished calls",
+  Missed: "Unattended calls",
+  Cancelled: "Cancelled calls",
 };
-
-
-const CATEGORY_SUBTEXT = {
-  "Future Call": "Scheduled client calls",
-  "Past Call": "Completed or finished calls",
-};
-
 
 
 
@@ -51,88 +47,54 @@ const formatDateTime = (value) => {
 
 
 
+const getStatusClass = (status) => {
 
-const getContactValue = (call) => {
-  return (
-    call.contactValue ||
-    call.phone ||
-    call.email ||
-    "-"
-  );
-};
+  switch (status) {
 
-
-
-
-const normalizeCategory = (call) => {
-  if (
-    call.category === "Past Call" ||
-    call.status === "Completed"
-  ) {
-    return "Past Call";
+    case "Completed":
+      return "bg-emerald-50 text-emerald-700";
+    case "Cancelled":
+      return "bg-red-50 text-red-700";
+    case "Missed":
+      return "bg-orange-50 text-orange-700";
+    default:
+      return "bg-sky-50 text-sky-700";
   }
-
-  return "Future Call";
 };
 
-
-
-
-const groupCallsByCategory = (
+const groupCallsByStatus = (
   calls = [],
-  statuses = CALL_CATEGORIES,
+  statuses = CALL_STATUS,
 ) => {
 
   return statuses.reduce(
     (result, status) => {
 
-      result[status] = calls.filter(
-        (call) =>
-          normalizeCategory(call) === status,
-      );
-
+      result[status] =
+        calls.filter(
+          (call) =>
+            call.status === status,
+        );
       return result;
-
     },
     {},
   );
 
 };
 
-
-
-
-
-
 export default function CallsKanban({
   calls = [],
   loading = false,
-  activeCategory = "All",
   onEdit,
   onDelete,
-  onComplete,
-  onCategoryChange,
 }) {
 
-
-  const visibleStatuses =
-    activeCategory === "All"
-      ? CALL_CATEGORIES
-      : CALL_CATEGORIES.filter(
-          (item) => item === activeCategory,
-        );
-
-
-
   const columns =
-    groupCallsByCategory(
+    groupCallsByStatus(
       calls,
-      visibleStatuses,
+      CALL_STATUS,
     );
-
-
-
-  const handleDragEnd = async(result) => {
+  const handleDragEnd = async (result) => {
 
     const {
       destination,
@@ -140,60 +102,41 @@ export default function CallsKanban({
       draggableId,
     } = result;
 
-
     if (!destination) return;
-
-
-    const oldCategory =
-      source.droppableId;
-
-
-    const newCategory =
+    const newStatus =
       destination.droppableId;
-
-
-
-    if (oldCategory === newCategory) {
+    const oldStatus =
+      source.droppableId;
+    if (oldStatus === newStatus) {
       return;
     }
 
-
-
-    if (onCategoryChange) {
-
-      await onCategoryChange(
-        draggableId,
-        newCategory,
+    const call =
+      calls.find(
+        (item) =>
+          String(item._id) ===
+          String(draggableId),
       );
 
-      return;
-    }
-
-
-
-    if (newCategory === "Past Call") {
-
-      await onComplete?.(draggableId);
-
-    }
+    if (!call) return;
+    await onEdit?.(
+      call._id,
+      {
+        status: newStatus,
+      },
+    );
 
   };
-
-
-
 
   if (loading) {
 
     return (
       <LoaderCards
-        columns={visibleStatuses}
+        columns={CALL_STATUS}
       />
     );
 
   }
-
-
-
 
   return (
 
@@ -201,17 +144,15 @@ export default function CallsKanban({
 
       columns={columns}
 
-      statuses={visibleStatuses}
+      statuses={CALL_STATUS}
 
       onDragEnd={handleDragEnd}
 
       emptyMessage="No calls"
 
-      successStatus="Past Call"
+      successStatus="Completed"
 
       maxHeight="calc(100vh - 280px)"
-
-
 
       renderHeader={(status, items) => (
 
@@ -221,330 +162,180 @@ export default function CallsKanban({
 
           count={items.length}
 
-          successStatus="Past Call"
+          successStatus="Completed"
 
           subtext={
-            CATEGORY_SUBTEXT[status]
+            STATUS_SUBTEXT[status]
           }
 
         />
 
       )}
+      renderCard={(call, index, items) => (
 
+        <BaseDraggableCard
 
+          key={call._id}
 
-      renderCard={(call, index, items) => {
+          id={String(call._id)}
 
-        const category =
-          normalizeCategory(call);
+          index={index}
 
+          isLast={
+            index === items.length - 1
+          }
 
-        const completed =
-          call.status === "Completed" ||
-          category === "Past Call";
+          wrapperClassName="
+            hover:border-red-200
+            hover:bg-red-50
+          "
 
+        >
+          <div className="
+            flex
+            items-start
+            justify-between
+            gap-3
+          ">
+         <div className="min-w-0">
 
-
-        return (
-
-          <BaseDraggableCard
-
-            key={
-              call._id || index
-            }
-
-            id={
-              String(
-                call._id || index,
-              )
-            }
-
-            index={index}
-
-            isLast={
-              index === items.length - 1
-            }
-
-            wrapperClassName="
-              hover:border-red-200
-              hover:bg-red-50
-            "
-
-          >
-
-
-            <div className="
-              flex
-              items-start
-              justify-between
-              gap-3
-            ">
-
-
-              <div className="min-w-0">
-
-                <h4 className="
-                  truncate
-                  text-sm
-                  font-semibold
-                  text-gray-800
-                ">
-
-                  {
-                    call.clientName ||
-                    "Unnamed client"
-                  }
-
-                </h4>
-
-
-                <p className="
-                  mt-1
-                  truncate
-                  text-xs
-                  text-gray-500
-                ">
-
-                  {
-                    call.companyName ||
-                    "No company"
-                  }
-
-                </p>
-
-
-              </div>
-
-
-
-              <span className="
-                flex
-                h-8
-                w-8
-                shrink-0
-                items-center
-                justify-center
-                rounded-full
-                bg-red-50
-                text-red-500
+              <h4 className="
+                truncate
+                text-sm
+                font-semibold
+                text-gray-800
               ">
 
-                <PhoneCall size={15} />
+                {
+                  call.contactPerson ||
+                  "-"
+                }
 
-              </span>
+              </h4>
 
 
+              <p className="
+                mt-1
+                truncate
+                text-xs
+                text-gray-500
+              ">
+
+                {
+                  call.companyName ||
+                  "No company"
+                }
+
+              </p>
             </div>
-
-
-
-
-            <div className="
-              mt-3
-              space-y-1.5
-              text-xs
-              text-gray-500
-            ">
-
-
-              <p className="truncate">
-
-                {
-                  call.contactMethod ||
-                  "Mobile"
-                }
-
-                :
-
-                {" "}
-
-                {
-                  getContactValue(call)
-                }
-
-              </p>
-
-
-
-              <p className="truncate">
-
-                {
-                  call.callType ||
-                  "Follow-up Call"
-                }
-
-              </p>
-
-
-
-              <p>
-
-                {
-                  formatDateTime(
-                    call.scheduledAt,
-                  )
-                }
-
-              </p>
-
-
-            </div>
-
-
-
-
-            <div className="
-              mt-3
+            <span className="
               flex
-              flex-wrap
-              gap-2
+              h-8
+              w-8
+              shrink-0
+              items-center
+              justify-center
+              rounded-full
+              bg-red-50
+              text-red-500
             ">
 
+              <PhoneCall size={15}/>
 
-              <span
-                className={`
-                  rounded-full
-                  px-2.5
-                  py-1
-                  text-xs
-                  font-medium
+            </span>
+          </div>
 
-                  ${
-                    completed
-                      ? "bg-emerald-50 text-emerald-700"
-                      : "bg-sky-50 text-sky-700"
-                  }
-                `}
-              >
+          <div className="
+            mt-3
+            space-y-1.5
+            text-xs
+            text-gray-500
+          ">
+           <p className="truncate">
 
-                {
-                  call.status ||
-                  "Scheduled"
-                }
+              Mobile:
+              {" "}
+              {
+                call.contactValue ||
+                "-"
+              }
 
-              </span>
+            </p>
+            <p className="truncate">
 
+              {
+                call.callType ||
+                "Follow-up Call"
+              }
 
-
-              <span className="
+            </p>
+            <p>
+              {
+                formatDateTime(
+                  call.scheduledAt,
+                )
+              }
+            </p>
+          </div>
+          <div className="mt-3">
+            <span
+              className={`
+                inline-flex
                 rounded-full
-                bg-gray-100
                 px-2.5
                 py-1
                 text-xs
                 font-medium
-                text-gray-600
-              ">
+                ${getStatusClass(
+                  call.status,
+                )}
+              `}
+            >
 
-                {
-                  CATEGORY_LABEL[category]
-                }
+              {
+                call.status ||
+                "Scheduled"
+              }
+            </span>
+          </div>
+          <div className="
+            mt-4
+            flex
+            justify-end
+            gap-2
+          ">
+           <button
+              type="button"
+              onClick={() =>
+                onEdit?.(call)
+              }
+              className="
+                text-gray-400
+                hover:text-sky-600
+              "
+              title="Edit call"
+            >
+             <Edit2 size={15}/>
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                onDelete?.(
+                  call._id,
+                )
+              }
+              className="
+                text-gray-400
+                hover:text-red-600
+              "
+              title="Delete call"
+            >
+              <Trash2 size={15}/>
+            </button>
+          </div>
+        </BaseDraggableCard>
 
-              </span>
-
-
-            </div>
-
-
-
-
-            <div className="
-              mt-4
-              flex
-              justify-end
-              gap-2
-            ">
-
-
-
-              {!completed && (
-
-                <button
-
-                  type="button"
-
-                  onClick={() =>
-                    onComplete?.(
-                      call._id,
-                    )
-                  }
-
-                  className="
-                    text-gray-400
-                    hover:text-emerald-600
-                  "
-
-                  title="Complete"
-
-                >
-
-                  <CheckCircle size={15} />
-
-                </button>
-
-              )}
-
-
-
-              <button
-
-                type="button"
-
-                onClick={() =>
-                  onEdit?.(call)
-                }
-
-                className="
-                  text-gray-400
-                  hover:text-sky-600
-                "
-
-                title="Edit"
-
-              >
-
-                <Edit2 size={15} />
-
-              </button>
-
-
-
-
-
-              <button
-
-                type="button"
-
-                onClick={() =>
-                  onDelete?.(
-                    call._id,
-                  )
-                }
-
-                className="
-                  text-gray-400
-                  hover:text-red-600
-                "
-
-                title="Delete"
-
-              >
-
-                <Trash2 size={15} />
-
-              </button>
-
-
-
-            </div>
-
-
-
-          </BaseDraggableCard>
-
-        );
-
-      }}
+      )}
 
     />
 
