@@ -106,7 +106,7 @@ export default function MeetingCalendar({ currentMonth, meetings, onSelectMeetin
                 <p className="text-sm font-semibold text-gray-700">{day.getDate()}</p>
                 <div className="mt-2 space-y-1">
                   {dayMeetings.length > 0 ? (
-                    dayMeetings.slice(0, 2).map((meeting) => renderMeetingCard(meeting))
+                    dayMeetings.map((meeting) => renderMeetingCard(meeting))
                   ) : (
                     <p className="text-[10px] text-gray-400">No events</p>
                   )}

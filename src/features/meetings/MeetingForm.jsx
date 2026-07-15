@@ -131,7 +131,7 @@ function MeetingFormContent({ meeting, onSubmit }) {
                   onChange={(e) => setLocationScope(e.target.value)}
                 >
                   <option value="Inside the Philippines">Inside the Philippines</option>
-                  <option value="Outside the country">Outside the country</option>
+                  <option value="Outside the Philippines">Outside the Philippines</option>
                 </select>
               </div>
             </div>

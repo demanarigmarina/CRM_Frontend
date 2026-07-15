@@ -1,6 +1,7 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function TablePagination({
+  rowsOptions = [5, 10, 25, 50, 100],
   currentPage,
   totalPages,
   totalRows,
@@ -23,7 +24,7 @@ export default function TablePagination({
           value={rowsPerPage}
           onChange={(e) => onRowsPerPageChange(e.target.value)}
         >
-          {[5, 10, 25, 50, 100].map((len) => (
+          {rowsOptions.map((len) => (
             <option key={len} value={len}>
               {len}
             </option>

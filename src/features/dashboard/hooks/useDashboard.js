@@ -3,7 +3,7 @@ import api from "../../../services/api";
 
 export function useDashboard() {
   const [stats, setStats] = useState({
-    openTasks: [],
+    tasks: [],
     meetings: [],
   });
 
@@ -18,21 +18,31 @@ export function useDashboard() {
       const { data } = await api.get("/api/dashboard/stats");
 
       setStats({
-        openTasks: Array.isArray(data?.openTasks) ? data.openTasks : [],
-        meetings: Array.isArray(data?.meetings) ? data.meetings : [],
+        tasks: Array.isArray(data?.tasksList)
+          ? data.tasksList
+          : [],
+
+        meetings: Array.isArray(data?.meetings)
+          ? data.meetings
+          : [],
       });
+
     } catch (err) {
       console.error("Dashboard fetch error:", err);
 
       setStats({
-        openTasks: [],
+        tasks: [],
         meetings: [],
       });
 
-      setError(err.response?.data?.error || "");
+      setError(
+        err.response?.data?.error || ""
+      );
+
     } finally {
       setLoading(false);
     }
+
   }, []);
 
   useEffect(() => {
