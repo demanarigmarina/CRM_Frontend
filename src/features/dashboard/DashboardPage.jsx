@@ -319,7 +319,7 @@ function MyTasksTable({ tasks }) {
         <div
           className="
           flex
-          min-h-[280px]
+          min-h-95
           items-center
           justify-center
           text-sm
@@ -388,7 +388,7 @@ function MyMeetingsTable({ meetings }) {
         <div
           className="
           flex
-          min-h-[280px]
+          min-h-95
           items-center
           justify-center
           text-sm

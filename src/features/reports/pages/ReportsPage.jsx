@@ -10,22 +10,43 @@ import {TablePagination,useTablePagination} from "../../../components/table";
 import ReportTable from "../components/ReportTable";
 import ReportModal from "../components/ReportModal";
 
-const STORAGE_KEY="intellicrm_reports";
-const initialReports=[
-  {id:1,title:"Sales Report",description:"Monitor sales progress and revenue",category:"Sales",route:"/reports/sales"},
-  {id:2,title:"Lead Conversion Report",description:"View lead conversion statistics",category:"Leads",route:"/reports/leads"},
-  {id:3,title:"Client Report",description:"Generate client information reports",category:"Clients",route:"/reports/clients"},
+const initialReports = [
+  {
+    id: 1,
+    title: "Sales Report",
+    description: "Monitor sales progress and revenue",
+    category: "Sales",
+    route: "/reports/sales",
+  },
+  {
+    id: 2,
+    title: "Lead Conversion Report",
+    description: "View lead conversion statistics",
+    category: "Leads",
+    route: "/reports/leads",
+  },
+  {
+    id: 3,
+    title: "Client Report",
+    description: "Generate client information reports",
+    category: "Clients",
+    route: "/reports/clients",
+  },
 ];
-const emptyForm={title:"",description:"",category:"Sales"};
-const categoryOptions=[
-  {label:"All Reports",value:"All"},
-  {label:"Sales",value:"Sales"},
-  {label:"Leads",value:"Leads"},
-  {label:"Clients",value:"Clients"},
-];
-const Toast=Swal.mixin({
-  toast:true,position:"top-end",showConfirmButton:false,
-  timer:3000,timerProgressBar:true,width:"auto",
+
+const emptyForm = {
+  title: "",
+  description: "",
+  category: "Sales",
+};
+
+const Toast = Swal.mixin({
+  toast: true,
+  position: "top-end",
+  showConfirmButton: false,
+  timer: 3000,
+  timerProgressBar: true,
+  width: "auto",
 });
 
 const loadReports=()=>{
@@ -42,14 +63,14 @@ const loadReports=()=>{
   }
 };
 
-export default function ReportsPage({settingsMode=false,embedded=false}){
-  const [reports,setReports]=useState(loadReports);
-  const [search,setSearch]=useState("");
-  const [filterCategory,setFilterCategory]=useState("All");
-  const [isModalOpen,setIsModalOpen]=useState(false);
-  const [editingReport,setEditingReport]=useState(null);
-  const [formData,setFormData]=useState(emptyForm);
-  const [submitting,setSubmitting]=useState(false);
+export default function ReportsPage() {
+  const [reports, setReports] = useState(initialReports);
+  const [search, setSearch] = useState("");
+  const [filterCategory, setFilterCategory] = useState("All");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingReport, setEditingReport] = useState(null);
+  const [formData, setFormData] = useState(emptyForm);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(()=>{
     localStorage.setItem(STORAGE_KEY,JSON.stringify(reports));

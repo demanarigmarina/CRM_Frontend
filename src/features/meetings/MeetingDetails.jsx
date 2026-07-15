@@ -33,11 +33,6 @@ export default function MeetingDetails({ meeting, onClose, onEdit, onDelete }) {
     },
     {
       icon: <CalendarDays size={14} />,
-      label: 'All day',
-      value: meeting.allDay ? 'Yes' : 'No',
-    },
-    {
-      icon: <CalendarDays size={14} />,
       label: 'Date',
       value: meeting.date ? formatDate(meeting.date) : '—',
     },
@@ -56,7 +51,7 @@ export default function MeetingDetails({ meeting, onClose, onEdit, onDelete }) {
     {
       icon: <UserRound size={14} />,
       label: 'Host',
-      value: meeting?.organizer || '—',
+      value: meeting.host || meeting.organizer || "—",
     },
   ];
 

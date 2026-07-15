@@ -210,13 +210,16 @@ export default function QuotationsPage() {
     );
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e, submittedFormData = formData) => {
     e.preventDefault();
     if (mode === "create") {
-      const created = await createQuotation(formData);
+      const created = await createQuotation(submittedFormData);
       if (created) closeModal();
     } else if (mode === "edit" && viewingQuotation) {
-      const updated = await updateQuotation(viewingQuotation._id, formData);
+      const updated = await updateQuotation(
+        viewingQuotation._id,
+        submittedFormData,
+      );
       if (updated) closeModal();
     }
   };
@@ -347,6 +350,7 @@ export default function QuotationsPage() {
         tasks={tasks}
         tasksLoading={tasksLoading}
         clients={clients}
+        currentUser={currentUser}
         salesAgents={salesAgents}
         permissions={permissions}
         loading={submitting}

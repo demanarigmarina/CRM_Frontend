@@ -46,7 +46,7 @@ export default function LeadTable({
     { label: "Name" },
     { label: "Company" },
     { label: "Assigned Agent" },
-    { label: "Contact" },
+    { label: "Contact Details" },
     { label: "Source" },
     { label: "Status" },
     ...(permissions.canEdit ? [{ label: "", align: "text-right" }] : []),

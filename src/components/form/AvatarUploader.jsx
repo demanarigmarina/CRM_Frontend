@@ -63,7 +63,7 @@ export default function AvatarUploader({
           Upload new photo
         </button>
         <p className="text-xs text-gray-400 mt-1">
-          Allowed JPG or PNG · max 2 MB
+          Allowed JPG or PNG · max 10 MB
         </p>
       </div>
 
