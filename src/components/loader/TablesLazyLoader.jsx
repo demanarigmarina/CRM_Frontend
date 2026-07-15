@@ -3,7 +3,7 @@ export default function LoaderTables({
   headers,
   renderRow,
   emptyMessage = "No results found.",
-  heightClass = "h-[450px]",
+  heightClass = "w-full overflow-auto",
   currentPage,
   totalPages,
   totalRows,

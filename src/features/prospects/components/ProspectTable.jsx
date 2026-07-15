@@ -76,7 +76,7 @@ export default function ProspectTable({
         }
         colSpan={columns.length}
         minHeightClass="min-h-[calc(100vh-345px)]"
-        heightClass="h-[450px]"
+        heightClass="h-[540px]"
       >
         {paginatedItems.map((prospect) => (
           <TableRow key={prospect._id} title="Prospect record">

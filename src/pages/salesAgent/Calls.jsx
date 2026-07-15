@@ -1,3 +1,5 @@
-export default function Calls() {
-  return <h1>Calls</h1>;
+import CallsPage from "../../features/Calls/components/CallsPage";
+
+export default function AdminCalls() {
+  return <CallsPage />;
 }

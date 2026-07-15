@@ -5,14 +5,14 @@ import FormDrawer from '../../components/form/FormDrawer';
 import FormSection from '../../components/form/FormSection';
 import { FormLabel, FormInput, FormTextarea } from '../../components/form/FormField';
 
-function MeetingFormContent({ meeting, onSubmit, onClose }) {
+function MeetingFormContent({ meeting, onSubmit }) {
   // --- Form Local State ---
   const [title, setTitle] = useState(meeting?.title ?? '');
   const [location, setLocation] = useState(meeting?.location ?? '');
   const [locationScope, setLocationScope] = useState(meeting?.locationScope ?? 'Inside the Philippines');
   const [type, setType] = useState(meeting?.type ?? '');
   const [client, setClient] = useState(meeting?.client ?? '');
-  const [date, setDate] = useState(meeting?.date ?? '');
+  const [date, setDate] = useState(meeting?.date ? new Date(meeting.date).toISOString().split("T")[0]: "");
   const [startTime, setStartTime] = useState(meeting?.startTime ?? '');
   const [endTime, setEndTime] = useState(meeting?.endTime ?? '');
   const [notes, setNotes] = useState(meeting?.notes ?? '');
@@ -41,11 +41,14 @@ function MeetingFormContent({ meeting, onSubmit, onClose }) {
     setParticipants((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!title || !date) return;
+    if (!title || !date || !startTime || !endTime) {
+      alert("Please complete all required fields.");
+      return;
+    }
 
-    onSubmit({
+    await onSubmit({
       title,
       date,
       startTime,
@@ -58,7 +61,6 @@ function MeetingFormContent({ meeting, onSubmit, onClose }) {
       participants,
       notes,
     });
-    onClose();
   };
 
   return (
@@ -129,7 +131,7 @@ function MeetingFormContent({ meeting, onSubmit, onClose }) {
                   onChange={(e) => setLocationScope(e.target.value)}
                 >
                   <option value="Inside the Philippines">Inside the Philippines</option>
-                  <option value="Outside the country">Outside the country</option>
+                  <option value="Outside the Philippines">Outside the Philippines</option>
                 </select>
               </div>
             </div>

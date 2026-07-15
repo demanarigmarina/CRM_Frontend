@@ -151,12 +151,12 @@ export default function TaskTable({
   }));
 
   const columns = [
-    { label: "Task" },
-    { label: "Responsible" },
-    { label: "Priority" },
-    { label: "Due" },
+    { label: "Title" },
+    { label: "Deadline" },
     { label: "Status" },
-    { label: "Scope" },
+    { label: "Priority" },
+    { label: "Related To" },
+    { label: "Task Owner" },
     ...(canEdit ? [{ label: "", align: "text-right" }] : []),
   ];
 
@@ -230,6 +230,7 @@ export default function TaskTable({
 
           return (
             <TableRow key={task._id} onClick={() => onView?.(task)}>
+              {/* 1. TITLE (with description snippet if no related item) */}
               <TableCell className="max-w-72">
                 <div className="flex items-center gap-2">
                   <div className="min-w-0">
@@ -240,20 +241,6 @@ export default function TaskTable({
                       {task.subject}
                     </p>
 
-                    {relatedName && RelatedIcon && (
-                      <div className="flex items-center gap-1 mt-0.5">
-                        <RelatedIcon
-                          size={11}
-                          strokeWidth={2}
-                          className="text-gray-400 shrink-0"
-                        />
-
-                        <span className="text-xs text-gray-400 truncate">
-                          {relatedName} ({task.relatedToType})
-                        </span>
-                      </div>
-                    )}
-
                     {task.description && !relatedName && (
                       <p className="text-xs text-gray-400 truncate mt-0.5">
                         {task.description}
@@ -263,50 +250,7 @@ export default function TaskTable({
                 </div>
               </TableCell>
 
-              <TableCell>
-                <div className="flex items-center gap-2">
-                  {responsible.user ? (
-                    <img
-                      src={responsiblePhoto}
-                      alt=""
-                      className="w-7 h-7 rounded-full object-cover border border-gray-300 shrink-0"
-                    />
-                  ) : (
-                    <span className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
-                      <User size={13} className="text-gray-400" />
-                    </span>
-                  )}
-
-                  <span
-                    className={`text-sm truncate ${
-                      responsible.type === "unassigned"
-                        ? "text-gray-400 italic"
-                        : "text-gray-700 group-hover:text-[#ef4444]"
-                    }`}
-                  >
-                    {responsible.label}
-                  </span>
-                </div>
-              </TableCell>
-
-              <TableCell>
-                <div
-                  onClick={(event) => event.stopPropagation()}
-                  onMouseDown={(event) => event.stopPropagation()}
-                  onPointerDown={(event) => event.stopPropagation()}
-                >
-                  <StatusDropdown
-                    status={task.priority || "Medium"}
-                    statuses={TASK_PRIORITIES}
-                    toneMap={TASK_PRIORITY_TONE}
-                    disabled={!canEdit}
-                    onSelect={(newPriority) =>
-                      onUpdatePriority?.(task._id, newPriority)
-                    }
-                  />
-                </div>
-              </TableCell>
-
+              {/* 2. DEADLINE */}
               <TableCell>
                 {task.dueDate ? (
                   <div className="flex flex-col">
@@ -340,6 +284,7 @@ export default function TaskTable({
                 )}
               </TableCell>
 
+              {/* 3. STATUS DROPDOWN */}
               <TableCell>
                 <div
                   onClick={(event) => event.stopPropagation()}
@@ -358,15 +303,80 @@ export default function TaskTable({
                 </div>
               </TableCell>
 
+              {/* 4. PRIORITY DROPDOWN */}
               <TableCell>
-                <BaseBadge
-                  shape="pill"
-                  tone={task.scope === "Personal" ? "indigo" : "teal"}
+                <div
+                  onClick={(event) => event.stopPropagation()}
+                  onMouseDown={(event) => event.stopPropagation()}
+                  onPointerDown={(event) => event.stopPropagation()}
                 >
-                  {task.scope === "Personal" ? "Personal" : "Assigned"}
-                </BaseBadge>
+                  <StatusDropdown
+                    status={task.priority || "Medium"}
+                    statuses={TASK_PRIORITIES}
+                    toneMap={TASK_PRIORITY_TONE}
+                    disabled={!canEdit}
+                    onSelect={(newPriority) =>
+                      onUpdatePriority?.(task._id, newPriority)
+                    }
+                  />
+                </div>
               </TableCell>
 
+              {/* 5. RELATED TO */}
+              <TableCell>
+                {relatedName && RelatedIcon ? (
+                  <div className="flex items-center gap-1 mt-0.5">
+                    <RelatedIcon
+                      size={11}
+                      strokeWidth={2}
+                      className="text-gray-400 shrink-0"
+                    />
+
+                    <span className="text-xs text-gray-600 truncate">
+                      {relatedName} ({task.relatedToType})
+                    </span>
+                  </div>
+                ) : (
+                  <span className="text-sm text-gray-400">—</span>
+                )}
+              </TableCell>
+
+              {/* 6. TASK OWNER (Avatar, Name, and Scope Badge aligned together) */}
+              <TableCell>
+                <div className="flex items-center gap-2">
+                  {responsible.user ? (
+                    <img
+                      src={responsiblePhoto}
+                      alt=""
+                      className="w-7 h-7 rounded-full object-cover border border-gray-300 shrink-0"
+                    />
+                  ) : (
+                    <span className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
+                      <User size={13} className="text-gray-400" />
+                    </span>
+                  )}
+
+                  <span
+                    className={`text-sm truncate max-w-36 ${
+                      responsible.type === "unassigned"
+                        ? "text-gray-400 italic"
+                        : "text-gray-700 group-hover:text-[#ef4444]"
+                    }`}
+                  >
+                    {responsible.label}
+                  </span>
+
+                  <BaseBadge
+                    shape="pill"
+                    tone={task.scope === "Personal" ? "indigo" : "teal"}
+                    className="shrink-0"
+                  >
+                    {task.scope === "Personal" ? "Personal" : "Assigned"}
+                  </BaseBadge>
+                </div>
+              </TableCell>
+
+              {/* 7. ACTIONS BUTTON (if user has permissions) */}
               {canEdit && (
                 <TableCell
                   title={!canEditCurrentTask ? editDisabledReason : ""}

@@ -1,219 +1,317 @@
-import { useState, useEffect } from "react";
+import {useCallback,useEffect,useState} from "react";
 import Swal from "sweetalert2";
 import api from "../../../services/api";
 
-const Toast = Swal.mixin({
-  toast: true,
-  position: "top-end",
-  showConfirmButton: false,
-  timer: 3000,
-  timerProgressBar: true,
-  width: "auto",
+const Toast=Swal.mixin({
+  toast:true,
+  position:"top-end",
+  showConfirmButton:false,
+  timer:2500,
+  timerProgressBar:true,
 });
 
+const isFile=value=>typeof File!=="undefined"&&value instanceof File;
 
-const validatePhone = (phone) => {
-  if (!phone) return null;
-  const cleaned = phone.replace(/[\s\-().]/g, "");
-  const isValid = /^(\+63|0)9\d{9}$|^\+?\d{10,15}$/.test(cleaned);
-  return isValid ? null : "Enter a valid contact number (e.g. 09171234567 or +639171234567)";
+const getErrorMessage=error=>
+  error?.response?.data?.error||
+  error?.response?.data?.message||
+  error?.message||
+  "Something went wrong";
+
+const unwrapUsers=data=>{
+  if(Array.isArray(data))return data;
+  if(Array.isArray(data?.data))return data.data;
+  return[];
 };
 
-export function useUsers({
-  skip = false,
-  mode = "all",
-  resource = null,
-} = {}) {
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(false);
+const unwrapUser=data=>data?.data&& !Array.isArray(data.data)?data.data:data;
 
-  useEffect(() => {
-    if (skip) return;
+const inputToObject=input=>{
+  if(!(input instanceof FormData))return{...input};
+  const values={};
+  for(const[key,value]of input.entries()){
+    if(!isFile(value))values[key]=value;
+  }
+  return values;
+};
 
-    const fetchUsers = async () => {
-      setLoading(true);
-      try {
-        let url = "/api/users";
+const getProfilePicture=input=>{
+  const value=input instanceof FormData
+    ?input.get("profilePicture")
+    :input?.profilePicture;
+  return isFile(value)?value:null;
+};
 
-        if (mode === "assignable") {
-          url = `/api/users/assignable?resource=${resource}`;
-        }
+const normalizeTeam=team=>{
+  if(!team)return null;
+  if(typeof team==="object")return team._id||team.id||null;
+  return team;
+};
 
-        const { data } = await api.get(url);
-        setUsers(data);
-      } catch (error) {
-        console.error("Error fetching users:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+const getAddress=values=>{
+  if(values.currentAddress&&typeof values.currentAddress==="object"){
+    return values.currentAddress;
+  }
 
+  if(typeof values.currentAddress==="string"){
+    try{
+      const parsed=JSON.parse(values.currentAddress);
+      if(parsed&&typeof parsed==="object")return parsed;
+    }catch{}
+  }
+
+  return{
+    houseNumber:values["currentAddress.houseNumber"]??values.houseNumber??"",
+    street:values["currentAddress.street"]??values.street??"",
+    barangay:values["currentAddress.barangay"]??values.barangay??"",
+    municipality:values["currentAddress.municipality"]??values.municipality??"",
+    province:values["currentAddress.province"]??values.province??"",
+    zipCode:values["currentAddress.zipCode"]??values.zipCode??"",
+    country:values["currentAddress.country"]??values.country??"Philippines",
+  };
+};
+
+const buildCreatePayload=input=>{
+  const values=inputToObject(input);
+
+  return{
+    team:normalizeTeam(values.team),
+    firstName:values.firstName??"",
+    middleName:values.middleName??"",
+    lastName:values.lastName??"",
+    suffixName:values.suffixName??"",
+    email:values.email??"",
+    password:values.password??"",
+    role:values.role??"",
+    phone:values.phone??"",
+    sex:values.sex??"",
+    dateOfBirth:values.dateOfBirth??"",
+    placeOfBirth:values.placeOfBirth??"",
+    currentAddress:getAddress(values),
+  };
+};
+
+const buildUpdatePayload=(input,profilePicture=null)=>{
+  const values=inputToObject(input);
+  const address=getAddress(values);
+  const payload=profilePicture?new FormData():{};
+
+  const append=(key,value)=>{
+    if(value===undefined)return;
+
+    if(payload instanceof FormData){
+      payload.append(key,value===null?"":value);
+    }else{
+      payload[key]=value;
+    }
+  };
+
+  append("team",normalizeTeam(values.team));
+  append("firstName",values.firstName);
+  append("middleName",values.middleName??"");
+  append("lastName",values.lastName);
+  append("suffixName",values.suffixName??"");
+  append("email",values.email);
+  append("role",values.role);
+  append("phone",values.phone);
+  append("sex",values.sex);
+  append("dateOfBirth",values.dateOfBirth);
+  append("placeOfBirth",values.placeOfBirth);
+  append("currentAddress.houseNumber",address.houseNumber??"");
+  append("currentAddress.street",address.street??"");
+  append("currentAddress.barangay",address.barangay??"");
+  append("currentAddress.municipality",address.municipality??"");
+  append("currentAddress.province",address.province??"");
+  append("currentAddress.zipCode",address.zipCode??"");
+  append("currentAddress.country",address.country??"Philippines");
+
+  if(values.password)append("password",values.password);
+  if(values.removeProfilePicture!==undefined){
+    append("removeProfilePicture",String(values.removeProfilePicture));
+  }
+  if(profilePicture)append("profilePicture",profilePicture);
+
+  return payload;
+};
+
+export function useUsers(){
+  const[users,setUsers]=useState([]);
+  const[loading,setLoading]=useState(true);
+
+  const fetchUsers=useCallback(async()=>{
+    setLoading(true);
+
+    try{
+      const response=await api.get("/api/users");
+      setUsers(unwrapUsers(response.data));
+    }catch(error){
+      console.error("Fetch users error:",error);
+      setUsers([]);
+
+      Toast.fire({
+        icon:"error",
+        title:getErrorMessage(error),
+      });
+    }finally{
+      setLoading(false);
+    }
+  },[]);
+
+  useEffect(()=>{
     fetchUsers();
-  }, [skip, mode, resource]);
+  },[fetchUsers]);
 
-  const createUser = async (formData, avatar) => {
-    //Validate before hitting the API
-    const phoneErr = validatePhone(formData.phone);
-    if (phoneErr) {
-      Swal.fire({ icon: "error", title: "Invalid Phone", text: phoneErr });
-      return null;
-    }
-
+  const createUser=async formData=>{
     setLoading(true);
-    try {
-      const data = new FormData();
-      const mapped = {
-        team: formData.team || "",
-        firstName: formData.firstName,
-        middleName: formData.middleName,
-        lastName: formData.lastName,
-        suffixName: formData.suffixName || "N/A",
-        dateOfBirth: formData.birthday,
-        placeOfBirth: formData.placeOfBirth,
-        sex: formData.gender,
-        email: formData.email,
-        password: formData.password,
-        role: formData.role,
-        phone: formData.phone,
-        "currentAddress.country": formData.country,
-        "currentAddress.province": formData.province,
-        "currentAddress.municipality": formData.city,
-        "currentAddress.barangay": formData.barangay,
-        "currentAddress.street": formData.street,
-        "currentAddress.houseNumber": formData.houseNumber,
-        "currentAddress.zipCode": formData.zipCode,
-      };
 
-      Object.keys(mapped).forEach((key) => data.append(key, mapped[key] ?? ""));
+    try{
+      const profilePicture=getProfilePicture(formData);
+      const createPayload=buildCreatePayload(formData);
 
-      if (avatar) data.append("profilePicture", avatar);
+      const response=await api.post("/api/users",createPayload);
+      let createdUser=unwrapUser(response.data);
 
-      const { data: result } = await api.post("/api/users", data);
-      setUsers((prev) => [...prev, result]);
+      if(profilePicture&&createdUser?.employeeId){
+        const uploadPayload=buildUpdatePayload(createPayload,profilePicture);
 
-      Toast.fire({
-        icon: "success",
-        title: `${result.role} created successfully`,
-      });
+        const uploadResponse=await api.patch(
+          `/api/users/${createdUser.employeeId}`,
+          uploadPayload,
+        );
 
-      return result;
-    } catch (error) {
-      console.error(error);
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: error.response?.data?.error || "Something went wrong",
-      });
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const updateUser = async (employeeId, formData, avatar) => {
-    const phoneErr = validatePhone(formData.phone);
-    if (phoneErr) {
-      Swal.fire({ icon: "error", title: "Invalid Phone", text: phoneErr });
-      return null;
-    }
-
-    setLoading(true);
-    try {
-      const data = new FormData();
-      const mapped = {
-        team: formData.team || "",
-        firstName: formData.firstName,
-        middleName: formData.middleName,
-        lastName: formData.lastName,
-        suffixName: formData.suffixName,
-        dateOfBirth: formData.birthday,
-        placeOfBirth: formData.placeOfBirth,
-        sex: formData.gender,
-        email: formData.email,
-        password: formData.password,
-        role: formData.role,
-        phone: formData.phone,
-        "currentAddress.country": formData.country,
-        "currentAddress.province": formData.province,
-        "currentAddress.municipality": formData.city,
-        "currentAddress.barangay": formData.barangay,
-        "currentAddress.street": formData.street,
-        "currentAddress.houseNumber": formData.houseNumber,
-        "currentAddress.zipCode": formData.zipCode,
-      };
-
-      Object.keys(mapped).forEach((key) => data.append(key, mapped[key] ?? ""));
-
-      if (avatar) {
-        data.append("profilePicture", avatar);
-      } else if (formData.removeProfilePicture) {
-        data.append("removeProfilePicture", "true");
+        createdUser=unwrapUser(uploadResponse.data);
       }
 
-      const { data: updated } = await api.patch(
-        `/api/users/${employeeId}`,
-        data,
-      );
+      setUsers(previous=>[...previous,createdUser]);
 
-      setUsers((prev) =>
-        prev.map((u) => (u.employeeId === employeeId ? updated : u)),
-      );
       Toast.fire({
-        icon: "success",
-        title: `${updated.role} updated successfully`,
+        icon:"success",
+        title:"User created",
       });
-      return updated;
-    } catch (error) {
-      console.error(error);
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: error.response?.data?.error || "Something went wrong",
+
+      return createdUser;
+    }catch(error){
+      console.error("Create user error:",error);
+
+      Toast.fire({
+        icon:"error",
+        title:getErrorMessage(error),
       });
-      return null;
-    } finally {
+
+      throw error;
+    }finally{
       setLoading(false);
     }
   };
 
-  const deleteUser = async (employeeId) => {
-    const result = await Swal.fire({
-      title: "Are you sure?",
-      text: "This action cannot be undone.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Yes, delete it!",
-    });
-
-    if (!result.isConfirmed) return false;
-
+  const updateUser=async(employeeId,formData)=>{
     setLoading(true);
-    try {
-      await api.delete(`/api/users/${employeeId}`);
-      setUsers((prev) => prev.filter((u) => u.employeeId !== employeeId));
-      Swal.fire({
-        title: "Deleted!",
-        text: "User has been deleted.",
-        icon: "success",
-        timer: 2500,
-        showConfirmButton: false,
-        toast: true,
-        position: "top-end",
+
+    try{
+      const profilePicture=getProfilePicture(formData);
+      const payload=buildUpdatePayload(formData,profilePicture);
+
+      const response=await api.patch(
+        `/api/users/${employeeId}`,
+        payload,
+      );
+
+      const updatedUser=unwrapUser(response.data);
+
+      setUsers(previous=>
+        previous.map(user=>
+          user.employeeId===employeeId?updatedUser:user
+        )
+      );
+
+      Toast.fire({
+        icon:"success",
+        title:"User updated",
       });
-      return true;
-    } catch {
-      Swal.fire({
-        title: "Error!",
-        text: "Failed to delete user.",
-        icon: "error",
+
+      return updatedUser;
+    }catch(error){
+      console.error("Update user error:",error);
+
+      Toast.fire({
+        icon:"error",
+        title:getErrorMessage(error),
+      });
+
+      throw error;
+    }finally{
+      setLoading(false);
+    }
+  };
+
+  const deleteUser=async identifier=>{
+    const selectedUser=
+      typeof identifier==="object"
+        ?identifier
+        :users.find(user=>
+          user.employeeId===identifier||
+          user._id===identifier
+        );
+
+    const employeeId=
+      selectedUser?.employeeId||
+      (typeof identifier==="string"?identifier:null);
+
+    if(!employeeId){
+      Toast.fire({
+        icon:"error",
+        title:"User identifier was not found",
       });
       return false;
-    } finally {
+    }
+
+    const confirmation=await Swal.fire({
+      title:"Delete user?",
+      text:"This action cannot be undone.",
+      icon:"warning",
+      showCancelButton:true,
+      confirmButtonText:"Delete",
+      cancelButtonText:"Cancel",
+      confirmButtonColor:"#ef4444",
+    });
+
+    if(!confirmation.isConfirmed)return false;
+
+    setLoading(true);
+
+    try{
+      await api.delete(`/api/users/${employeeId}`);
+
+      setUsers(previous=>
+        previous.filter(user=>user.employeeId!==employeeId)
+      );
+
+      Toast.fire({
+        icon:"success",
+        title:"User deleted",
+      });
+
+      return true;
+    }catch(error){
+      console.error("Delete user error:",error);
+
+      Toast.fire({
+        icon:"error",
+        title:getErrorMessage(error),
+      });
+
+      return false;
+    }finally{
       setLoading(false);
     }
   };
 
-  return { users, loading, createUser, updateUser, deleteUser };
+  return{
+    users,
+    loading,
+    fetchUsers,
+    createUser,
+    updateUser,
+    deleteUser,
+  };
 }

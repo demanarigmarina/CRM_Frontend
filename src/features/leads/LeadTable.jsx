@@ -43,11 +43,11 @@ export default function LeadTable({
   const [confirmSubmitting, setConfirmSubmitting] = useState(false);
 
   const columns = [
-    { label: "Name" },
+    { label: "Lead Owner" },
     { label: "Company" },
     { label: "Assigned Agent" },
-    { label: "Contact" },
-    { label: "Source" },
+    { label: "Contact Details" },
+    { label: "Lead Source" },
     { label: "Status" },
     ...(permissions.canEdit ? [{ label: "", align: "text-right" }] : []),
   ];

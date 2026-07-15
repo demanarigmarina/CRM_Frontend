@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from "react";
+import api from '../../../services/api';
 import Swal from 'sweetalert2';
 
 const Toast = Swal.mixin({
@@ -9,22 +10,6 @@ const Toast = Swal.mixin({
   timerProgressBar: true,
   width: 'auto',
 });
-
-const MOCK_MEETINGS = [
-  {
-    id: 1,
-    title: 'ABC Corporation Consultation',
-    type: 'Client Consultation',
-    date: '2026-07-17',
-    time: '10:00 AM - 11:30 AM',
-    location: 'Conference Room A',
-    organizer: 'John Doe (Sales Manager)',
-    client: 'ABC Corporation',
-    color: 'bg-blue-50 text-blue-600 border-blue-200',
-    notes: 'Discuss project requirements, quotation details, and expected timeline for the upcoming campaign.',
-    participants: ['John Doe', 'Jane Smith', 'Michael Cruz', 'Sarah Santos', 'Kevin Reyes'],
-  },
-];
 
 const getMeetingColor = (type = "") => {
   switch (type.trim().toLowerCase()) {
@@ -54,8 +39,26 @@ const getMeetingColor = (type = "") => {
   }
 };
 
+const mapMeeting = (meeting) => ({
+  id: meeting._id,
+  title: meeting.meetingTitle,
+  type: meeting.meetingType,
+  date: new Date(meeting.date).toISOString().split("T")[0],
+  startTime: meeting.startTime,
+  endTime: meeting.endTime,
+  time: `${meeting.startTime} - ${meeting.endTime}`,
+  client: meeting.client || "",
+  location: meeting.location || "",
+  locationScope: meeting.locationScope,
+  organizer: meeting.host || "",
+  host: meeting.host || "",
+  notes: meeting.notes || "",
+  participants: meeting.participants || [],
+  color: getMeetingColor(meeting.meetingType),
+});
+
 export function useMeetings() {
-  const [meetings, setMeetings] = useState(MOCK_MEETINGS);
+  const [meetings, setMeetings] = useState([]);
   const [selectedMeeting, setSelectedMeeting] = useState(null);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [searchQuery, setSearchQuery] = useState('');
@@ -64,6 +67,26 @@ export function useMeetings() {
   const [activeView, setActiveView] = useState('Month');
   const [filterPreset, setFilterPreset] = useState('all');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+  const fetchMeetings = async () => {
+    try {
+      const { data } = await api.get("/api/meetings");
+      setMeetings(data.map(mapMeeting));
+      console.log("Meetings from API:", data);
+      console.log("Mapped meetings:", data.map(mapMeeting));
+    } catch (error) {
+      console.error(error);
+  
+      Toast.fire({
+        icon: "error",
+        title: "Unable to load meetings",
+      });
+    }
+  };
+  
+  useEffect(() => {
+    fetchMeetings();
+  }, []);
 
   const filteredMeetings = useMemo(() => {
     const query = searchQuery.toLowerCase().trim();
@@ -105,42 +128,76 @@ export function useMeetings() {
     setMeetingToEdit(null);
   };
 
-  const handleAddMeeting = (meetingData) => {
-    const payload = {
-      id: meetingToEdit?.id ?? Date.now(),
-      title: meetingData.title,
-      date: meetingData.date,
-      startTime: meetingData.startTime,
-      endTime: meetingData.endTime,
-      allDay: meetingData.allDay || false,
-      type: meetingData.type,
-      client: meetingData.client,
-      time:
-        (meetingData.startTime && meetingData.endTime && `${meetingData.startTime} - ${meetingData.endTime}`) ||
-        meetingData.time ||
-        '12:00 PM - 1:00 PM',
-      location: meetingData.location || 'Main Office',
-      locationScope: meetingData.locationScope || 'Inside the Philippines',
-      organizer: meetingData.host || meetingData.organizer || 'John Doe',
-      color: getMeetingColor(meetingData.type),
-      notes: meetingData.notes || 'Prepared for backend integration',
-      participants: meetingData.participants || ['John Doe'],
-    };
-
-    if (meetingToEdit) {
-      setMeetings((prev) => prev.map((meeting) => (meeting.id === meetingToEdit.id ? payload : meeting)));
-      setSelectedMeeting(payload);
-      Toast.fire({ icon: 'success', title: 'Meeting updated successfully' });
-    } else {
-      setMeetings((prev) => [payload, ...prev]);
-      Toast.fire({ icon: 'success', title: 'Meeting added successfully' });
+  const handleAddMeeting = async (meetingData) => {
+    try {
+      const payload = {
+        meetingTitle: meetingData.title,
+        meetingType: meetingData.type,
+        client: meetingData.client,
+        date: meetingData.date,
+        startTime: meetingData.startTime,
+        endTime: meetingData.endTime,
+        host: meetingData.host || meetingData.organizer,
+        location: meetingData.location,
+        locationScope: meetingData.locationScope,
+        notes: meetingData.notes,
+        participants: meetingData.participants || [],
+      };
+  
+      if (meetingToEdit) {
+        await api.patch(`/api/meetings/${meetingToEdit.id}`, payload);
+  
+        Toast.fire({
+          icon: "success",
+          title: "Meeting updated successfully",
+        });
+      } else {
+        await api.post("/api/meetings", payload);
+  
+        Toast.fire({
+          icon: "success",
+          title: "Meeting added successfully",
+        });
+      }
+  
+      await fetchMeetings();
+  
+      closeMeetingForm();
+      setSelectedMeeting(null);
+  
+    } catch (error) {
+      console.error(error);
+  
+      Toast.fire({
+        icon: "error",
+        title:
+          error.response?.data?.error ||
+          "Unable to save meeting",
+      });
     }
   };
 
-  const handleDeleteMeeting = (meetingId) => {
-    setMeetings((prev) => prev.filter((meeting) => meeting.id !== meetingId));
-    setSelectedMeeting(null);
-    Toast.fire({ icon: 'success', title: 'Meeting deleted successfully' });
+  const handleDeleteMeeting = async (meetingId) => {
+    try {
+      await api.delete(`/api/meetings/${meetingId}`);
+  
+      await fetchMeetings();
+  
+      setSelectedMeeting(null);
+  
+      Toast.fire({
+        icon: "success",
+        title: "Meeting deleted successfully",
+      });
+  
+    } catch (error) {
+      console.error(error);
+  
+      Toast.fire({
+        icon: "error",
+        title: "Unable to delete meeting",
+      });
+    }
   };
 
   const stats = useMemo(() => {

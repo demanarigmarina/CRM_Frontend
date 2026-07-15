@@ -1,162 +1,114 @@
-import {
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
-
+import { useCallback, useEffect, useState } from "react";
 import Swal from "sweetalert2";
 
+import callService from "../services/callService";
 
 
 const Toast = Swal.mixin({
-
   toast: true,
-
   position: "top-end",
-
   showConfirmButton: false,
-
   timer: 2500,
-
   timerProgressBar: true,
+});
+
+
+const normalizeCall = (call) => ({
+  ...call,
+
+  _id: call._id,
+
+  contactPerson:
+    call.client || "",
+
+  companyName:
+    call.company || "",
+
+  contactValue:
+    call.contactNumber || "",
+
+  contactMethod:
+    call.contactMethod || "Mobile",
+
+  callType:
+    call.callType || "Follow-up Call",
+
+  status:
+    call.status || "Scheduled",
+
+  category:
+    call.status === "Completed"
+      ? "Past Call"
+      : "Future Call",
+
+  scheduledAt:
+    call.schedule || null,
+
+  completedAt:
+    call.completedAt || null,
+
+  notes:
+    call.notes || "",
 
 });
 
 
 
-
-
-
-const normalizeCall = (
-  call,
-  index = 0
-) => {
-
-
-  return {
-
-    ...call,
-
-
-    _id:
-      call._id ||
-      `call-${Date.now()}-${index}`,
-
-
-
-    clientName:
-      call.clientName || "",
-
-
-
-    companyName:
-      call.companyName || "",
-
-
-
-    contactMethod:
-      call.contactMethod || "Phone",
-
-
-
-    contactValue:
-      call.contactValue || "",
-
-
-
-    callType:
-      call.callType || "Follow-up Call",
-
-
-
-    status:
-      call.status || "Scheduled",
-
-
-
-    category:
-      call.category ||
-      "Future Call",
-
-
-
-    scheduledAt:
-      call.scheduledAt || null,
-
-
-
-    completedAt:
-      call.completedAt || null,
-
-
-    notes:
-      call.notes || "",
-
-
-    outcome:
-      call.outcome || "",
-
-  };
-
-
-};
-
-
-
-
-
-
-
 export default function useCalls() {
-
 
   const [calls, setCalls] =
     useState([]);
-
-
 
   const [loading, setLoading] =
     useState(false);
 
 
 
+  const fetchCalls = useCallback(async () => {
+
+    setLoading(true);
+
+    try {
+
+      const data =
+        await callService.getCalls();
 
 
+      setCalls(
+        data.map(normalizeCall)
+      );
 
 
+    } catch (error) {
+
+      console.error(
+        "FETCH CALLS ERROR:",
+        error,
+      );
 
 
-  const fetchCalls =
-    useCallback(async()=>{
+      Toast.fire({
+        icon: "error",
+        title: "Failed to load calls",
+      });
 
 
-      /*
-        Backend is not available yet.
-
-        Keep empty state until API exists.
-      */
-
+    } finally {
 
       setLoading(false);
 
+    }
 
-    },[]);
-
-
-
+  }, []);
 
 
 
 
-
-  useEffect(()=>{
-
+  useEffect(() => {
 
     fetchCalls();
 
-
-  },[fetchCalls]);
-
+  }, [fetchCalls]);
 
 
 
@@ -164,294 +116,264 @@ export default function useCalls() {
 
 
 
+  const addCall = useCallback(async (payload) => {
 
-  const addCall =
-    useCallback(async(payload)=>{
-
-
-      setLoading(true);
+    setLoading(true);
 
 
+    try {
 
-      try{
-
-
-        const newCall =
-          normalizeCall({
-
-            ...payload,
-
-
-            status:
-              payload.status ||
-              "Scheduled",
-
-          });
-
-
-
-        setCalls(
-          previous=>[
-            newCall,
-            ...previous,
-          ]
+      const data =
+        await callService.createCall(
+          payload,
         );
 
 
-
-        Toast.fire({
-
-          icon:"success",
-
-          title:
-            "Call added",
-
-        });
-
-
-
-        return true;
-
-
-
-      }
-
-      finally{
-
-
-        setLoading(false);
-
-
-      }
-
-
-
-    },[]);
-
-
-
-
-
-
-
-
-
-  const editCall =
-    useCallback(async(
-      id,
-      payload
-    )=>{
-
-
-      setLoading(true);
-
-
-
-      try{
-
-
-        setCalls(
-          previous =>
-
-            previous.map(
-              (call)=>
-
-                call._id === id
-
-                ?
-
-                {
-                  ...call,
-                  ...payload,
-                }
-
-                :
-
-                call
-
-            )
-
-        );
-
-
-
-        Toast.fire({
-
-          icon:"success",
-
-          title:
-            "Call updated",
-
-        });
-
-
-
-        return true;
-
-
-
-      }
-
-      finally{
-
-
-        setLoading(false);
-
-
-      }
-
-
-
-    },[]);
-
-
-
-
-
-
-
-
-
-  const removeCall =
-    useCallback(async(id)=>{
-
-
-      const confirm =
-        await Swal.fire({
-
-          title:
-            "Delete call?",
-
-
-          text:
-            "This action cannot be undone.",
-
-
-          icon:
-            "warning",
-
-
-          showCancelButton:true,
-
-
-          confirmButtonColor:
-            "#ef4444",
-
-
-          confirmButtonText:
-            "Delete",
-
-        });
-
-
-
-
-
-      if(!confirm.isConfirmed){
-
-        return false;
-
-      }
-
-
-
-
-      setCalls(
-        previous =>
-          previous.filter(
-            call =>
-              call._id !== id
-          )
-      );
-
-
+      setCalls((previous) => [
+        normalizeCall(data),
+        ...previous,
+      ]);
 
 
       Toast.fire({
-
-        icon:"success",
-
-        title:
-          "Call deleted",
-
+        icon: "success",
+        title: "Call added",
       });
-
 
 
       return true;
 
 
+    } catch (error) {
 
-    },[]);
-
-
-
-
-
-
-
-
-
-  const completeCall =
-    useCallback(async(id)=>{
-
-
-      setCalls(
-
-        previous =>
-
-          previous.map(
-            call =>
-
-
-              call._id === id
-
-
-              ?
-
-              {
-
-                ...call,
-
-                status:
-                  "Completed",
-
-                category:
-                  "Past Call",
-
-              }
-
-
-              :
-
-              call
-
-          )
-
+      console.error(
+        "CREATE CALL ERROR:",
+        error,
       );
 
 
-
       Toast.fire({
-
-        icon:"success",
-
-        title:
-          "Call completed",
-
+        icon: "error",
+        title: "Failed to add call",
       });
 
+
+      return false;
+
+
+    } finally {
+
+      setLoading(false);
+
+    }
+
+  }, []);
+
+
+
+
+
+
+
+  const editCall = useCallback(async (
+    id,
+    payload,
+  ) => {
+
+    setLoading(true);
+
+
+    try {
+
+      const data =
+        await callService.updateCall(
+          id,
+          payload,
+        );
+
+
+      setCalls((previous) =>
+        previous.map((call) =>
+          call._id === id
+            ? normalizeCall(data)
+            : call
+        )
+      );
+
+
+      Toast.fire({
+        icon: "success",
+        title: "Call updated",
+      });
 
 
       return true;
 
 
+    } catch (error) {
 
-    },[]);
+      console.error(
+        "UPDATE CALL ERROR:",
+        error,
+      );
+
+
+      Toast.fire({
+        icon: "error",
+        title: "Failed to update call",
+      });
+
+
+      return false;
+
+
+    } finally {
+
+      setLoading(false);
+
+    }
+
+  }, []);
 
 
 
 
+
+
+
+  const removeCall = useCallback(async (id) => {
+
+
+    const confirm =
+      await Swal.fire({
+
+        title:
+          "Delete call?",
+
+        text:
+          "This action cannot be undone.",
+
+        icon:
+          "warning",
+
+        showCancelButton:
+          true,
+
+        confirmButtonColor:
+          "#ef4444",
+
+        confirmButtonText:
+          "Delete",
+
+      });
+
+
+
+    if (!confirm.isConfirmed) {
+      return false;
+    }
+
+
+
+    try {
+
+      await callService.deleteCall(id);
+
+
+      setCalls((previous) =>
+        previous.filter(
+          (call) =>
+            call._id !== id
+        )
+      );
+
+
+      Toast.fire({
+        icon: "success",
+        title: "Call deleted",
+      });
+
+
+      return true;
+
+
+    } catch (error) {
+
+      console.error(
+        "DELETE CALL ERROR:",
+        error,
+      );
+
+
+      Toast.fire({
+        icon: "error",
+        title: "Failed to delete call",
+      });
+
+
+      return false;
+
+    }
+
+  }, []);
+
+
+
+
+
+
+
+  const completeCall = useCallback(async (id) => {
+
+
+    try {
+
+      const data =
+        await callService.updateCall(
+          id,
+          {
+            status: "Completed",
+          },
+        );
+
+
+      setCalls((previous) =>
+        previous.map((call) =>
+          call._id === id
+            ? normalizeCall(data)
+            : call
+        )
+      );
+
+
+      Toast.fire({
+        icon: "success",
+        title: "Call completed",
+      });
+
+
+      return true;
+
+
+    } catch (error) {
+
+      console.error(
+        "COMPLETE CALL ERROR:",
+        error,
+      );
+
+
+      Toast.fire({
+        icon: "error",
+        title: "Failed to complete call",
+      });
+
+
+      return false;
+
+    }
+
+  }, []);
 
 
 
@@ -459,29 +381,20 @@ export default function useCalls() {
 
   return {
 
-
     calls,
-
 
     loading,
 
-
     fetchCalls,
-
 
     addCall,
 
-
     editCall,
-
 
     removeCall,
 
-
     completeCall,
 
-
   };
-
 
 }
