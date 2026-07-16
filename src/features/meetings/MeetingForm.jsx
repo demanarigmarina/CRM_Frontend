@@ -118,6 +118,7 @@ function MeetingFormContent({ meeting, onSubmit }) {
                 <FormLabel>Location</FormLabel>
                 <FormInput
                   type="text"
+                  required
                   value={location}
                   placeholder="e.g. Google Meet, Conference Room A"
                   onChange={(e) => setLocation(e.target.value)}
@@ -173,6 +174,7 @@ function MeetingFormContent({ meeting, onSubmit }) {
               <FormLabel>Host</FormLabel>
               <FormInput
                 type="text"
+                required
                 value={host}
                 placeholder="Enter host name..."
                 onChange={(e) => setHost(e.target.value)}
@@ -218,7 +220,7 @@ function MeetingFormContent({ meeting, onSubmit }) {
                 onClick={() => setIsAddingParticipant(true)}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold border border-dashed border-gray-300 text-gray-600 rounded-md hover:border-gray-400 hover:text-gray-800 transition-all cursor-pointer bg-white"
               >
-                <Plus size={14} /> Add Participant
+                <Plus size={14} /> Add Participant/s
               </button>
             )}
 
@@ -240,7 +242,7 @@ function MeetingFormContent({ meeting, onSubmit }) {
                   </span>
                 ))
               ) : (
-                <p className="text-xs text-gray-400 italic">No external participants added yet.</p>
+                <p className="text-xs text-gray-400 italic">No participants added yet.</p>
               )}
             </div>
           </div>

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { CalendarDays, CheckCircle2, ChevronLeft, ChevronRight, Clock3, Filter, Plus, XCircle } from 'lucide-react';
 
 import { PageBase, PageHeader } from '../../components/page';
@@ -7,6 +7,7 @@ import { useMeetings } from './hooks/useMeetings';
 import MeetingCalendar from './MeetingCalendar';
 import MeetingDetails from './MeetingDetails';
 import MeetingForm from './MeetingForm';
+import MeetingDayDrawer from './MeetingDayDrawer';
 import { formatMonthYear } from './utils/calendarUtils';
 
 export default function MeetingsPage() {
@@ -32,6 +33,16 @@ export default function MeetingsPage() {
     handleAddMeeting,
     handleDeleteMeeting,
   } = useMeetings();
+
+  const [selectedDay, setSelectedDay] = useState(null);
+  const [selectedDayMeetings, setSelectedDayMeetings] = useState([]);
+  const [isDayDrawerOpen, setIsDayDrawerOpen] = useState(false);
+
+  const handleDayClick = (date, meetings) => {
+    setSelectedDay(date);
+    setSelectedDayMeetings(meetings);
+    setIsDayDrawerOpen(true);
+  };  
 
   const searchInputRef = useRef(null);
 
@@ -155,8 +166,9 @@ export default function MeetingsPage() {
                 currentMonth={currentMonth}
                 meetings={meetings}
                 onSelectMeeting={setSelectedMeeting}
-                activeMeetingId={selectedMeeting?.id}
+                activeMeetingId={selectedMeeting?._id}
                 activeView={activeView}
+                onSelectDay={handleDayClick}
               />
             </div>
           </div>
@@ -178,6 +190,15 @@ export default function MeetingsPage() {
         onSubmit={handleAddMeeting}
         meeting={meetingToEdit}
       />
+
+      <MeetingDayDrawer
+        isOpen={isDayDrawerOpen}
+        date={selectedDay}
+        meetings={selectedDayMeetings}
+        onClose={() => setIsDayDrawerOpen(false)}
+        onSelectMeeting={setSelectedMeeting}
+      />
+
     </PageBase>
   );
 }

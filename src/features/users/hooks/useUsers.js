@@ -4,7 +4,8 @@ import{
   useMemo,
   useState,
 }from"react";
-import{useLocation}from"react-router-dom";
+
+// import{useLocation}from"react-router-dom";
 import Swal from"sweetalert2";
 import api from"../../../services/api";
 import{useAuth}from"../../../context/AuthContext";
@@ -17,21 +18,22 @@ const Toast=Swal.mixin({
   timerProgressBar:true,
 });
 
-const ASSIGNABLE_RESOURCE_ALIASES={
-  lead:"lead",
-  leads:"lead",
-  prospect:"lead",
-  prospects:"lead",
-  client:"customer",
-  clients:"customer",
-  customer:"customer",
-  customers:"customer",
-  quotation:"deal",
-  quotations:"deal",
-  deal:"deal",
-  deals:"deal",
-  task:"task",
-  tasks:"task",
+const ASSIGNABLE_RESOURCE_ALIASES = {
+  lead: "lead",
+  leads: "lead",
+  prospect: "lead",
+  prospects: "lead",
+
+  client: "client",
+  clients: "client",
+
+  quotation: "quotation",
+  quotations: "quotation",
+  deal: "quotation",
+  deals: "quotation",
+
+  task: "task",
+  tasks: "task",
 };
 
 const normalizeAssignableResource=value=>{
@@ -249,44 +251,20 @@ export function useUsers({
   mode="auto",
   resource=null,
 }={}){
-  const{user}=useAuth();
-  const location=useLocation();
+  // const{user}=useAuth();
+  // const location=useLocation();
   const[users,setUsers]=useState([]);
   const[loading,setLoading]=useState(!skip);
 
-  const endpoint=useMemo(()=>{
-    if(mode==="all"){
-      return"/api/users";
+  const endpoint = useMemo(() => {
+    if (mode === "assignable") {
+      return `/api/users/assignable?resource=${encodeURIComponent(
+        normalizeAssignableResource(resource)
+      )}`;
     }
-
-    if(mode==="assignable"){
-      const normalizedResource=
-        normalizeAssignableResource(resource);
-
-      return(
-        "/api/users/assignable?resource="+
-        encodeURIComponent(normalizedResource)
-      );
-    }
-
-    if(mode==="directory"){
-      return"/api/users/directory";
-    }
-
-    const isUserManagementPage=
-      user?.role==="Admin"&&
-      /\/users\/?$/.test(location.pathname);
-
-    return isUserManagementPage
-      ?"/api/users"
-      :"/api/users/directory";
-  },[
-    mode,
-    resource,
-    user?.role,
-    location.pathname,
-  ]);
-
+  
+    return "/api/users";
+  }, [mode, resource]);
   const fetchUsers=useCallback(async()=>{
     if(skip){
       setLoading(false);

@@ -437,15 +437,165 @@ function ItemEditor({ currency, items, onAdd, onRemove, onUpdate }) {
   );
 }
 
+function MaterialEditor({ currency, materials, onAdd, onRemove, onUpdate }) {
+  return (
+    <div>
+      <div className="mb-3 flex items-center justify-between">
+        <SectionHeading>Materials List</SectionHeading>
+        <button
+          type="button"
+          onClick={onAdd}
+          className="flex items-center gap-2 rounded-md border border-red-200 px-3 py-2 text-[11px] font-medium text-red-500 hover:bg-red-50"
+        >
+          <Plus size={13} />
+          Add Material
+        </button>
+      </div>
+      <div className="overflow-hidden rounded-md border border-slate-200">
+        <div className="grid grid-cols-[42px_1fr_90px_130px_130px_42px] bg-slate-50 text-[10px] font-semibold text-slate-600">
+          {["#", "Material", "Qty", "Unit Cost", "Total", ""].map(
+            (label, index) => (
+              <span key={`${label}-${index}`} className="px-3 py-2.5">
+                {label}
+              </span>
+            ),
+          )}
+        </div>
+        {materials.map((material, index) => {
+          const total =
+            toNumber(material.quantity) * toNumber(material.unitCost);
+          return (
+            <div
+              key={material.id}
+              className="grid grid-cols-[42px_1fr_90px_130px_130px_42px] items-center border-t border-slate-100 text-xs"
+            >
+              <span className="px-3 text-slate-500">{index + 1}</span>
+              <input
+                value={material.material}
+                onChange={(event) =>
+                  onUpdate(material.id, "material", event.target.value)
+                }
+                className="border-0 px-3 py-3 text-xs outline-none focus:ring-0"
+                placeholder="Material name"
+              />
+              <input
+                type="number"
+                min="0"
+                step="1"
+                value={material.quantity}
+                onChange={(event) =>
+                  onUpdate(material.id, "quantity", event.target.value)
+                }
+                className="border-0 px-3 py-3 text-xs outline-none focus:ring-0"
+              />
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={material.unitCost}
+                onChange={(event) =>
+                  onUpdate(material.id, "unitCost", event.target.value)
+                }
+                className="border-0 px-3 py-3 text-xs outline-none focus:ring-0"
+                placeholder="0.00"
+              />
+              <span className="px-3 font-medium text-slate-700">
+                {formatCurrency(total, currency)}
+              </span>
+              <button
+                type="button"
+                onClick={() => onRemove(material.id)}
+                className="mx-auto rounded p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-500"
+                aria-label="Remove material"
+              >
+                <Trash2 size={13} />
+              </button>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function MilestoneEditor({ milestones, onAdd, onRemove, onUpdate }) {
+  return (
+    <div>
+      <div className="mb-3 flex items-center justify-between">
+        <SectionHeading>Timeline / Milestones</SectionHeading>
+        <button
+          type="button"
+          onClick={onAdd}
+          className="flex items-center gap-2 rounded-md border border-red-200 px-3 py-2 text-[11px] font-medium text-red-500 hover:bg-red-50"
+        >
+          <Plus size={13} />
+          Add Milestone
+        </button>
+      </div>
+      <div className="overflow-hidden rounded-md border border-slate-200">
+        <div className="grid grid-cols-[1fr_150px_150px_42px] bg-slate-50 text-[10px] font-semibold text-slate-600">
+          {["Phase", "Start Date", "End Date", ""].map((label, index) => (
+            <span key={`${label}-${index}`} className="px-3 py-2.5">
+              {label}
+            </span>
+          ))}
+        </div>
+        {milestones.map((milestone) => (
+          <div
+            key={milestone.id}
+            className="grid grid-cols-[1fr_150px_150px_42px] items-center border-t border-slate-100 text-xs"
+          >
+            <input
+              value={milestone.phase}
+              onChange={(event) =>
+                onUpdate(milestone.id, "phase", event.target.value)
+              }
+              className="border-0 px-3 py-3 text-xs outline-none focus:ring-0"
+              placeholder="e.g. Planning"
+            />
+            <input
+              type="date"
+              value={milestone.startDate}
+              onChange={(event) =>
+                onUpdate(milestone.id, "startDate", event.target.value)
+              }
+              className="border-0 px-3 py-3 text-xs outline-none focus:ring-0"
+            />
+            <input
+              type="date"
+              value={milestone.endDate}
+              onChange={(event) =>
+                onUpdate(milestone.id, "endDate", event.target.value)
+              }
+              className="border-0 px-3 py-3 text-xs outline-none focus:ring-0"
+            />
+            <button
+              type="button"
+              onClick={() => onRemove(milestone.id)}
+              className="mx-auto rounded p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-500"
+              aria-label="Remove milestone"
+            >
+              <Trash2 size={13} />
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function DetailsStep({
   clients,
   details,
   error,
   onAddItem,
+  onAddRow,
   onChangeClient,
   onRemoveItem,
+  onRemoveRow,
   onUpdate,
   onUpdateItem,
+  onUpdateRow,
   selectedTemplate,
 }) {
   const hasSection = (section) => selectedTemplate.sections.includes(section);
@@ -648,6 +798,103 @@ function DetailsStep({
             </section>
           )}
 
+          {hasSection("overview") && (
+            <section>
+              <SectionHeading>Project Overview</SectionHeading>
+              <div className="mt-4 space-y-4">
+                <div>
+                  <FieldLabel>Project Name</FieldLabel>
+                  <input
+                    value={details.overviewProjectName}
+                    onChange={(event) =>
+                      onUpdate("overviewProjectName", event.target.value)
+                    }
+                    className={FIELD_CLASS}
+                    placeholder="e.g. CRM Implementation"
+                  />
+                </div>
+                <div>
+                  <FieldLabel>Objectives</FieldLabel>
+                  <textarea
+                    value={details.overviewObjectives}
+                    onChange={(event) =>
+                      onUpdate("overviewObjectives", event.target.value)
+                    }
+                    rows={3}
+                    className={`${FIELD_CLASS} resize-none`}
+                    placeholder="Describe the goals of this project..."
+                  />
+                </div>
+                <div>
+                  <FieldLabel>Scope Description</FieldLabel>
+                  <textarea
+                    value={details.overviewScope}
+                    onChange={(event) =>
+                      onUpdate("overviewScope", event.target.value)
+                    }
+                    rows={3}
+                    className={`${FIELD_CLASS} resize-none`}
+                    placeholder="Describe the scope of work..."
+                  />
+                </div>
+              </div>
+            </section>
+          )}
+
+          {hasSection("event") && (
+            <section>
+              <SectionHeading>Event Details</SectionHeading>
+              <div className="mt-4 grid grid-cols-2 gap-4">
+                <div>
+                  <FieldLabel>Event Name</FieldLabel>
+                  <input
+                    value={details.eventName}
+                    onChange={(event) =>
+                      onUpdate("eventName", event.target.value)
+                    }
+                    className={FIELD_CLASS}
+                    placeholder="e.g. Annual Sales Seminar"
+                  />
+                </div>
+                <div>
+                  <FieldLabel>Venue</FieldLabel>
+                  <input
+                    value={details.eventVenue}
+                    onChange={(event) =>
+                      onUpdate("eventVenue", event.target.value)
+                    }
+                    className={FIELD_CLASS}
+                    placeholder="Enter venue"
+                  />
+                </div>
+                <div>
+                  <FieldLabel>Event Date</FieldLabel>
+                  <input
+                    type="date"
+                    value={details.eventDate}
+                    onChange={(event) =>
+                      onUpdate("eventDate", event.target.value)
+                    }
+                    className={FIELD_CLASS}
+                  />
+                </div>
+                <div>
+                  <FieldLabel>Number of Guests</FieldLabel>
+                  <input
+                    type="number"
+                    min="0"
+                    value={details.eventGuests}
+                    onChange={(event) =>
+                      onUpdate("eventGuests", event.target.value)
+                    }
+                    className={FIELD_CLASS}
+                    placeholder="0"
+                  />
+                </div>
+              </div>
+            </section>
+          )}
+
           {hasSection("text") && (
             <section>
               <SectionHeading>Introduction</SectionHeading>
@@ -670,6 +917,41 @@ function DetailsStep({
               onAdd={onAddItem}
               onRemove={onRemoveItem}
               onUpdate={onUpdateItem}
+            />
+          )}
+
+          {hasSection("materials") && (
+            <MaterialEditor
+              currency={details.currency}
+              materials={details.materials}
+              onAdd={() =>
+                onAddRow("materials", {
+                  material: "",
+                  quantity: "1",
+                  unitCost: "",
+                })
+              }
+              onRemove={(rowId) => onRemoveRow("materials", rowId)}
+              onUpdate={(rowId, name, value) =>
+                onUpdateRow("materials", rowId, name, value)
+              }
+            />
+          )}
+
+          {hasSection("timeline") && (
+            <MilestoneEditor
+              milestones={details.milestones}
+              onAdd={() =>
+                onAddRow("milestones", {
+                  phase: "",
+                  startDate: "",
+                  endDate: "",
+                })
+              }
+              onRemove={(rowId) => onRemoveRow("milestones", rowId)}
+              onUpdate={(rowId, name, value) =>
+                onUpdateRow("milestones", rowId, name, value)
+              }
             />
           )}
 
@@ -701,6 +983,63 @@ function DetailsStep({
                       onUpdate("taxRate", event.target.value)
                     }
                     className={FIELD_CLASS}
+                  />
+                </div>
+              </div>
+            </section>
+          )}
+
+          {hasSection("payment") && (
+            <section>
+              <SectionHeading>Payment Information</SectionHeading>
+              <div className="mt-4 grid grid-cols-2 gap-4">
+                <div>
+                  <FieldLabel>Payment Method</FieldLabel>
+                  <input
+                    value={details.paymentMethod}
+                    onChange={(event) =>
+                      onUpdate("paymentMethod", event.target.value)
+                    }
+                    className={FIELD_CLASS}
+                    placeholder="e.g. Bank Transfer"
+                  />
+                </div>
+                <div>
+                  <FieldLabel>Down Payment</FieldLabel>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={details.downPayment}
+                    onChange={(event) =>
+                      onUpdate("downPayment", event.target.value)
+                    }
+                    className={FIELD_CLASS}
+                  />
+                </div>
+                <div>
+                  <FieldLabel>Remaining Balance</FieldLabel>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={details.balance}
+                    onChange={(event) =>
+                      onUpdate("balance", event.target.value)
+                    }
+                    className={FIELD_CLASS}
+                  />
+                </div>
+                <div className="col-span-2">
+                  <FieldLabel>Payment Schedule</FieldLabel>
+                  <textarea
+                    value={details.paymentSchedule}
+                    onChange={(event) =>
+                      onUpdate("paymentSchedule", event.target.value)
+                    }
+                    rows={4}
+                    className={`${FIELD_CLASS} resize-none`}
+                    placeholder="e.g. 20% initial, 40% progress, 40% completion"
                   />
                 </div>
               </div>
@@ -824,6 +1163,41 @@ function QuotationDocument({ details, selectedTemplate, totals }) {
           )}
       </div>
 
+      {selectedTemplate.sections.includes("event") && (
+        <div className="border-b border-red-100 py-4">
+          <p className="font-semibold uppercase text-red-500">Event Details</p>
+          <div className="mt-2 grid grid-cols-2 gap-2">
+            <p>Event: {details.eventName || "—"}</p>
+            <p>Venue: {details.eventVenue || "—"}</p>
+            <p>Date: {details.eventDate || "—"}</p>
+            <p>Guests: {details.eventGuests || "—"}</p>
+          </div>
+        </div>
+      )}
+
+      {selectedTemplate.sections.includes("overview") && (
+        <div className="border-b border-red-100 py-4">
+          <p className="font-semibold uppercase text-red-500">
+            Project Overview
+          </p>
+          {details.overviewProjectName && (
+            <p className="mt-2 font-medium">{details.overviewProjectName}</p>
+          )}
+          {details.overviewObjectives && (
+            <p className="mt-2 whitespace-pre-line leading-5 text-slate-500">
+              <span className="font-medium text-slate-600">Objectives: </span>
+              {details.overviewObjectives}
+            </p>
+          )}
+          {details.overviewScope && (
+            <p className="mt-2 whitespace-pre-line leading-5 text-slate-500">
+              <span className="font-medium text-slate-600">Scope: </span>
+              {details.overviewScope}
+            </p>
+          )}
+        </div>
+      )}
+
       {selectedTemplate.sections.includes("items") && (
         <div>
           <div className="grid grid-cols-[36px_1fr_70px_110px_110px] border-y border-red-100 bg-red-50/40 font-semibold uppercase text-red-500">
@@ -875,6 +1249,93 @@ function QuotationDocument({ details, selectedTemplate, totals }) {
               <span>{formatCurrency(totals.total, details.currency)}</span>
             </div>
           </div>
+        </div>
+      )}
+
+      {selectedTemplate.sections.includes("materials") && (
+        <div className="mt-6">
+          <p className="mb-2 font-semibold uppercase text-red-500">
+            Materials List
+          </p>
+          <div className="grid grid-cols-[1fr_70px_110px_110px] border-y border-red-100 bg-red-50/40 font-semibold uppercase text-red-500">
+            {["Material", "Qty", "Unit Cost", "Total"].map((label) => (
+              <span key={label} className="px-2 py-2">
+                {label}
+              </span>
+            ))}
+          </div>
+          {details.materials
+            .filter(
+              (material) =>
+                material.material || toNumber(material.unitCost) > 0,
+            )
+            .map((material) => {
+              const total =
+                toNumber(material.quantity) * toNumber(material.unitCost);
+              return (
+                <div
+                  key={material.id}
+                  className="grid grid-cols-[1fr_70px_110px_110px] border-b border-slate-100"
+                >
+                  <span className="px-2 py-2">{material.material}</span>
+                  <span className="px-2 py-2">{material.quantity}</span>
+                  <span className="px-2 py-2">
+                    {formatCurrency(material.unitCost, details.currency)}
+                  </span>
+                  <span className="px-2 py-2 text-right font-medium">
+                    {formatCurrency(total, details.currency)}
+                  </span>
+                </div>
+              );
+            })}
+        </div>
+      )}
+
+      {selectedTemplate.sections.includes("timeline") && (
+        <div className="mt-6">
+          <p className="mb-2 font-semibold uppercase text-red-500">
+            Timeline / Milestones
+          </p>
+          <div className="grid grid-cols-[1fr_110px_110px] border-y border-red-100 bg-red-50/40 font-semibold uppercase text-red-500">
+            {["Phase", "Start", "End"].map((label) => (
+              <span key={label} className="px-2 py-2">
+                {label}
+              </span>
+            ))}
+          </div>
+          {details.milestones
+            .filter((milestone) => milestone.phase)
+            .map((milestone) => (
+              <div
+                key={milestone.id}
+                className="grid grid-cols-[1fr_110px_110px] border-b border-slate-100"
+              >
+                <span className="px-2 py-2">{milestone.phase}</span>
+                <span className="px-2 py-2">{milestone.startDate || "—"}</span>
+                <span className="px-2 py-2">{milestone.endDate || "—"}</span>
+              </div>
+            ))}
+        </div>
+      )}
+
+      {selectedTemplate.sections.includes("payment") && (
+        <div className="mt-6 border-t border-red-100 pt-4">
+          <p className="font-semibold uppercase text-red-500">
+            Payment Information
+          </p>
+          <div className="mt-2 grid grid-cols-3 gap-2">
+            <p>Method: {details.paymentMethod || "—"}</p>
+            <p>
+              Down Payment:{" "}
+              {formatCurrency(details.downPayment, details.currency)}
+            </p>
+            <p>Balance: {formatCurrency(details.balance, details.currency)}</p>
+          </div>
+          {details.paymentSchedule && (
+            <p className="mt-2 whitespace-pre-line leading-5 text-slate-500">
+              {details.paymentSchedule}
+            </p>
+          )}
         </div>
       )}
 
@@ -1332,6 +1793,13 @@ const createInitialDetails = (formData, clients, currentUser) => {
     ...getClientDetails(selectedClient),
     introduction:
       "Thank you for the opportunity to provide this quotation. The following products and services are proposed for your consideration.",
+    overviewProjectName: formData.title || "",
+    overviewObjectives: "",
+    overviewScope: "",
+    eventName: "",
+    eventVenue: "",
+    eventDate: "",
+    eventGuests: "",
     items: [
       {
         id: "item-1",
@@ -1340,6 +1808,27 @@ const createInitialDetails = (formData, clients, currentUser) => {
         unitPrice: "",
       },
     ],
+    materials: [
+      {
+        id: "material-1",
+        material: "",
+        quantity: "1",
+        unitCost: "",
+      },
+    ],
+    milestones: [
+      {
+        id: "milestone-1",
+        phase: "",
+        startDate: "",
+        endDate: "",
+      },
+    ],
+    paymentMethod: "Bank Transfer",
+    downPayment: "0",
+    balance: "0",
+    paymentSchedule:
+      "20% upon confirmation\n40% during progress\n40% upon completion",
     discount: "0",
     taxRate: "12",
     terms:
@@ -1457,6 +1946,35 @@ export default function QuotationWizard({
         current.items.length === 1
           ? current.items
           : current.items.filter((item) => item.id !== itemId),
+    }));
+  };
+
+  const addRow = (listKey, row) => {
+    setDetails((current) => ({
+      ...current,
+      [listKey]: [
+        ...current[listKey],
+        { ...row, id: `${listKey}-${Date.now()}` },
+      ],
+    }));
+  };
+
+  const updateRow = (listKey, rowId, name, value) => {
+    setDetails((current) => ({
+      ...current,
+      [listKey]: current[listKey].map((row) =>
+        row.id === rowId ? { ...row, [name]: value } : row,
+      ),
+    }));
+  };
+
+  const removeRow = (listKey, rowId) => {
+    setDetails((current) => ({
+      ...current,
+      [listKey]:
+        current[listKey].length === 1
+          ? current[listKey]
+          : current[listKey].filter((row) => row.id !== rowId),
     }));
   };
 
@@ -1582,10 +2100,13 @@ export default function QuotationWizard({
               details={details}
               error={error}
               onAddItem={addItem}
+              onAddRow={addRow}
               onChangeClient={changeClient}
               onRemoveItem={removeItem}
+              onRemoveRow={removeRow}
               onUpdate={updateDetails}
               onUpdateItem={updateItem}
+              onUpdateRow={updateRow}
               selectedTemplate={selectedTemplate}
             />
           )}
