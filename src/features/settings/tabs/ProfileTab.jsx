@@ -1,11 +1,7 @@
 import { useRef } from "react";
-import Select from "react-select";
 
-import { getSelectProps } from "../../../components/select/selectConfig";
 import PhAddressFields from "../../../components/form/PhAddressFields";
 import { FormLabel, FormInput } from "../../../components/form/FormField";
-
-import { SUFFIX_OPTIONS, GENDER_OPTIONS } from "../../../constants/options";
 
 import { getDisplayName } from "../../../utils/name";
 
@@ -111,20 +107,11 @@ export default function ProfileTab({ loading, form }) {
           </div>
           <div>
             <FormLabel>Suffix</FormLabel>
-            <Select
-              {...getSelectProps({ isSearchable: false, isClearable: true })}
-              options={SUFFIX_OPTIONS}
-              value={
-                formData.suffixName
-                  ? { label: formData.suffixName, value: formData.suffixName }
-                  : null
-              }
-              onChange={(opt) =>
-                handleChange({
-                  target: { name: "suffixName", value: opt?.value ?? "" },
-                })
-              }
-              placeholder="Select suffix"
+            <FormInput
+              name="suffixName"
+              value={formData.suffixName ?? ""}
+              onChange={handleChange}
+              placeholder="e.g. Jr., III"
             />
           </div>
           <div className="col-span-2">
@@ -151,20 +138,12 @@ export default function ProfileTab({ loading, form }) {
           </div>
           <div>
             <FormLabel required>Sex</FormLabel>
-            <Select
-              {...getSelectProps({ isSearchable: false })}
-              options={GENDER_OPTIONS}
-              value={
-                formData.sex
-                  ? { label: formData.sex, value: formData.sex }
-                  : null
-              }
-              onChange={(opt) =>
-                handleChange({
-                  target: { name: "sex", value: opt?.value ?? "" },
-                })
-              }
-              placeholder="Select sex"
+            <FormInput
+              name="sex"
+              value={formData.sex ?? ""}
+              onChange={handleChange}
+              placeholder="e.g. Male, Female"
+              required
             />
           </div>
           <div>

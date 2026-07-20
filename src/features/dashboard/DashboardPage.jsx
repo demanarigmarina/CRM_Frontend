@@ -8,9 +8,14 @@ import MyMeetingsTable from"./components/MyMeetingTable";
 const TASKS_ROUTE="/tasks";
 const MEETINGS_ROUTE="/meetings";
 
-export default function DashboardPage(){
-const navigate=useNavigate();
-const{stats,loading,error}=useDashboard();
+export default function DashboardPage() {
+
+  const {
+    stats,
+    loading,
+    error,
+    refetch,
+  } = useDashboard();
 
 const tasks=stats?.tasks||[];
 const meetings=stats?.meetings||[];
@@ -29,14 +34,16 @@ Manage your tasks and meetings
 </p>
 </div>
 
-<button
-type="button"
-className="flex shrink-0 items-center gap-2 rounded-md border border-gray-200 px-4 py-2 text-xs text-gray-600 transition hover:bg-gray-50"
->
-<Filter size={13}/>
-Filter
-</button>
-</div>
+        <button
+          onClick={refetch}
+          disabled={loading}
+          type="button"
+          className="flex items-center gap-2 rounded-lg bg-red-500 px-3 py-2 text-xs font-semibold text-white hover:bg-red-600">
+          <RefreshCw size={12}/>
+          Refresh
+        </button>
+
+      </div>
 
 {error&&(
 <div className="mb-2 rounded-md bg-red-50 px-3 py-2 text-xs text-red-500">

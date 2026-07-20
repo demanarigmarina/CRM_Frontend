@@ -1,8 +1,10 @@
 import { ChevronDown, Save } from "lucide-react";
+import Select from "react-select"; // Imported react-select
 import { getDisplayName } from "../../../utils/name";
 import useUserAccess from "../hooks/useUserAccess";
 import AccessCard from "../components/AccessCard";
 import RoleTemplateSelect from "../components/RoleTemplateSelect";
+import { getSelectProps } from "../../../components/select/selectConfig"; // Standard styling hook from your app
 
 export default function EditAccessTab() {
   const {
@@ -24,6 +26,15 @@ export default function EditAccessTab() {
     ? selectedUser.team
     : selectedUser?.team?.name || "—";
 
+  // Map users list to react-select option requirements
+  const userOptions = users.map((user) => ({
+    value: user.employeeId,
+    label: `${getDisplayName(user, { includeMiddleInitial: true, includeSuffix: true })} (${user.employeeId})`,
+  }));
+
+  // Find the currently selected option object
+  const currentSelectedOption = userOptions.find(option => option.value === selectedUserId) || null;
+
   return (
     <div className="flex h-full min-h-0 flex-col pt-1">
       {/* HEADER & DROPDOWNS SELECTION AREA */}
@@ -37,40 +48,29 @@ export default function EditAccessTab() {
           </p>
         </div>
 
-        {/* SELECT USER DROPDOWN */}
+        {/* SEARCHABLE USER DROPDOWN */}
         <div>
-          <label className="block text-[11px] font-medium text-slate-600">
+          <label className="block text-[11px] font-medium text-slate-600 mb-1">
             Select User
           </label>
 
-          <div className="relative mt-1">
-            <select
-              value={selectedUserId}
-              onChange={(event) => setSelectedUser(event.target.value)}
-              className="h-9 w-full appearance-none rounded-md border border-slate-300 bg-white px-3 pr-8 text-[11px] text-slate-700 outline-none transition focus:border-red-400 focus:ring-1 focus:ring-red-100"
-            >
-              {/* 1. BLANK INTERFACE PLACEHOLDER HAKBANG */}
-              <option value="">-- Select a User --</option>
-              
-              {users.map((user) => (
-                <option key={user.employeeId} value={user.employeeId}>
-                  {getDisplayName(user, { includeMiddleInitial: true, includeSuffix: true })} ({user.employeeId})
-                </option>
-              ))}
-            </select>
-              
-            <ChevronDown
-              size={14}
-              className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500"
-            />
-          </div>
+          <Select
+            {...getSelectProps({ variant: "filter" })}
+            placeholder="Type name or ID to search..."
+            isSearchable={true}
+            isClearable={true}
+            options={userOptions}
+            value={currentSelectedOption}
+            onChange={(option) => setSelectedUser(option ? option.value : "")}
+            className="text-[11px]"
+          />
         </div>
 
         {/* ROLE TEMPLATE DROPDOWN */}
         <RoleTemplateSelect 
           value={roleTemplate} 
           onChange={setRoleTemplate} 
-          disabled={!selectedUserId} // Naka-disable kapag walang user na napili
+          disabled={!selectedUserId} 
         />
       </div>
 
@@ -147,7 +147,7 @@ export default function EditAccessTab() {
             </div>
           </div>
 
-          {/* ACTION BUTTONS (MESSAGES CONTROLS) */}
+          {/* ACTION BUTTONS */}
           <div className="mt-2.5 flex shrink-0 justify-end gap-2.5">
             <button
               type="button"
@@ -170,7 +170,7 @@ export default function EditAccessTab() {
           </div>
         </>
       ) : (
-        /* BLANK STATE PLACEHOLDER KAPAG WALANG USER NA NAKASELECT */
+        /* BLANK STATE PLACEHOLDER */
         <div className="mt-2.5 flex flex-1 items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50/50 p-8 text-center">
           <div className="max-w-sm space-y-1">
             <p className="text-xs font-medium text-slate-600">No User Selected</p>

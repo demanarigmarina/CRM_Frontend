@@ -86,13 +86,12 @@ function MeetingFormContent({ meeting, onSubmit }) {
                 <FormLabel>Meeting Type</FormLabel>
                 <FormInput
                   type="text"
-                  required
                   list="meeting-types"
                   value={type}
                   placeholder="e.g. Online, On-site"
                   onChange={(e) => setType(e.target.value)}
                 />
-                  <datalist id="meeting-types">
+                <datalist id="meeting-types">
                   <option value="Client Meeting" />
                   <option value="Internal Meeting" />
                   <option value="Presentation" />
@@ -105,7 +104,6 @@ function MeetingFormContent({ meeting, onSubmit }) {
                 <FormLabel>Client</FormLabel>
                 <FormInput
                   type="text"
-                  required
                   value={client}
                   placeholder="Enter client name..."
                   onChange={(e) => setClient(e.target.value)}
@@ -113,11 +111,12 @@ function MeetingFormContent({ meeting, onSubmit }) {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid gap-3">
               <div>
                 <FormLabel>Location</FormLabel>
                 <FormInput
                   type="text"
+                  required
                   value={location}
                   placeholder="e.g. Google Meet, Conference Room A"
                   onChange={(e) => setLocation(e.target.value)}
@@ -125,14 +124,30 @@ function MeetingFormContent({ meeting, onSubmit }) {
               </div>
               <div>
                 <FormLabel>Location scope</FormLabel>
-                <select
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-red-300"
-                  value={locationScope}
-                  onChange={(e) => setLocationScope(e.target.value)}
-                >
-                  <option value="Inside the Philippines">Inside the Philippines</option>
-                  <option value="Outside the Philippines">Outside the Philippines</option>
-                </select>
+                <div className="flex flex-wrap items-center gap-x-20 gap-y-2 pt-2">
+                  <label className="flex items-center gap-2 text-sm font-medium text-gray-600 cursor-pointer select-none">
+                    <input
+                      type="radio"
+                      name="locationScope"
+                      value="Inside the Philippines"
+                      checked={locationScope === 'Inside the Philippines'}
+                      onChange={(e) => setLocationScope(e.target.value)}
+                      className="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                    />
+                    Inside the PH
+                  </label>
+                  <label className="flex items-center gap-2 text-sm font-medium text-gray-600 cursor-pointer select-none">
+                    <input
+                      type="radio"
+                      name="locationScope"
+                      value="Outside the Philippines"
+                      checked={locationScope === 'Outside the Philippines'}
+                      onChange={(e) => setLocationScope(e.target.value)}
+                      className="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                    />
+                    Outside the PH
+                  </label>
+                </div>
               </div>
             </div>
           </div>
@@ -173,6 +188,7 @@ function MeetingFormContent({ meeting, onSubmit }) {
               <FormLabel>Host</FormLabel>
               <FormInput
                 type="text"
+                required
                 value={host}
                 placeholder="Enter host name..."
                 onChange={(e) => setHost(e.target.value)}
@@ -218,7 +234,7 @@ function MeetingFormContent({ meeting, onSubmit }) {
                 onClick={() => setIsAddingParticipant(true)}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold border border-dashed border-gray-300 text-gray-600 rounded-md hover:border-gray-400 hover:text-gray-800 transition-all cursor-pointer bg-white"
               >
-                <Plus size={14} /> Add Participant
+                <Plus size={14} /> Add Participant/s
               </button>
             )}
 
@@ -240,7 +256,7 @@ function MeetingFormContent({ meeting, onSubmit }) {
                   </span>
                 ))
               ) : (
-                <p className="text-xs text-gray-400 italic">No external participants added yet.</p>
+                <p className="text-xs text-gray-400 italic">No participants added yet.</p>
               )}
             </div>
           </div>

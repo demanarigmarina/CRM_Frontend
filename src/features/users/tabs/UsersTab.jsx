@@ -9,12 +9,11 @@ import UserTable from "../UserTable";
 import UserForm from "../UserForm";
 import UserView from "../UserView";
 import EditAccessTab from "./EditAccessTab";
-import ReportsTab from "./ReportsTab";
 import {useUsers} from "../hooks/useUsers";
 import {useUserForm} from "../hooks/useUserForm";
 
 const TAB_STORAGE_KEY="settings_active_tab";
-const TABS=["Users","Edit Access","Reports"];
+const TABS=["Users","Edit Access"];
 
 const getInitialTab=()=>{
   try{
@@ -379,12 +378,6 @@ export default function UsersTab(){
       {activeTab==="Edit Access"&&(
         <div className="min-h-0 flex-1 overflow-auto">
           <EditAccessTab/>
-        </div>
-      )}
-
-      {activeTab==="Reports"&&(
-        <div className="min-h-0 flex-1 overflow-auto">
-          <ReportsTab/>
         </div>
       )}
     </div>

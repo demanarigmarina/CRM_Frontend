@@ -5,8 +5,12 @@ import {
   AlignLeft,
   AlignRight,
   Bold,
+  Boxes,
   Building2,
+  CalendarClock,
+  CalendarDays,
   Check,
+  ClipboardList,
   FileSignature,
   GripVertical,
   Italic,
@@ -26,6 +30,7 @@ import {
   Underline,
   Undo2,
   UserRound,
+  Wallet,
   X,
 } from "lucide-react";
 import {
@@ -43,8 +48,13 @@ const AVAILABLE_SECTIONS = [
   { id: "company", icon: Layers3 },
   { id: "client", icon: List },
   { id: "text", icon: NotepadText },
+  { id: "overview", icon: ClipboardList },
+  { id: "event", icon: CalendarDays },
   { id: "items", icon: Table2 },
+  { id: "materials", icon: Boxes },
+  { id: "timeline", icon: CalendarClock },
   { id: "summary", icon: Rows3 },
+  { id: "payment", icon: Wallet },
   { id: "terms", icon: PanelTop },
   { id: "notes", icon: NotepadText },
   { id: "signature", icon: FileSignature },
@@ -158,7 +168,12 @@ function BuilderSection({ section, onRemove }) {
       {section === "company" && "Click to add company info"}
       {section === "client" && "Click to add client info"}
       {section === "text" && "Click to add text"}
+      {section === "overview" && "Click to add project overview"}
+      {section === "event" && "Click to add event details"}
+      {section === "materials" && "Click to add materials list"}
+      {section === "timeline" && "Click to add timeline / milestones"}
       {section === "summary" && "Click to add summary"}
+      {section === "payment" && "Click to add payment information"}
       {section === "terms" && "Click to add terms and conditions"}
       {section === "notes" && "Click to add notes"}
       {section === "signature" && "Click to add signature"}
@@ -240,36 +255,40 @@ export default function TemplateBuilder({ onCancel, onUseTemplate }) {
           <X size={20} />
         </button>
       </div>
-
       <Stepper />
 
-      <div className="flex min-h-0 flex-1 gap-3 p-6">
-        <aside className="w-52 shrink-0 rounded-md border border-slate-200 p-4">
+      <div className="flex min-h-0 flex-1 gap-3 p-6 overflow-hidden">
+      <aside className="w-52 shrink-0 h-162.5 rounded-md border border-slate-200 p-4 flex flex-col">
+        <div className="shrink-0">
           <h3 className="text-sm font-semibold text-slate-800">
             Available Sections
           </h3>
+
           <p className="mt-1 text-[10px] text-slate-500">
             Click a section to add it to the page
           </p>
+        </div>
 
-          <div className="mt-5 space-y-2">
-            {availableSections.map((section) => (
-              <AvailableSectionButton
-                key={section.id}
-                section={section}
-                onAdd={addSection}
-              />
-            ))}
-          </div>
+        {/* Scrollable list */}
+        <div className="mt-5 flex-1 overflow-y-auto min-h-0 space-y-2 pr-1">
+          {availableSections.map((section) => (
+            <AvailableSectionButton
+              key={section.id}
+              section={section}
+              onAdd={addSection}
+            />
+          ))}
+        </div>
 
-          <div className="mt-6 rounded-md bg-red-50 p-3 text-[10px] leading-5 text-slate-600">
-            <div className="mb-1 flex items-center gap-2 font-semibold text-slate-800">
-              <PenLine size={14} className="text-red-500" />
-              Tip
-            </div>
-            Drag sections on the page to reorder them.
+        {/* Fixed tip */}
+        <div className="mt-4 shrink-0 rounded-md bg-red-50 p-3 text-[10px] leading-5 text-slate-600">
+          <div className="mb-1 flex items-center gap-2 font-semibold text-slate-800">
+            <PenLine size={14} className="text-red-500" />
+            Tip
           </div>
-        </aside>
+          Drag sections on the page to reorder them.
+        </div>
+      </aside>
 
         <section className="flex min-w-0 flex-1 flex-col overflow-hidden rounded-md border border-slate-200">
           <div className="flex h-14 shrink-0 items-center gap-1 border-b border-slate-200 px-4">

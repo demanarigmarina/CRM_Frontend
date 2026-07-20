@@ -4,7 +4,7 @@ import ViewMoreButton from "./ViewMoreButton";
 import TabToolbar from "./TabToolbar";
 
 const STATUS_OPTIONS = [
-  "New",
+  // "New",
   "Contacted",
   "Qualified",
   "Converted",

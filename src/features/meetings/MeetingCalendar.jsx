@@ -3,7 +3,7 @@ import { getDaysInMonth } from './utils/calendarUtils';
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-export default function MeetingCalendar({ currentMonth, meetings, onSelectMeeting, activeMeetingId, activeView = 'Month' }) {
+export default function MeetingCalendar({ currentMonth, meetings, onSelectMeeting, onSelectDay, activeMeetingId, activeView = 'Month' }) {
   const calendarCells = getDaysInMonth(currentMonth);
 
   const getDateKey = (date) => {
@@ -42,17 +42,21 @@ export default function MeetingCalendar({ currentMonth, meetings, onSelectMeetin
 
     return (
       <button
-        key={meeting.id}
+        key={meeting._id}
         type="button"
-        onClick={() => onSelectMeeting(meeting)}
-        className={`flex w-full items-center gap-1 rounded-sm border px-2 py-1 text-left text-[10px] transition-colors hover:brightness-95 ${meeting.color} ${
-          activeMeetingId === meeting.id ? 'ring-2 ring-red-200' : ''
-        }`}
+        onClick={(e) => {
+          e.stopPropagation();
+          onSelectMeeting(meeting);
+        }}
+        className={`flex w-full items-center gap-1 rounded border px-1.5 py-1 text-[10px]
+          ${meeting.color}
+          ${activeMeetingId === meeting._id ? 'ring-2 ring-red-200' : ''}
+        `}
       >
-        <span className={`mt-0.5 h-5 w-1.5 shrink-0 rounded-full ${accentClass}`} />
+        <span className={`h-4 w-1 shrink-0 rounded-full ${accentClass}`} />
         <span className="min-w-0 overflow-hidden">
-          <div className="truncate font-medium">{meeting.time}</div>
-          <div className="truncate text-[10px] text-gray-700">{meeting.title}</div>
+        <div className="truncate text-[10px] font-semibold leading-none">{meeting.time}</div>
+        <div className="truncate text-[9px] leading-none text-gray-600">{meeting.title}</div>
         </span>
       </button>
     );
@@ -136,28 +140,48 @@ export default function MeetingCalendar({ currentMonth, meetings, onSelectMeetin
 
           return (
             <div
-                key={idx}
-                className={`flex h-full flex-col gap-4 overflow-hidden border-r border-b border-gray-100 p-2 ${
-                  cell.isCurrentMonth ? 'bg-white' : 'bg-gray-50/70 text-gray-400'
-                }`}
-              >
-              <div className="flex items-center justify-between">
-                <span className={`text-[11px] font-semibold ${cell.isCurrentMonth ? 'text-gray-600' : 'text-gray-400'}`}>
+              key={idx}
+              onClick={() => {
+                if (cell.isCurrentMonth) {
+                  onSelectDay(cell.date, dayMeetings);
+                }
+              }}
+              className={`flex h-full cursor-pointer flex-col overflow-hidden border-r border-b border-gray-100 p-2 transition hover:bg-blue-50 ${
+                cell.isCurrentMonth
+                  ? "bg-white"
+                  : "bg-gray-50/70 text-gray-400"
+              }`}
+            >
+              <div className="flex shrink-0 items-center justify-between mb-2">
+                <span
+                  className={`text-[11px] font-semibold ${
+                    cell.isCurrentMonth
+                      ? "text-gray-600"
+                      : "text-gray-400"
+                  }`}
+                >
                   {cell.date.getDate()}
                 </span>
+
                 {dayMeetings.length > 0 && (
-                  <span className="text-[10px] text-gray-400">{dayMeetings.length}</span>
+                  <span className="text-[10px] text-gray-400">
+                    {dayMeetings.length}
+                  </span>
                 )}
               </div>
 
-              <div className="flex-1 min-h-0 space-y-1 overflow-y-auto pr-1 scrollbar-thin">
-                {dayMeetings.map((meeting) => renderMeetingCard(meeting))}
+              <div
+                className="min-h-0 flex-1 space-y-1 overflow-y-auto pr-1 scrollbar-thin"
+              >
+                {dayMeetings.map((meeting) =>
+                  renderMeetingCard(meeting)
+                )}
               </div>
             </div>
           );
         })}
+        </div>
       </div>
     </div>
-  </div>
   );
 }

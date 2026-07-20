@@ -8,7 +8,6 @@ import FormSection from "../../components/form/FormSection";
 import AvatarUploader from "../../components/form/AvatarUploader";
 import PhAddressFields from "../../components/form/PhAddressFields";
 import {FormLabel,FormInput} from "../../components/form/FormField";
-import {SUFFIX_OPTIONS,GENDER_OPTIONS} from "../../constants/options";
 
 const ROLE_OPTIONS=[
   {label:"Sales Manager",value:"Sales Manager"},
@@ -173,28 +172,12 @@ export default function UserForm({
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <div>
               <FormLabel>Suffix</FormLabel>
-              <Select
-                {...getSelectProps({isSearchable:false})}
-                options={SUFFIX_OPTIONS}
-                value={
-                  formData.suffixName
-                    ?{
-                      label:formData.suffixName,
-                      value:formData.suffixName,
-                    }
-                    :null
-                }
-                onChange={option=>
-                  onChange({
-                    target:{
-                      name:"suffixName",
-                      value:option?.value||"",
-                    },
-                  })
-                }
-                placeholder="Select suffix"
-                isDisabled={loading}
-                isClearable
+              <FormInput
+                name="suffixName"
+                value={formData.suffixName||""}
+                onChange={onChange}
+                placeholder="e.g. Jr., Sr., III"
+                disabled={loading}
               />
             </div>
 
@@ -228,27 +211,13 @@ export default function UserForm({
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <FormLabel required>Gender</FormLabel>
-              <Select
-                {...getSelectProps({isSearchable:false})}
-                options={GENDER_OPTIONS}
-                value={
-                  formData.gender
-                    ?{
-                      label:formData.gender,
-                      value:formData.gender,
-                    }
-                    :null
-                }
-                onChange={option=>
-                  onChange({
-                    target:{
-                      name:"gender",
-                      value:option?.value||"",
-                    },
-                  })
-                }
-                placeholder="Select gender"
-                isDisabled={loading}
+              <FormInput
+                name="gender"
+                value={formData.gender||""}
+                onChange={onChange}
+                placeholder="e.g. Male, Female"
+                required
+                disabled={loading}
               />
             </div>
 

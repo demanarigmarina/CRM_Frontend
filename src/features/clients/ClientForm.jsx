@@ -10,11 +10,7 @@ import { FormLabel, FormInput } from "../../components/form/FormField";
 import { getProfileImage } from "../../utils/avatar";
 import { getDisplayName } from "../../utils/name";
 
-import {
-  SUFFIX_OPTIONS,
-  GENDER_OPTIONS,
-  LEAD_SOURCE_OPTIONS,
-} from "../../constants/options";
+import { LEAD_SOURCE_OPTIONS } from "../../constants/options";
 
 export default function ClientForm({
   open,
@@ -95,6 +91,7 @@ export default function ClientForm({
 
         {/* Personal Information */}
         <FormSection title="Personal Information">
+          {/* 3-Column Grid for Names */}
           <div className="grid grid-cols-3 gap-3">
             {[
               ["firstName", "First Name", true, "e.g. Juan"],
@@ -105,7 +102,7 @@ export default function ClientForm({
                 <FormLabel required={req}>{label}</FormLabel>
                 <FormInput
                   name={name}
-                  value={formData[name]}
+                  value={formData[name] ?? ""}
                   onChange={onChange}
                   required={req}
                   placeholder={placeholder}
@@ -114,30 +111,22 @@ export default function ClientForm({
             ))}
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
+          {/* 3-Column Grid for Demographics (Text Inputs for Suffix & Gender) */}
+          <div className="grid grid-cols-3 gap-3 mt-3">
             <div>
               <FormLabel>Suffix (Optional)</FormLabel>
-              <Select
-                {...getSelectProps()}
-                options={SUFFIX_OPTIONS}
-                value={
-                  formData.suffixName
-                    ? { label: formData.suffixName, value: formData.suffixName }
-                    : null
-                }
-                onChange={(opt) =>
-                  onChange({
-                    target: { name: "suffixName", value: opt?.value ?? "" },
-                  })
-                }
-                placeholder="Select suffix"
+              <FormInput
+                name="suffixName"
+                value={formData.suffixName ?? ""}
+                onChange={onChange}
+                placeholder="e.g. Jr., III"
               />
             </div>
             <div>
               <FormLabel required>Date of Birth</FormLabel>
               <FormInput
                 name="birthday"
-                value={formData.birthday}
+                value={formData.birthday ?? ""}
                 onChange={onChange}
                 type="date"
                 required
@@ -145,60 +134,26 @@ export default function ClientForm({
             </div>
             <div>
               <FormLabel required>Gender</FormLabel>
-              <Select
-                {...getSelectProps({ isSearchable: false })}
-                options={GENDER_OPTIONS}
-                value={
-                  formData.gender
-                    ? { label: formData.gender, value: formData.gender }
-                    : null
-                }
-                onChange={(opt) =>
-                  onChange({
-                    target: { name: "gender", value: opt?.value ?? "" },
-                  })
-                }
-                placeholder="Select gender"
-              />
-            </div>
-          </div>
-
-          <div>
-            <FormLabel required>Company</FormLabel>
-            <FormInput
-              name="company"
-              value={formData.company}
-              onChange={onChange}
-              placeholder="e.g. ABC Corporation"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <FormLabel required>Lead Source</FormLabel>
-              <Select
-                {...getSelectProps({ isSearchable: false })}
-                options={LEAD_SOURCE_OPTIONS}
-                value={
-                  formData.leadSource
-                    ? { label: formData.leadSource, value: formData.leadSource }
-                    : null
-                }
-                onChange={(opt) =>
-                  onChange({
-                    target: { name: "leadSource", value: opt?.value ?? "" },
-                  })
-                }
-                placeholder="Select lead source"
-              />
-            </div>
-            <div>
-              <FormLabel required>Industry</FormLabel>
               <FormInput
-                name="industry"
-                value={formData.industry}
+                name="gender"
+                value={formData.gender ?? ""}
                 onChange={onChange}
-                placeholder="e.g. Technology, Marketing, etc."
+                placeholder="e.g. Male, Female"
+                required
+              />
+            </div>
+          </div>
+
+          {/* Clean 2-Column Grid for Company and Metadata */}
+          <div className="grid grid-cols-2 gap-3 mt-3">
+            <div>
+              <FormLabel required>Company</FormLabel>
+              <FormInput
+                name="company"
+                value={formData.company ?? ""}
+                onChange={onChange}
+                placeholder="e.g. ABC Corporation"
+                required
               />
             </div>
             <div>
@@ -222,6 +177,36 @@ export default function ClientForm({
                 }
               />
             </div>
+
+            <div>
+              <FormLabel required>Lead Source</FormLabel>
+              <Select
+                {...getSelectProps({ isSearchable: false })}
+                options={LEAD_SOURCE_OPTIONS}
+                value={
+                  formData.leadSource
+                    ? { label: formData.leadSource, value: formData.leadSource }
+                    : null
+                }
+                onChange={(opt) =>
+                  onChange({
+                    target: { name: "leadSource", value: opt?.value ?? "" },
+                  })
+                }
+                placeholder="Select lead source"
+              />
+            </div>
+            <div>
+              <FormLabel required>Industry</FormLabel>
+              <FormInput
+                name="industry"
+                value={formData.industry ?? ""}
+                onChange={onChange}
+                placeholder="e.g. Technology, Marketing, etc."
+                required
+              />
+            </div>
+
             <div className="col-span-2">
               <FormLabel>Notes</FormLabel>
               <textarea
@@ -254,7 +239,7 @@ export default function ClientForm({
               <FormLabel required>Email</FormLabel>
               <FormInput
                 name="email"
-                value={formData.email}
+                value={formData.email ?? ""}
                 onChange={onChange}
                 type="email"
                 placeholder="e.g. juan@email.com"
@@ -265,7 +250,7 @@ export default function ClientForm({
               <FormLabel required>Contact Number</FormLabel>
               <FormInput
                 name="phone"
-                value={formData.phone}
+                value={formData.phone ?? ""}
                 onChange={onChange}
                 type="tel"
                 placeholder="e.g. 09123456789"

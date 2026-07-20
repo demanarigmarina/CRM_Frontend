@@ -1,4 +1,4 @@
-import{
+import {
   createContext,
   useCallback,
   useContext,
@@ -6,60 +6,60 @@ import{
   useMemo,
   useRef,
   useState,
-}from"react";
-import{useNavigate}from"react-router-dom";
-import{
+} from "react";
+import { useNavigate } from "react-router-dom";
+import {
   setAccessToken as setAxiosToken,
   setLogoutCallback,
-}from"../services/api";
-import{
+} from "../services/api";
+import {
   logout as logoutService,
   refreshToken,
-}from"../services/authService";
+} from "../services/authService";
 
-const AuthContext=createContext(null);
-const AUTH_STORAGE_KEY="crm_auth";
+const AuthContext = createContext(null);
+const AUTH_STORAGE_KEY = "crm_auth";
 
-const normalizePermissions=value=>[
+const normalizePermissions = value => [
   ...new Set(
-    (Array.isArray(value)?value:[])
-      .map(permission=>String(permission||"").trim())
+    (Array.isArray(value) ? value : [])
+      .map(permission => String(permission || "").trim())
       .filter(Boolean),
   ),
 ];
 
-const normalizeUser=userData=>{
-  if(!userData)return null;
+const normalizeUser = userData => {
+  if (!userData) return null;
 
-  return{
+  return {
     ...userData,
-    employeeId:userData.employeeId||"",
+    employeeId: userData.employeeId || "",
     roleTemplate:
-      userData.roleTemplate||
-      userData.role||
+      userData.roleTemplate ||
+      userData.role ||
       "",
-    permissions:normalizePermissions(
+    permissions: normalizePermissions(
       userData.permissions,
     ),
     permissionsCustomized:
-      userData.permissionsCustomized===true,
+      userData.permissionsCustomized === true,
   };
 };
 
-const getStoredAuth=()=>{
-  try{
-    const stored=localStorage.getItem(
+const getStoredAuth = () => {
+  try {
+    const stored = localStorage.getItem(
       AUTH_STORAGE_KEY,
     );
 
-    if(!stored)return null;
+    if (!stored) return null;
 
-    const parsed=JSON.parse(stored);
+    const parsed = JSON.parse(stored);
 
-    if(
-      !parsed?.accessToken||
+    if (
+      !parsed?.accessToken ||
       !parsed?.user
-    ){
+    ) {
       localStorage.removeItem(
         AUTH_STORAGE_KEY,
       );
@@ -67,11 +67,11 @@ const getStoredAuth=()=>{
       return null;
     }
 
-    return{
-      accessToken:parsed.accessToken,
-      user:normalizeUser(parsed.user),
+    return {
+      accessToken: parsed.accessToken,
+      user: normalizeUser(parsed.user),
     };
-  }catch(error){
+  } catch (error) {
     console.error(
       "Read stored authentication error:",
       error,
@@ -85,9 +85,9 @@ const getStoredAuth=()=>{
   }
 };
 
-const saveStoredAuth=(token,user)=>{
-  try{
-    if(!token||!user){
+const saveStoredAuth = (token, user) => {
+  try {
+    if (!token || !user) {
       localStorage.removeItem(
         AUTH_STORAGE_KEY,
       );
@@ -98,11 +98,11 @@ const saveStoredAuth=(token,user)=>{
     localStorage.setItem(
       AUTH_STORAGE_KEY,
       JSON.stringify({
-        accessToken:token,
+        accessToken: token,
         user,
       }),
     );
-  }catch(error){
+  } catch (error) {
     console.error(
       "Save authentication error:",
       error,
@@ -110,14 +110,14 @@ const saveStoredAuth=(token,user)=>{
   }
 };
 
-export function AuthProvider({children}){
-  const[user,setUser]=useState(null);
-  const[accessToken,setAccessToken]=useState(null);
-  const[authReady,setAuthReady]=useState(false);
-  const refreshInProgressRef=useRef(false);
-  const navigate=useNavigate();
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(null);
+  const [accessToken, setAccessToken] = useState(null);
+  const [authReady, setAuthReady] = useState(false);
+  const refreshInProgressRef = useRef(false);
+  const navigate = useNavigate();
 
-  const clearAuth=useCallback(()=>{
+  const clearAuth = useCallback(() => {
     setAxiosToken(null);
     setAccessToken(null);
     setUser(null);
@@ -125,12 +125,12 @@ export function AuthProvider({children}){
     localStorage.removeItem(
       AUTH_STORAGE_KEY,
     );
-  },[]);
+  }, []);
 
-  const applyAuth=useCallback((token,userData)=>{
-    const normalizedUser=normalizeUser(userData);
+  const applyAuth = useCallback((token, userData) => {
+    const normalizedUser = normalizeUser(userData);
 
-    if(!token||!normalizedUser){
+    if (!token || !normalizedUser) {
       return null;
     }
 
@@ -144,25 +144,25 @@ export function AuthProvider({children}){
     );
 
     return normalizedUser;
-  },[]);
+  }, []);
 
-  const handleLogout=useCallback(
-    async(callServer=false)=>{
-      try{
-        if(callServer){
+  const handleLogout = useCallback(
+    async (callServer = false) => {
+      try {
+        if (callServer) {
           await logoutService();
         }
-      }catch(error){
+      } catch (error) {
         console.error(
           "Logout error:",
           error,
         );
-      }finally{
+      } finally {
         clearAuth();
 
         navigate(
           "/login",
-          {replace:true},
+          { replace: true },
         );
       }
     },
@@ -172,30 +172,31 @@ export function AuthProvider({children}){
     ],
   );
 
-  useEffect(()=>{
-    setLogoutCallback(()=>{
+  useEffect(() => {
+    setLogoutCallback(() => {
       void handleLogout(false);
     });
 
-    return()=>{
+    return () => {
       setLogoutCallback(null);
     };
-  },[handleLogout]);
+  }, [handleLogout]);
 
-  const refreshAuth=useCallback(async()=>{
-    if(refreshInProgressRef.current){
+  const refreshAuth = useCallback(async () => {
+    if (refreshInProgressRef.current) {
       return null;
     }
 
-    refreshInProgressRef.current=true;
+    refreshInProgressRef.current = true;
 
-    try{
-      const data=await refreshToken();
+    try {
+      const data = await refreshToken();
 
-      if(
-        !data?.accessToken||
-        !data?.user
-      ){
+      if (!data) {
+        return null;
+      }
+
+      if (!data.accessToken || !data.user) {
         throw new Error(
           "Invalid authentication refresh response.",
         );
@@ -205,65 +206,53 @@ export function AuthProvider({children}){
         data.accessToken,
         data.user,
       );
-    }finally{
-      refreshInProgressRef.current=false;
+    } catch (error) {
+      if (error?.response?.status === 401) {
+        return null;
+      }
+
+      throw error;
+    } finally {
+      refreshInProgressRef.current = false;
     }
-  },[applyAuth]);
+  }, [applyAuth]);
 
-  useEffect(()=>{
-    let active=true;
+  useEffect(() => {
+    let active = true;
 
-    const restoreSession=async()=>{
-      const storedAuth=getStoredAuth();
+    const restoreSession = async () => {
+      const storedAuth = getStoredAuth();
 
       /*
        * Restore local authentication first so the sidebar
        * and protected routes do not disappear during refresh.
        */
-      if(storedAuth&&active){
+      if (storedAuth && active) {
         applyAuth(
           storedAuth.accessToken,
           storedAuth.user,
         );
       }
 
-      try{
-        const data=await refreshToken();
-
-        if(!active)return;
-
-        if(
-          !data?.accessToken||
-          !data?.user
-        ){
-          throw new Error(
-            "Invalid authentication refresh response.",
-          );
-        }
-
-        applyAuth(
-          data.accessToken,
-          data.user,
-        );
-      }catch(error){
-        if(!active)return;
+      try {
+        await refreshAuth();
+      } catch (error) {
+        if (!active) return;
 
         /*
          * A missing refresh cookie must not remove a valid
          * locally stored session and navigation.
          */
-        if(!storedAuth){
+        if (!storedAuth) {
           clearAuth();
-        }else if(
-          error?.response?.status!==401
-        ){
+        } else if (error?.response?.status !== 401) {
           console.error(
             "Session restore error:",
             error,
           );
         }
-      }finally{
-        if(active){
+      } finally {
+        if (active) {
           setAuthReady(true);
         }
       }
@@ -271,44 +260,45 @@ export function AuthProvider({children}){
 
     void restoreSession();
 
-    return()=>{
-      active=false;
+    return () => {
+      active = false;
     };
-  },[
+  }, [
     applyAuth,
     clearAuth,
+    refreshAuth,
   ]);
 
-  const saveAuth=useCallback(
-    (token,userData)=>
-      applyAuth(token,userData),
+  const saveAuth = useCallback(
+    (token, userData) =>
+      applyAuth(token, userData),
     [applyAuth],
   );
 
-  const logout=useCallback(
-    ()=>handleLogout(true),
+  const logout = useCallback(
+    () => handleLogout(true),
     [handleLogout],
   );
 
-  const updateUser=useCallback(
-    updatedUserData=>{
-      setUser(previousUser=>{
-        if(!previousUser){
+  const updateUser = useCallback(
+    updatedUserData => {
+      setUser(previousUser => {
+        if (!previousUser) {
           return previousUser;
         }
 
-        const updatedUser=normalizeUser({
+        const updatedUser = normalizeUser({
           ...previousUser,
           ...updatedUserData,
         });
 
-        const storedAuth=getStoredAuth();
+        const storedAuth = getStoredAuth();
 
-        const token=
-          accessToken||
+        const token =
+          accessToken ||
           storedAuth?.accessToken;
 
-        if(token){
+        if (token) {
           saveStoredAuth(
             token,
             updatedUser,
@@ -321,8 +311,8 @@ export function AuthProvider({children}){
     [accessToken],
   );
 
-  const contextValue=useMemo(
-    ()=>({
+  const contextValue = useMemo(
+    () => ({
       accessToken,
       user,
       saveAuth,
@@ -340,19 +330,19 @@ export function AuthProvider({children}){
     ],
   );
 
-  if(!authReady)return null;
+  if (!authReady) return null;
 
-  return(
+  return (
     <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   );
 }
 
-export function useAuth(){
-  const context=useContext(AuthContext);
+export function useAuth() {
+  const context = useContext(AuthContext);
 
-  if(!context){
+  if (!context) {
     throw new Error(
       "useAuth must be used inside <AuthProvider>",
     );

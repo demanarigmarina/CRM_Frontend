@@ -9,35 +9,80 @@ import UserDisplayName from"./UserDisplayName";
 import NotificationPanel from"./notifications/NotificationPanel";
 import{useNotifications}from"../hooks/useNotifications";
 
-export default function Navbar(){
-const{user,logout}=useAuth(),navigate=useNavigate();
-const routes={Admin:"/admin","Sales Manager":"/sales-manager","Sales Agent":"/sales-agent","Support Staff":"/support-staff"};
-const profilePath=`${routes[user?.role]}/profile`;
-const[open,setOpen]=useState(false),[notifOpen,setNotifOpen]=useState(false);
-const dropdownRef=useRef(),notifRef=useRef();
-const{notifications,unreadCount,loading,markAsRead,markAllAsRead,dismissNotification,clearAll}=useNotifications();
+export default function Navbar() {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
-useEffect(()=>{
-const close=e=>{
-if(dropdownRef.current&&!dropdownRef.current.contains(e.target))setOpen(false);
-if(notifRef.current&&!notifRef.current.contains(e.target))setNotifOpen(false);
-};
-document.addEventListener("mousedown",close);
-return()=>document.removeEventListener("mousedown",close);
-},[]);
+  const roleRoutes = {
+    Admin: "/admin",
+    "Sales Manager": "/sales-manager",
+    "Sales Agent": "/sales-agent",
+    "Support Staff": "/support-staff",
+  };
 
-const logoutUser=()=>Swal.fire({title:"Are you sure you want to Logout?",text:"You will be redirected to the Login page.",icon:"warning",showCancelButton:true,confirmButtonColor:"#ef4444",cancelButtonColor:"#6b7280",confirmButtonText:"Yes, Logout"}).then(async r=>{
-if(r.isConfirmed)try{await logout()}catch{Swal.fire({icon:"error",title:"Logout Failed",text:"An error occurred while trying to logout"})}
-});
+  const profilePath = `${roleRoutes[user?.role]}/profile`;
 
-const now=new Date();
-const date=now.toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});
-const time=now.toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit"});
+  const [open, setOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const dropdownRef = useRef();
+  const notifRef = useRef();
 
-return(
-<div className="flex items-center justify-between rounded-md border border-gray-200 bg-white px-6 py-3">
+  const {
+    notifications,
+    unreadCount,
+    loading,
+    markAsRead,
+    markAllAsRead,
+    dismissNotification,
+    clearAll,
+  } = useNotifications();
 
-<h1 className="text-xl font-semibold text-gray-800">Good Morning Carl!</h1>
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+
+      if (notifRef.current && !notifRef.current.contains(e.target)) {
+        setNotifOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleLogoutClick = () => {
+    Swal.fire({
+      title: "Are you sure you want to Logout?",
+      text: "You will be redirected to the Login page.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#ef4444",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Yes, Logout",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await logout();
+        } catch {
+          Swal.fire({
+            icon: "error",
+            title: "Logout Failed",
+            text: "An error occurred while trying to logout",
+          });
+        }
+      }
+    });
+  };
+
+  return (
+    <div
+      className="rounded-md bg-white border border-gray-200 px-6 py-3 flex
+      justify-between items-center"
+    >
+      <h1 className="text-xl font-semibold">{user?.role}</h1>
 
 <div className="flex items-center gap-5">
 

@@ -45,44 +45,6 @@ export const resolveAddressCodes = (province, city) => {
 
 /**
  * useFormBase - Shared form state management for all entity forms
- * 
- * Centralized hook used by Lead, Client, User, and Quotation forms
- * Handles common form operations without duplicating code
- * 
- * Manages:
- *   - Form field values
- *   - Address selection and PSGC codes (Philippine Standard Geographic Code)
- *   - Avatar upload and preview
- *   - Form submission state
- * 
- * @param {Object} emptyForm - Template object with default form values
- * @returns {Object} Form state and handlers
- * @returns {Object} .formData - Current form field values
- * @returns {Function} .handleChange - Update single form field
- * @returns {Function} .handleAddressSelect - Update address fields and codes
- * @returns {Function} .handleAvatarChange - Handle avatar file upload
- * @returns {Function} .handleFileRemove - Remove uploaded file
- * @returns {Object} .addressCodes - PSGC codes for address validation
- * @returns {string} .avatar - Avatar File object (for uploading)
- * @returns {string} .preview - Avatar preview URL (for preview image)
- * @returns {Function} .reset - Reset form to empty state
- * 
- * @example
- * const emptyLead = { firstName: '', lastName: '', phone: '', email: '' };
- * const form = useFormBase(emptyLead);
- * 
- * return (
- *   <form onSubmit={(e) => {
- *     e.preventDefault();
- *     api.post('/api/leads', form.formData);
- *   }}>
- *     <input
- *       name="firstName"
- *       value={form.formData.firstName}
- *       onChange={form.handleChange}
- *     />
- *   </form>
- * );
  */
 export function useFormBase(emptyForm) {
   const [formData, setFormData] = useState(emptyForm);
@@ -91,8 +53,15 @@ export function useFormBase(emptyForm) {
   const [preview, setPreview] = useState(null);
 
   // ── Handlers ───────────────────────────────────────────────────────────────
+  
+  // Standard input typing handler (supports your new text-based Gender and Suffix fields!)
   const handleChange = (e) =>
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+
+  // Helper to directly set state by field key (useful if your UI framework wraps input events)
+  const handleDirectValueUpdate = (name, value) => {
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleAddressSelect = (formPatch, codePatch = {}) => {
     setFormData((prev) => ({ ...prev, ...formPatch }));
@@ -103,11 +72,11 @@ export function useFormBase(emptyForm) {
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    if (file.size > 2 * 1024 * 1024) {
+    if (file.size > 10 * 1024 * 1024) {
       Swal.fire({
         icon: "error",
         title: "File too large",
-        text: "Maximum allowed size is 2MB.",
+        text: "Maximum allowed size is 10MB.",
       });
       e.target.value = "";
       return;
@@ -151,6 +120,7 @@ export function useFormBase(emptyForm) {
     setPreview,
     // handlers
     handleChange,
+    handleDirectValueUpdate,
     handleAddressSelect,
     handleAvatarChange,
     clearAvatar,
