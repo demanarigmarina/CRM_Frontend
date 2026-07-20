@@ -7,7 +7,7 @@ import { getProfileImage } from "../../../utils/avatar";
 // Status / Stage pill
 const PILL_STYLES = {
   // Lead statuses
-  New: "bg-gray-100 text-gray-600",
+  // New: "bg-gray-100 text-gray-600",
   Contacted: "bg-yellow-100 text-yellow-700",
   Qualified: "bg-blue-100 text-blue-700",
   Converted: "bg-emerald-100 text-emerald-700",

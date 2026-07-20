@@ -1,4 +1,4 @@
-import{
+import {
   LayoutDashboard,
   Users,
   Network,
@@ -11,70 +11,73 @@ import{
   CalendarDays,
   Phone,
   FileText,
-}from"lucide-react";
+  Headset,
+  MessageSquareDot,
+} from "lucide-react";
 
-const createIcon=Icon=>({
-  default:Icon,
-  active:Icon,
+const createIcon = Icon => ({
+  default: Icon,
+  active: Icon,
 });
 
-export const BASE_NAV={
-  dashboard:{
-    icon:createIcon(LayoutDashboard),
-    label:"Dashboard",
+export const BASE_NAV = {
+  dashboard: {
+    icon: createIcon(LayoutDashboard),
+    label: "Dashboard",
   },
-  users:{
-    icon:createIcon(Users),
-    label:"Users",
+  users: {
+    icon: createIcon(Users),
+    label: "Users",
   },
-  teams:{
-    icon:createIcon(Network),
-    label:"Teams",
+  reports: {
+    icon: createIcon(BarChart2),
+    label: "Reports",
   },
-  team:{
-    icon:createIcon(UsersRound),
-    label:"My Team",
+  module: {
+    label: "Modules",
+    type: "group",
   },
-  // reports:{
-  //   icon:createIcon(BarChart2),
-  //   label:"Reports",
-  // },
-  module:{
-    label:"Modules",
-    type:"group",
+  prospects: {
+    icon: createIcon(Briefcase),
+    label: "Prospects",
   },
-  prospects:{
-    icon:createIcon(Briefcase),
-    label:"Prospects",
+  leads: {
+    icon: createIcon(Magnet),
+    label: "Leads",
   },
-  leads:{
-    icon:createIcon(Magnet),
-    label:"Leads",
+  clients: {
+    icon: createIcon(UserCheck),
+    label: "Clients",
   },
-  clients:{
-    icon:createIcon(UserCheck),
-    label:"Clients",
+  quotations: {
+    icon: createIcon(FileText),
+    label: "Quotations",
   },
-  quotations:{
-    icon:createIcon(FileText),
-    label:"Quotations",
+  tasks: {
+    icon: createIcon(ListTodo),
+    label: "Tasks",
   },
-  tasks:{
-    icon:createIcon(ListTodo),
-    label:"Tasks",
+  meetings: {
+    icon: createIcon(CalendarDays),
+    label: "Meetings",
   },
-  meetings:{
-    icon:createIcon(CalendarDays),
-    label:"Meetings",
+  calls: {
+    icon: createIcon(Phone),
+    label: "Calls",
   },
-  calls:{
-    icon:createIcon(Phone),
-    label:"Calls",
+  support: {
+    icon: createIcon(Headset),
+    label: "Support",
+  },
+  // Single system key with custom display label
+  communications: {
+    icon: createIcon(MessageSquareDot),
+    label: "Messages",
   },
 };
 
-export const ROLE_ROUTES={
-  Admin:[
+export const ROLE_ROUTES = {
+  "Admin": [
     "dashboard",
     "users",
     "teams",
@@ -87,8 +90,10 @@ export const ROLE_ROUTES={
     "tasks",
     "meetings",
     "calls",
+    "communications",
+    "support"
   ],
-  "Sales Manager":[
+  "Sales Manager": [
     "dashboard",
     "team",
     "reports",
@@ -100,8 +105,10 @@ export const ROLE_ROUTES={
     "tasks",
     "meetings",
     "calls",
+    "communications",
+    "support"
   ],
-  "Sales Agent":[
+  "Sales Agent": [
     "dashboard",
     "reports",
     "module",
@@ -112,15 +119,19 @@ export const ROLE_ROUTES={
     "tasks",
     "meetings",
     "calls",
+    "communications",
+    "support"
   ],
-  "Support Staff":[
+  "Support Staff": [
     "dashboard",
+    "communications",
+    "support"
   ],
 };
 
-export const ROLE_BASE_PATH={
-  Admin:"/admin",
-  "Sales Manager":"/sales-manager",
-  "Sales Agent":"/sales-agent",
-  "Support Staff":"/support-staff",
+export const ROLE_BASE_PATH = {
+  Admin: "/admin",
+  "Sales Manager": "/sales-manager",
+  "Sales Agent": "/sales-agent",
+  "Support Staff": "/support-staff",
 };

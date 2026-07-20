@@ -1,21 +1,21 @@
-import{
+import {
   useCallback,
   useEffect,
   useMemo,
   useState,
-}from"react";
+} from "react";
 
 // import{useLocation}from"react-router-dom";
-import Swal from"sweetalert2";
-import api from"../../../services/api";
-import{useAuth}from"../../../context/AuthContext";
+import Swal from "sweetalert2";
+import api from "../../../services/api";
+import { useAuth } from "../../../context/AuthContext";
 
-const Toast=Swal.mixin({
-  toast:true,
-  position:"top-end",
-  showConfirmButton:false,
-  timer:2500,
-  timerProgressBar:true,
+const Toast = Swal.mixin({
+  toast: true,
+  position: "top-end",
+  showConfirmButton: false,
+  timer: 2500,
+  timerProgressBar: true,
 });
 
 const ASSIGNABLE_RESOURCE_ALIASES = {
@@ -36,450 +36,478 @@ const ASSIGNABLE_RESOURCE_ALIASES = {
   tasks: "task",
 };
 
-const normalizeAssignableResource=value=>{
-  const normalized=String(value||"lead")
+const normalizeAssignableResource = value => {
+  const normalized = String(value || "lead")
     .trim()
     .toLowerCase();
 
-  return ASSIGNABLE_RESOURCE_ALIASES[normalized]||"lead";
+  return ASSIGNABLE_RESOURCE_ALIASES[normalized] || "lead";
 };
 
-const isFile=value=>
-  typeof File!=="undefined"&&
+const isFile = value =>
+  typeof File !== "undefined" &&
   value instanceof File;
 
-const getErrorMessage=error=>
-  error?.response?.data?.error||
-  error?.response?.data?.message||
-  error?.message||
+const getErrorMessage = error =>
+  error?.response?.data?.error ||
+  error?.response?.data?.message ||
+  error?.message ||
   "Something went wrong";
 
-const unwrapUsers=data=>{
-  if(Array.isArray(data))return data;
-  if(Array.isArray(data?.data))return data.data;
-  return[];
+const unwrapUsers = data => {
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data?.data)) return data.data;
+  return [];
 };
 
-const unwrapUser=data=>
-  data?.data&&
+const unwrapUser = data =>
+  data?.data &&
   !Array.isArray(data.data)
-    ?data.data
-    :data;
+    ? data.data
+    : data;
 
-const inputToObject=input=>{
-  if(!(input instanceof FormData)){
-    return{...input};
+const inputToObject = input => {
+  if (!(input instanceof FormData)) {
+    return { ...input };
   }
 
-  const values={};
+  const values = {};
 
-  for(const[key,value]of input.entries()){
-    if(!isFile(value)){
-      values[key]=value;
+  for (const [key, value] of input.entries()) {
+    if (!isFile(value)) {
+      values[key] = value;
     }
   }
 
   return values;
 };
 
-const getProfilePicture=input=>{
-  const value=input instanceof FormData
-    ?input.get("profilePicture")
-    :input?.profilePicture;
+const getProfilePicture = input => {
+  const value = input instanceof FormData
+    ? input.get("profilePicture")
+    : input?.profilePicture;
 
-  return isFile(value)?value:null;
+  return isFile(value) ? value : null;
 };
 
-const normalizeTeam=team=>{
-  if(!team)return null;
+const normalizeTeam = team => {
+  if (!team) return null;
 
-  if(typeof team==="object"){
-    return team._id||team.id||null;
+  if (typeof team === "object") {
+    return team._id || team.id || null;
   }
 
   return team;
 };
 
-const getAddress=values=>{
-  if(
-    values.currentAddress&&
-    typeof values.currentAddress==="object"
-  ){
+const getAddress = values => {
+  if (
+    values.currentAddress &&
+    typeof values.currentAddress === "object"
+  ) {
     return values.currentAddress;
   }
 
-  if(typeof values.currentAddress==="string"){
-    try{
-      const parsed=JSON.parse(values.currentAddress);
+  if (typeof values.currentAddress === "string") {
+    try {
+      const parsed = JSON.parse(values.currentAddress);
 
-      if(parsed&&typeof parsed==="object"){
+      if (parsed && typeof parsed === "object") {
         return parsed;
       }
-    }catch{}
+    } catch (error) {
+      console.debug("Address field is not a JSON string, fallback applied:", error.message);
+    }
   }
 
-  return{
+  return {
     houseNumber:
-      values["currentAddress.houseNumber"]??
-      values.houseNumber??
+      values["currentAddress.houseNumber"] ??
+      values.houseNumber ??
       "",
     street:
-      values["currentAddress.street"]??
-      values.street??
+      values["currentAddress.street"] ??
+      values.street ??
       "",
     barangay:
-      values["currentAddress.barangay"]??
-      values.barangay??
+      values["currentAddress.barangay"] ??
+      values.barangay ??
       "",
     municipality:
-      values["currentAddress.municipality"]??
-      values.municipality??
+      values["currentAddress.municipality"] ??
+      values.municipality ??
       "",
     province:
-      values["currentAddress.province"]??
-      values.province??
+      values["currentAddress.province"] ??
+      values.province ??
       "",
     zipCode:
-      values["currentAddress.zipCode"]??
-      values.zipCode??
+      values["currentAddress.zipCode"] ??
+      values.zipCode ??
       "",
     country:
-      values["currentAddress.country"]??
-      values.country??
+      values["currentAddress.country"] ??
+      values.country ??
       "Philippines",
   };
 };
 
-const buildCreatePayload=input=>{
-  const values=inputToObject(input);
+const buildCreatePayload = input => {
+  const values = inputToObject(input);
 
-  return{
-    team:normalizeTeam(values.team),
-    firstName:values.firstName??"",
-    middleName:values.middleName??"",
-    lastName:values.lastName??"",
-    suffixName:values.suffixName??"",
-    email:values.email??"",
-    password:values.password??"",
-    role:values.role??"",
-    phone:values.phone??"",
-    sex:values.sex??"",
-    dateOfBirth:values.dateOfBirth??"",
-    placeOfBirth:values.placeOfBirth??"",
-    currentAddress:getAddress(values),
+  return {
+    team: normalizeTeam(values.team),
+    firstName: values.firstName ?? "",
+    middleName: values.middleName ?? "",
+    lastName: values.lastName ?? "",
+    suffixName: values.suffixName ?? "",
+    email: values.email ?? "",
+    password: values.password ?? "",
+    role: values.role ?? "",
+    phone: values.phone ?? "",
+    sex: values.sex ?? "",
+    dateOfBirth: values.dateOfBirth ?? "",
+    placeOfBirth: values.placeOfBirth ?? "",
+    currentAddress: getAddress(values),
   };
 };
 
-const buildUpdatePayload=(input,profilePicture=null)=>{
-  const values=inputToObject(input);
-  const address=getAddress(values);
-  const payload=profilePicture?new FormData():{};
+const buildUpdatePayload = (input, profilePicture = null) => {
+  const values = inputToObject(input);
+  const address = getAddress(values);
+  const payload = profilePicture ? new FormData() : {};
 
-  const append=(key,value)=>{
-    if(value===undefined)return;
+  const append = (key, value) => {
+    if (value === undefined) return;
 
-    if(payload instanceof FormData){
+    if (payload instanceof FormData) {
       payload.append(
         key,
-        value===null?"":value,
+        value === null ? "" : value,
       );
-    }else{
-      payload[key]=value;
+    } else {
+      payload[key] = value;
     }
   };
 
-  append("team",normalizeTeam(values.team));
-  append("firstName",values.firstName);
-  append("middleName",values.middleName??"");
-  append("lastName",values.lastName);
-  append("suffixName",values.suffixName??"");
-  append("email",values.email);
-  append("role",values.role);
-  append("phone",values.phone);
-  append("sex",values.sex);
-  append("dateOfBirth",values.dateOfBirth);
-  append("placeOfBirth",values.placeOfBirth);
+  append("team", normalizeTeam(values.team));
+  append("firstName", values.firstName);
+  append("middleName", values.middleName ?? "");
+  append("lastName", values.lastName);
+  append("suffixName", values.suffixName ?? "");
+  append("email", values.email);
+  append("role", values.role);
+  append("phone", values.phone);
+  append("sex", values.sex);
+  append("dateOfBirth", values.dateOfBirth);
+  append("placeOfBirth", values.placeOfBirth);
   append(
     "currentAddress.houseNumber",
-    address.houseNumber??"",
+    address.houseNumber ?? "",
   );
   append(
     "currentAddress.street",
-    address.street??"",
+    address.street ?? "",
   );
   append(
     "currentAddress.barangay",
-    address.barangay??"",
+    address.barangay ?? "",
   );
   append(
     "currentAddress.municipality",
-    address.municipality??"",
+    address.municipality ?? "",
   );
   append(
     "currentAddress.province",
-    address.province??"",
+    address.province ?? "",
   );
   append(
     "currentAddress.zipCode",
-    address.zipCode??"",
+    address.zipCode ?? "",
   );
   append(
     "currentAddress.country",
-    address.country??"Philippines",
+    address.country ?? "Philippines",
   );
 
-  if(values.password){
-    append("password",values.password);
+  if (values.password) {
+    append("password", values.password);
   }
 
-  if(values.removeProfilePicture!==undefined){
+  if (values.removeProfilePicture !== undefined) {
     append(
       "removeProfilePicture",
       String(values.removeProfilePicture),
     );
   }
 
-  if(profilePicture){
-    append("profilePicture",profilePicture);
+  if (profilePicture) {
+    append("profilePicture", profilePicture);
   }
 
   return payload;
 };
 
 export function useUsers({
-  skip=false,
-  mode="auto",
-  resource=null,
-}={}){
-  // const{user}=useAuth();
+  skip = false,
+  mode = "auto",
+  resource = null,
+} = {}) {
+  const { user } = useAuth();
   // const location=useLocation();
-  const[users,setUsers]=useState([]);
-  const[loading,setLoading]=useState(!skip);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(!skip);
 
   const endpoint = useMemo(() => {
+    // 1. Explicitly requested assignable mode
     if (mode === "assignable") {
       return `/api/users/assignable?resource=${encodeURIComponent(
         normalizeAssignableResource(resource)
       )}`;
     }
-  
-    return "/api/users";
-  }, [mode, resource]);
-  const fetchUsers=useCallback(async()=>{
-    if(skip){
+
+    // 2. Fallback check for "auto" mode based on roles
+    const userRole = user?.roleTemplate || user?.role || "";
+    if (userRole === "Admin") {
+      return "/api/users";
+    }
+
+    // 3. Graceful downgrade for Managers/Staff: fetch scoped assignable users instead of breaking
+    return `/api/users/assignable?resource=quotation`;
+  }, [mode, resource, user]);
+
+  const fetchUsers = useCallback(async (onSuccess) => {
+    if (skip) {
       setLoading(false);
-      return[];
+      return [];
     }
 
     setLoading(true);
 
-    try{
-      const response=await api.get(endpoint);
-      const loadedUsers=unwrapUsers(response.data);
+    try {
+      const response = await api.get(endpoint);
+      const loadedUsers = unwrapUsers(response.data);
 
-      setUsers(loadedUsers);
+      if (onSuccess) {
+        onSuccess(loadedUsers);
+      } else {
+        setUsers(loadedUsers);
+      }
 
       return loadedUsers;
-    }catch(error){
-      console.error("Fetch users error:",error);
+    } catch (error) {
+      console.error("Fetch users error:", error);
 
-      setUsers([]);
+      if (!onSuccess) {
+        setUsers([]);
+      }
 
       Toast.fire({
-        icon:"error",
-        title:getErrorMessage(error),
+        icon: "error",
+        title: getErrorMessage(error),
       });
 
-      return[];
-    }finally{
+      return [];
+    } finally {
       setLoading(false);
     }
-  },[
-    endpoint,
-    skip,
-  ]);
+  }, [endpoint, skip]);
 
-  useEffect(()=>{
-    void fetchUsers();
-  },[fetchUsers]);
+  useEffect(() => {
+    let active = true;
 
-  const createUser=async formData=>{
+    const runFetch = async () => {
+      await fetchUsers((loadedUsers) => {
+        if (active) {
+          setUsers(loadedUsers);
+        }
+      });
+    };
+
+    void runFetch();
+
+    return () => {
+      active = false;
+    };
+  }, [fetchUsers]);
+
+  const createUser = async formData => {
     setLoading(true);
 
-    try{
-      const profilePicture=getProfilePicture(formData);
-      const createPayload=buildCreatePayload(formData);
+    try {
+      const profilePicture = getProfilePicture(formData);
+      const createPayload = buildCreatePayload(formData);
 
-      const response=await api.post(
+      const response = await api.post(
         "/api/users",
         createPayload,
       );
 
-      let createdUser=unwrapUser(response.data);
+      let createdUser = unwrapUser(response.data);
 
-      if(
-        profilePicture&&
+      if (
+        profilePicture &&
         createdUser?.employeeId
-      ){
-        const uploadPayload=buildUpdatePayload(
+      ) {
+        const uploadPayload = buildUpdatePayload(
           createPayload,
           profilePicture,
         );
 
-        const uploadResponse=await api.patch(
+        const uploadResponse = await api.patch(
           `/api/users/${createdUser.employeeId}`,
           uploadPayload,
         );
 
-        createdUser=unwrapUser(uploadResponse.data);
+        createdUser = unwrapUser(uploadResponse.data);
       }
 
-      setUsers(previous=>[
+      setUsers(previous => [
         ...previous,
         createdUser,
       ]);
 
       Toast.fire({
-        icon:"success",
-        title:"User created",
+        icon: "success",
+        title: "User created",
       });
 
       return createdUser;
-    }catch(error){
-      console.error("Create user error:",error);
+    } catch (error) {
+      console.error("Create user error:", error);
 
       Toast.fire({
-        icon:"error",
-        title:getErrorMessage(error),
+        icon: "error",
+        title: getErrorMessage(error),
       });
 
       throw error;
-    }finally{
+    } finally {
       setLoading(false);
     }
   };
 
-  const updateUser=async(employeeId,formData)=>{
+  const updateUser = async (employeeId, formData) => {
     setLoading(true);
 
-    try{
-      const profilePicture=getProfilePicture(formData);
+    try {
+      const profilePicture = getProfilePicture(formData);
 
-      const payload=buildUpdatePayload(
+      const payload = buildUpdatePayload(
         formData,
         profilePicture,
       );
 
-      const response=await api.patch(
+      const response = await api.patch(
         `/api/users/${employeeId}`,
         payload,
       );
 
-      const updatedUser=unwrapUser(response.data);
+      const updatedUser = unwrapUser(response.data);
 
-      setUsers(previous=>
-        previous.map(currentUser=>
-          currentUser.employeeId===employeeId
-            ?updatedUser
-            :currentUser,
+      setUsers(previous =>
+        previous.map(currentUser =>
+          currentUser.employeeId === employeeId
+            ? updatedUser
+            : currentUser,
         ),
       );
 
       Toast.fire({
-        icon:"success",
-        title:"User updated",
+        icon: "success",
+        title: "User updated",
       });
 
       return updatedUser;
-    }catch(error){
-      console.error("Update user error:",error);
+    } catch (error) {
+      console.error("Update user error:", error);
 
       Toast.fire({
-        icon:"error",
-        title:getErrorMessage(error),
+        icon: "error",
+        title: getErrorMessage(error),
       });
 
       throw error;
-    }finally{
+    } finally {
       setLoading(false);
     }
   };
 
-  const deleteUser=async identifier=>{
-    const selectedUser=
-      typeof identifier==="object"
-        ?identifier
-        :users.find(currentUser=>
-          currentUser.employeeId===identifier||
-          currentUser._id===identifier,
-        );
+  const deleteUser = async identifier => {
+    const selectedUser =
+      typeof identifier === "object"
+        ? identifier
+        : users.find(currentUser =>
+            currentUser.employeeId === identifier ||
+            currentUser._id === identifier,
+          );
 
-    const employeeId=
-      selectedUser?.employeeId||
+    const employeeId =
+      selectedUser?.employeeId ||
       (
-        typeof identifier==="string"
-          ?identifier
-          :null
+        typeof identifier === "string"
+          ? identifier
+          : null
       );
 
-    if(!employeeId){
+    if (!employeeId) {
       Toast.fire({
-        icon:"error",
-        title:"User identifier was not found",
+        icon: "error",
+        title: "User identifier was not found",
       });
 
       return false;
     }
 
-    const confirmation=await Swal.fire({
-      title:"Delete user?",
-      text:"This action cannot be undone.",
-      icon:"warning",
-      showCancelButton:true,
-      confirmButtonText:"Delete",
-      cancelButtonText:"Cancel",
-      confirmButtonColor:"#ef4444",
+    const confirmation = await Swal.fire({
+      title: "Delete user?",
+      text: "This action cannot be undone.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Delete",
+      cancelButtonText: "Cancel",
+      confirmButtonColor: "#ef4444",
     });
 
-    if(!confirmation.isConfirmed){
+    if (!confirmation.isConfirmed) {
       return false;
     }
 
     setLoading(true);
 
-    try{
+    try {
       await api.delete(
         `/api/users/${employeeId}`,
       );
 
-      setUsers(previous=>
+      setUsers(previous =>
         previous.filter(
-          currentUser=>
-            currentUser.employeeId!==employeeId,
+          currentUser =>
+            currentUser.employeeId !== employeeId,
         ),
       );
 
       Toast.fire({
-        icon:"success",
-        title:"User deleted",
+        icon: "success",
+        title: "User deleted",
       });
 
       return true;
-    }catch(error){
-      console.error("Delete user error:",error);
+    } catch (error) {
+      console.error("Delete user error:", error);
 
       Toast.fire({
-        icon:"error",
-        title:getErrorMessage(error),
+        icon: "error",
+        title: getErrorMessage(error),
       });
 
       return false;
-    }finally{
+    } finally {
       setLoading(false);
     }
   };
 
-  return{
+  return {
     users,
     loading,
     fetchUsers,

@@ -50,9 +50,20 @@ export default function Navbar() {
     }
 
     document.addEventListener("mousedown", handleClickOutside);
-
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // 1. Calculate the active greeting text based on the system hour
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good morning";
+    if (hour === 12) return "Good noon";
+    if (hour < 18) return "Good afternoon";
+    return "Good evening";
+  };
+
+  // User's name cleanly for the header display
+  const headerName = user?.firstName || "User";
 
   const handleLogoutClick = () => {
     Swal.fire({
@@ -83,7 +94,10 @@ export default function Navbar() {
       className="rounded-md bg-white border border-gray-200 px-6 py-3 flex
       justify-between items-center"
     >
-      <h1 className="text-xl font-semibold">{user?.role}</h1>
+      {/* Dynamic Time-of-Day Greeting replaces the static role display */}
+      <h1 className="text-lg font-semibold text-gray-800 tracking-tight">
+        {getGreeting()}, {headerName}!
+      </h1>
 
       <div className="flex items-center gap-4">
         <NotificationPanel

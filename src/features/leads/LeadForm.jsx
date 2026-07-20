@@ -1,5 +1,5 @@
+import React from "react";
 import Select from "react-select";
-
 import { Info, UserRound } from "lucide-react";
 
 import { getSelectProps } from "../../components/select/selectConfig";
@@ -17,8 +17,6 @@ import { getProfileImage } from "../../utils/avatar";
 import { getDisplayName } from "../../utils/name";
 
 import {
-  SUFFIX_OPTIONS,
-  GENDER_OPTIONS,
   LEAD_SOURCE_OPTIONS,
   TASK_TYPE_OPTIONS,
   TASK_PRIORITY_OPTIONS,
@@ -119,32 +117,26 @@ export default function LeadForm({
                 <FormLabel required={req}>{label}</FormLabel>
                 <FormInput
                   name={name}
-                  value={formData[name]}
+                  value={formData[name] || ""}
                   onChange={onChange}
                   required={req}
                   placeholder={placeholder}
+                  disabled={loading}
                 />
               </div>
             ))}
           </div>
 
           <div className="grid grid-cols-3 gap-3">
+            {/* Suffix converted to a standard FormInput */}
             <div>
               <FormLabel>Suffix (Optional)</FormLabel>
-              <Select
-                {...getSelectProps({ isSearchable: false })}
-                options={SUFFIX_OPTIONS}
-                value={
-                  formData.suffixName
-                    ? { label: formData.suffixName, value: formData.suffixName }
-                    : null
-                }
-                onChange={(opt) =>
-                  onChange({
-                    target: { name: "suffixName", value: opt?.value ?? "N/A" },
-                  })
-                }
-                placeholder="Select suffix"
+              <FormInput
+                name="suffixName"
+                value={formData.suffixName || ""}
+                onChange={onChange}
+                placeholder="e.g. Jr., Sr., III"
+                disabled={loading}
               />
             </div>
 
@@ -152,28 +144,23 @@ export default function LeadForm({
               <FormLabel>Date of Birth</FormLabel>
               <FormInput
                 name="birthday"
-                value={formData.birthday}
+                value={formData.birthday || ""}
                 onChange={onChange}
                 type="date"
+                disabled={loading}
               />
             </div>
 
+            {/* Gender converted to a standard FormInput */}
             <div>
               <FormLabel required>Gender</FormLabel>
-              <Select
-                {...getSelectProps({ isClearable: true })}
-                options={GENDER_OPTIONS}
-                value={
-                  formData.gender
-                    ? { label: formData.gender, value: formData.gender }
-                    : null
-                }
-                onChange={(opt) =>
-                  onChange({
-                    target: { name: "gender", value: opt?.value ?? "" },
-                  })
-                }
-                placeholder="Select gender"
+              <FormInput
+                name="gender"
+                value={formData.gender || ""}
+                onChange={onChange}
+                placeholder="e.g. Male, Female, Other"
+                required
+                disabled={loading}
               />
             </div>
           </div>
@@ -183,9 +170,11 @@ export default function LeadForm({
               <FormLabel required>Company</FormLabel>
               <FormInput
                 name="company"
-                value={formData.company}
+                value={formData.company || ""}
                 onChange={onChange}
                 placeholder="e.g. ABC Corporation"
+                required
+                disabled={loading}
               />
             </div>
           </div>
@@ -207,6 +196,7 @@ export default function LeadForm({
                   })
                 }
                 placeholder="Select lead source"
+                isDisabled={loading}
               />
             </div>
 
@@ -214,9 +204,11 @@ export default function LeadForm({
               <FormLabel required>Industry</FormLabel>
               <FormInput
                 name="industry"
-                value={formData.industry}
+                value={formData.industry || ""}
                 onChange={onChange}
                 placeholder="e.g. Technology, Marketing, etc."
+                required
+                disabled={loading}
               />
             </div>
           </div>
@@ -229,6 +221,7 @@ export default function LeadForm({
             addressCodes={addressCodes}
             onAddressSelect={onAddressSelect}
             onChange={onChange}
+            disabled={loading}
           />
         </FormSection>
 
@@ -239,22 +232,24 @@ export default function LeadForm({
               <FormLabel required>Email</FormLabel>
               <FormInput
                 name="email"
-                value={formData.email}
+                value={formData.email || ""}
                 onChange={onChange}
                 type="email"
                 placeholder="e.g. juan@email.com"
                 required
+                disabled={loading}
               />
             </div>
             <div>
               <FormLabel required>Contact Number</FormLabel>
               <FormInput
                 name="phone"
-                value={formData.phone}
+                value={formData.phone || ""}
                 onChange={onChange}
                 type="tel"
                 placeholder="e.g. 09123456789"
                 required
+                disabled={loading}
               />
             </div>
           </div>
@@ -270,6 +265,7 @@ export default function LeadForm({
                 checked={followUpTask.enabled}
                 onChange={(e) => onFollowUpChange("enabled", e.target.checked)}
                 className="w-4 h-4 rounded border-gray-300 text-blue-600 cursor-pointer"
+                disabled={loading}
               />
               <span className="text-sm text-gray-700">
                 Create a follow-up task for this lead (recommended)
@@ -286,6 +282,7 @@ export default function LeadForm({
                       onFollowUpChange("subject", e.target.value)
                     }
                     placeholder={`Follow up with ${leadName}`}
+                    disabled={loading}
                   />
                 </div>
 
@@ -294,26 +291,28 @@ export default function LeadForm({
                     <FormLabel required>Due Date</FormLabel>
                     <FormInput
                       name="dueDate"
-                      value={followUpTask.dueDate}
+                      value={followUpTask.dueDate || ""}
                       onChange={(e) =>
                         onFollowUpChange("dueDate", e.target.value)
                       }
                       type="date"
                       required={followUpTask.enabled}
                       min={today}
+                      disabled={loading}
                     />
                   </div>
                   <div>
                     <FormLabel>Reminder</FormLabel>
                     <FormInput
                       name="reminderAt"
-                      value={followUpTask.reminderAt}
+                      value={followUpTask.reminderAt || ""}
                       onChange={(e) =>
                         onFollowUpChange("reminderAt", e.target.value)
                       }
                       type="date"
                       min={today}
                       max={formData.dueDate || undefined}
+                      disabled={loading}
                     />
                   </div>
                 </div>
@@ -335,6 +334,7 @@ export default function LeadForm({
                       onChange={(opt) =>
                         onFollowUpChange("priority", opt?.value ?? "Low")
                       }
+                      isDisabled={loading}
                     />
                   </div>
                   <div>
@@ -349,6 +349,7 @@ export default function LeadForm({
                       onChange={(opt) =>
                         onFollowUpChange("taskType", opt?.value ?? "Call")
                       }
+                      isDisabled={loading}
                     />
                   </div>
                 </div>
@@ -430,12 +431,13 @@ export default function LeadForm({
                 <div>
                   <FormLabel>Description (optional)</FormLabel>
                   <FormTextarea
-                    value={followUpTask.description}
+                    value={followUpTask.description || ""}
                     onChange={(e) =>
                       onFollowUpChange("description", e.target.value)
                     }
                     placeholder={`e.g. Reach out to ${leadName} to discuss their interest and qualify the lead.`}
                     rows={3}
+                    disabled={loading}
                   />
                 </div>
               </div>

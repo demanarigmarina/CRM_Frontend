@@ -38,7 +38,7 @@ export default function MeetingDetails({
   const details = [
     {
       icon: <Building2 size={11} />,
-      label: "Meeting Venue",
+      label: "Client",
       value: meeting.venue || meeting.client || "Client location",
     },
     {

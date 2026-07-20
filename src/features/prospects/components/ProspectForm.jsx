@@ -2,6 +2,7 @@
 
 import FormDrawer from "../../../components/form/FormDrawer";
 import FormSection from "../../../components/form/FormSection";
+
 import {
   FormInput,
   FormLabel,
@@ -189,34 +190,36 @@ export default function ProspectForm({
         </FormSection>
 
         <FormSection title="Business Address">
-          <div>
-            <FormLabel>House / Building No.</FormLabel>
-            <FormInput
-              value={formData.businessAddress.houseNumber}
-              onChange={(event) =>
-                handleNestedChange(
-                  "businessAddress",
-                  "houseNumber",
-                  event.target.value,
-                )
-              }
-              placeholder="House or building number"
-            />
-          </div>
-
-          <div>
-            <FormLabel>Street Address</FormLabel>
-            <FormInput
-              value={formData.businessAddress.streetAddress}
-              onChange={(event) =>
-                handleNestedChange(
-                  "businessAddress",
-                  "streetAddress",
-                  event.target.value,
-                )
-              }
-              placeholder="Street address"
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <FormLabel>House / Building No.</FormLabel>
+              <FormInput
+                value={formData.businessAddress.houseNumber}
+                onChange={(event) =>
+                  handleNestedChange(
+                    "businessAddress",
+                    "houseNumber",
+                    event.target.value,
+                  )
+                }
+                placeholder="House or building number"
+              />
+            </div>
+          
+            <div>
+              <FormLabel>Street Address</FormLabel>
+              <FormInput
+                value={formData.businessAddress.streetAddress}
+                onChange={(event) =>
+                  handleNestedChange(
+                    "businessAddress",
+                    "streetAddress",
+                    event.target.value,
+                  )
+                }
+                placeholder="Street address"
+              />
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -363,84 +366,90 @@ export default function ProspectForm({
               />
             </div>
           </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <FormLabel>Title / Position</FormLabel>
+              <FormInput
+                name="title"
+                value={formData.title}
+                onChange={handleChange}
+                placeholder="e.g. Manager, CEO, Owner"
+              />
+            </div>
 
-          <div>
-            <FormLabel>Title / Position</FormLabel>
-            <FormInput
-              name="title"
-              value={formData.title}
-              onChange={handleChange}
-              placeholder="e.g. Manager, CEO, Owner"
-            />
+            <div>
+              <FormLabel>Contact Email</FormLabel>
+              <FormInput
+                type="email"
+                name="emailAddress"
+                value={formData.emailAddress}
+                onChange={handleChange}
+                placeholder="representative@email.com"
+              />
+            </div>
           </div>
 
-          <div>
-            <FormLabel>Contact Email</FormLabel>
-            <FormInput
-              type="email"
-              name="emailAddress"
-              value={formData.emailAddress}
-              onChange={handleChange}
-              placeholder="representative@email.com"
-            />
-          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <FormLabel>Viber</FormLabel>
+              <FormInput
+                name="viber"
+                value={formData.viber}
+                onChange={handleChange}
+                placeholder="Viber number"
+              />
+            </div>
 
-          <div>
-            <FormLabel>Viber</FormLabel>
-            <FormInput
-              name="viber"
-              value={formData.viber}
-              onChange={handleChange}
-              placeholder="Viber number"
-            />
-          </div>
-
-          <div>
-            <FormLabel required>Phone</FormLabel>
-            <FormInput
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              required
-              placeholder="Contact phone number"
-            />
+            <div>
+              <FormLabel required>Phone</FormLabel>
+              <FormInput
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                required
+                placeholder="Contact phone number"
+              />
+            </div>
           </div>
         </FormSection>
 
         <FormSection title="CRM Details">
-          <div>
-            <FormLabel required>Status</FormLabel>
-            <select
-              name="status"
-              value={formData.status}
-              onChange={handleChange}
-              required
-              className={inputClass}
-            >
-              <option value="New">New</option>
-              <option value="Contacted">Contacted</option>
-              <option value="Lost">Lost</option>
-            </select>
-          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <FormLabel required>Status</FormLabel>
+              <select
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+                required
+                className={inputClass}
+              >
+                <option value="New">New</option>
+                <option value="Contacted">Contacted</option>
+                <option value="Lost">Lost</option>
+              </select>
+            </div>
 
-          <div>
-            <FormLabel>Lead Source</FormLabel>
-            <select
-              name="leadSource"
-              value={formData.leadSource}
-              onChange={handleChange}
-              className={inputClass}
-            >
-              <option value="Website">Website</option>
-              <option value="Referral">Referral</option>
-              <option value="Facebook">Facebook</option>
-              <option value="Email">Email</option>
-              <option value="Walk-in">Walk-in</option>
-              <option value="Phone Call">Phone Call</option>
-              <option value="Event">Event</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
+            <div>
+              <FormLabel>Lead Source</FormLabel>
+              <select
+                name="leadSource"
+                value={formData.leadSource}
+                onChange={handleChange}
+                className={inputClass}
+              >
+                <option value="Website">Website</option>
+                <option value="Referral">Referral</option>
+                <option value="Facebook">Facebook</option>
+                <option value="Email">Email</option>
+                <option value="Walk-in">Walk-in</option>
+                <option value="Phone Call">Phone Call</option>
+                <option value="Event">Event</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+         </div>
 
           <div>
             <FormLabel>Notes</FormLabel>

@@ -15,7 +15,7 @@ import {
   Bell,
   Magnet,
   UserCheck,
-  TriangleAlert,
+  ExternalLink, 
 } from "lucide-react";
 
 import { getSelectProps } from "../../components/select/selectConfig";
@@ -51,7 +51,7 @@ import {
   getTaskEditDisabledReason,
 } from "./utils/taskPermissions";
 
-const STATUSES = ["Pending", "Ongoing", "Completed","Overdue"];
+const STATUSES = ["Pending", "Ongoing", "Completed", "Overdue"];
 const REPEATS = ["None", "Daily", "Weekly", "Monthly"];
 const RELATED_TYPES = ["Lead", "Client", "Quotation"];
 
@@ -62,10 +62,10 @@ const PRIORITY_COLORS = {
 };
 
 const STATUS_COLORS = {
-  "Pending": "gray",
-  "Ongoing": "amber",
-  "Completed": "green",
-  "Overdue": "red",
+  Pending: "gray",
+  Ongoing: "amber",
+  Completed: "green",
+  Overdue: "red",
 };
 
 const TASK_TYPE_LABELS = {
@@ -206,6 +206,13 @@ export default function TaskModal({
     const TypeIcon = TASK_TYPE_ICON[t.taskType];
     const RelatedIcon = RELATED_TYPE_ICON[t.relatedToType];
 
+    // Formats reference link neatly to ensure it redirects externally safely
+    const taskUrl = t.link
+      ? t.link.startsWith("http")
+        ? t.link
+        : `https://${t.link}`
+      : null;
+
     return (
       <div className="flex flex-row flex-1 min-h-0 h-full">
         <div className="flex flex-col flex-1 min-h-0 pr-6 overflow-y-auto">
@@ -286,6 +293,31 @@ export default function TaskModal({
           <p className="text-sm font-semibold text-gray-800 mb-4">Details</p>
 
           <div className="flex flex-col gap-4">
+            {/* Link field display */}
+            <div>
+              <div className="flex items-center gap-1.5 mb-1">
+                <ExternalLink size={11} className="text-gray-400" />
+                <p className="text-[10px] text-gray-400 uppercase tracking-wider">
+                  Link
+                </p>
+              </div>
+              {taskUrl ? (
+                <a
+                  href={taskUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 
+                    bg-blue-50 border border-blue-200 text-blue-600 rounded-md 
+                    hover:bg-blue-100 transition-colors w-full justify-center"
+                  title={t.link}
+                >
+                  Open Link <ExternalLink size={12} />
+                </a>
+              ) : (
+                <p className="text-sm font-medium text-gray-400 italic">—</p>
+              )}
+            </div>
+
             {/* Scope */}
             <div>
               <div className="flex items-center gap-1.5 mb-0.5">
@@ -322,15 +354,15 @@ export default function TaskModal({
               </p>
             </div>
 
-            {/* Created At */}
+            {/* Date Created */}
             <div>
               <div className="flex items-center gap-1.5 mb-0.5">
                 <Clock size={11} className="text-gray-400" />
                 <p className="text-[10px] text-gray-400 uppercase tracking-wider">
-                  Created At
+                  Date Created
                 </p>
               </div>
-              <p className="text-sm font-medium text-gray-700">
+              <p className="text-sm font-medium text-gray-7700">
                 {formatDateTime(t.createdAt) || "—"}
               </p>
             </div>
@@ -354,7 +386,7 @@ export default function TaskModal({
                   }`}
                 >
                   {(overdue || dueToday) && (
-                    <TriangleAlert size={12} strokeWidth={2} />
+                    <CalendarDays size={12} strokeWidth={2} />
                   )}
                   <p className="text-sm font-medium">{formatDate(t.dueDate)}</p>
                 </div>
@@ -498,10 +530,12 @@ export default function TaskModal({
     const today = new Date().toISOString().split("T")[0];
 
     return (
-      <form id= "task-form" onSubmit={onSubmit} className="flex flex-col h-full min-h-0">
-
+      <form
+        id="task-form"
+        onSubmit={onSubmit}
+        className="flex flex-col h-full min-h-0"
+      >
         <div className="flex-1 overflow-y-auto min-h-0 space-y-4 px-1">
-
           <div>
             <FormLabel required>Subject</FormLabel>
             <FormInput
@@ -715,6 +749,18 @@ export default function TaskModal({
             </div>
           </div>
 
+          {/* Link input field */}
+          <div>
+            <FormLabel>Link</FormLabel>
+            <FormInput
+              type="text"
+              name="link"
+              value={formData.link || ""}
+              onChange={onChange}
+              placeholder="e.g. https://example.com/document"
+            />
+          </div>
+
           <div>
             <FormLabel>Description</FormLabel>
             <FormTextarea
@@ -726,32 +772,6 @@ export default function TaskModal({
             />
           </div>
         </div>
-
-        {/* <div className="flex justify-end items-center gap-2">
-          {isEdit && origin === "view" && (
-            <button
-              type="button"
-              onClick={onSwitchToView}
-              className="px-4 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50 transition-colors cursor-pointer"
-            >
-              Cancel
-            </button>
-          )}
-          <button
-            type="submit"
-            disabled={loading}
-            className="relative flex items-center justify-center gap-1.5 px-5 py-2 text-sm bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors cursor-pointer min-w-25"
-          >
-            <span className={loading ? "opacity-0" : ""}>
-              {isCreate ? "Create Task" : "Save Changes"}
-            </span>
-            {loading && (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <DotLoader color="white" size={18} />
-              </div>
-            )}
-          </button>
-        </div> */}
       </form>
     );
   };

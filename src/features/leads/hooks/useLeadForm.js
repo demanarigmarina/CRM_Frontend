@@ -102,7 +102,7 @@ export function useLeadForm() {
       houseNumber: addr.houseNumber || "",
       zipCode: addr.zipCode || "",
       notes: lead.notes || "",
-      status: lead.status || "New",
+      status: lead.status || "Contacted",
       removeProfilePicture: false,
     });
 

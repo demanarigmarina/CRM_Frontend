@@ -16,8 +16,7 @@ export default function DashboardPage() {
   const {
     stats,
     loading,
-    error,
-    refetch,
+    error
   } = useDashboard();
 
   const tasks = Array.isArray(stats?.tasks)
@@ -35,15 +34,6 @@ export default function DashboardPage() {
           title="Dashboard"
           subtitle="Manage your tasks and meetings"
         />
-
-        <button
-          onClick={refetch}
-          disabled={loading}
-          type="button"
-          className="flex items-center gap-2 rounded-lg bg-red-500 px-3 py-2 text-xs font-semibold text-white hover:bg-red-600">
-          <RefreshCw size={12}/>
-          Refresh
-        </button>
 
       </div>
 

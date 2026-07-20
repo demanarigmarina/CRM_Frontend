@@ -6,6 +6,8 @@ import {
   UserCheck,
   FileText,
   TriangleAlert,
+  ExternalLink,
+  Clock, // Added Clock icon for the creation date
 } from "lucide-react";
 
 import { useAuth } from "../../context/AuthContext";
@@ -36,9 +38,9 @@ const TASK_PRIORITIES = ["Low", "Medium", "High"];
 
 const TASK_STATUS_TONE = {
   Pending: "gray",
-  Ongoing: "amber",
-  Completed: "green",
-  Overdue: "red",
+  Ongoing: "gray",
+  Completed: "gray",
+  Overdue: "gray",
 };
 
 const TASK_PRIORITY_TONE = {
@@ -152,11 +154,13 @@ export default function TaskTable({
 
   const columns = [
     { label: "Title" },
+    { label: "Task Owner" },
+    { label: "Related To" },
+    { label: "Link" }, 
+    { label: "Date Created" }, // New Column Header added after Link
     { label: "Deadline" },
     { label: "Status" },
     { label: "Priority" },
-    { label: "Related To" },
-    { label: "Task Owner" },
     ...(canEdit ? [{ label: "", align: "text-right" }] : []),
   ];
 
@@ -228,9 +232,14 @@ export default function TaskTable({
             permissions,
           );
 
+          // Standardize link strings to make sure external targets work flawlessly
+          const taskUrl = task.link?.startsWith("http")
+            ? task.link
+            : `https://${task.link}`;
+
           return (
             <TableRow key={task._id} onClick={() => onView?.(task)}>
-              {/* 1. TITLE (with description snippet if no related item) */}
+              {/* 1. TITLE */}
               <TableCell className="max-w-72">
                 <div className="flex items-center gap-2">
                   <div className="min-w-0">
@@ -250,98 +259,7 @@ export default function TaskTable({
                 </div>
               </TableCell>
 
-              {/* 2. DEADLINE */}
-              <TableCell>
-                {task.dueDate ? (
-                  <div className="flex flex-col">
-                    <span
-                      className={`flex items-center gap-1 text-sm ${
-                        overdue
-                          ? "text-red-500 font-medium"
-                          : dueToday
-                            ? "text-amber-500 font-medium"
-                            : "text-gray-600 group-hover:text-[#ef4444]"
-                      }`}
-                      title={
-                        overdue
-                          ? `Overdue — was due on ${formatDate(task.dueDate)}`
-                          : dueToday
-                            ? `Due today — ${formatDate(task.dueDate)}`
-                            : `Due on ${formatDate(task.dueDate)}`
-                      }
-                    >
-                      {overdue || dueToday ? (
-                        <TriangleAlert size={12} className="shrink-0" />
-                      ) : (
-                        <Calendar size={12} className="shrink-0" />
-                      )}
-
-                      {formatDate(task.dueDate)}
-                    </span>
-                  </div>
-                ) : (
-                  <span className="text-sm text-gray-400">—</span>
-                )}
-              </TableCell>
-
-              {/* 3. STATUS DROPDOWN */}
-              <TableCell>
-                <div
-                  onClick={(event) => event.stopPropagation()}
-                  onMouseDown={(event) => event.stopPropagation()}
-                  onPointerDown={(event) => event.stopPropagation()}
-                >
-                  <StatusDropdown
-                    status={normalizedStatus}
-                    statuses={TASK_STATUSES}
-                    toneMap={TASK_STATUS_TONE}
-                    disabled={!canEdit}
-                    onSelect={(newStatus) =>
-                      onUpdateStatus?.(task._id, newStatus)
-                    }
-                  />
-                </div>
-              </TableCell>
-
-              {/* 4. PRIORITY DROPDOWN */}
-              <TableCell>
-                <div
-                  onClick={(event) => event.stopPropagation()}
-                  onMouseDown={(event) => event.stopPropagation()}
-                  onPointerDown={(event) => event.stopPropagation()}
-                >
-                  <StatusDropdown
-                    status={task.priority || "Medium"}
-                    statuses={TASK_PRIORITIES}
-                    toneMap={TASK_PRIORITY_TONE}
-                    disabled={!canEdit}
-                    onSelect={(newPriority) =>
-                      onUpdatePriority?.(task._id, newPriority)
-                    }
-                  />
-                </div>
-              </TableCell>
-
-              {/* 5. RELATED TO */}
-              <TableCell>
-                {relatedName && RelatedIcon ? (
-                  <div className="flex items-center gap-1 mt-0.5">
-                    <RelatedIcon
-                      size={11}
-                      strokeWidth={2}
-                      className="text-gray-400 shrink-0"
-                    />
-
-                    <span className="text-xs text-gray-600 truncate">
-                      {relatedName} ({task.relatedToType})
-                    </span>
-                  </div>
-                ) : (
-                  <span className="text-sm text-gray-400">—</span>
-                )}
-              </TableCell>
-
-              {/* 6. TASK OWNER (Avatar, Name, and Scope Badge aligned together) */}
+              {/* 2. TASK OWNER */}
               <TableCell>
                 <div className="flex items-center gap-2">
                   {responsible.user ? (
@@ -376,7 +294,131 @@ export default function TaskTable({
                 </div>
               </TableCell>
 
-              {/* 7. ACTIONS BUTTON (if user has permissions) */}
+              {/* 3. RELATED TO */}
+              <TableCell>
+                {relatedName && RelatedIcon ? (
+                  <div className="flex items-center gap-1 mt-0.5">
+                    <RelatedIcon
+                      size={11}
+                      strokeWidth={2}
+                      className="text-gray-400 shrink-0"
+                    />
+
+                    <span className="text-xs text-gray-600 truncate">
+                      {relatedName} ({task.relatedToType})
+                    </span>
+                  </div>
+                ) : (
+                  <span className="text-sm text-gray-400">—</span>
+                )}
+              </TableCell>
+
+              {/* 4. LINK COLUMNS */}
+              <TableCell>
+                {task.link ? (
+                  <a
+                    href={taskUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="inline-flex items-center gap-1 text-xs px-2.5 py-1 
+                      bg-blue-50 text-blue-600 border border-blue-200 rounded-md 
+                      hover:bg-blue-100 transition-colors font-medium max-w-40 truncate"
+                    title={task.link}
+                  >
+                    <ExternalLink size={12} className="shrink-0" />
+                    <span className="truncate">Open Link</span>
+                  </a>
+                ) : (
+                  <span className="text-sm text-gray-400">—</span>
+                )}
+              </TableCell>
+
+              {/* NEW: 4.5 DATE CREATED */}
+              <TableCell>
+                {task.createdAt ? (
+                  <div className="flex items-center gap-1 text-sm text-gray-600 group-hover:text-[#ef4444]">
+                    <Clock size={12} className="text-gray-400 shrink-0" />
+                    <span>{formatDate(task.createdAt)}</span>
+                  </div>
+                ) : (
+                  <span className="text-sm text-gray-400">—</span>
+                )}
+              </TableCell>
+
+              {/* 5. DEADLINE */}
+              <TableCell>
+                {task.dueDate ? (
+                  <div className="flex flex-col">
+                    <span
+                      className={`flex items-center gap-1 text-sm ${
+                        overdue
+                          ? "text-red-500 font-medium"
+                          : dueToday
+                            ? "text-amber-500 font-medium"
+                            : "text-gray-600 group-hover:text-[#ef4444]"
+                      }`}
+                      title={
+                        overdue
+                          ? `Overdue — was due on ${formatDate(task.dueDate)}`
+                          : dueToday
+                            ? `Due today — ${formatDate(task.dueDate)}`
+                            : `Due on ${formatDate(task.dueDate)}`
+                      }
+                    >
+                      {overdue || dueToday ? (
+                        <TriangleAlert size={12} className="shrink-0" />
+                      ) : (
+                        <Calendar size={12} className="shrink-0" />
+                      )}
+
+                      {formatDate(task.dueDate)}
+                    </span>
+                  </div>
+                ) : (
+                  <span className="text-sm text-gray-400">—</span>
+                )}
+              </TableCell>
+
+              {/* 6. STATUS DROPDOWN */}
+              <TableCell>
+                <div
+                  onClick={(event) => event.stopPropagation()}
+                  onMouseDown={(event) => event.stopPropagation()}
+                  onPointerDown={(event) => event.stopPropagation()}
+                >
+                  <StatusDropdown
+                    status={normalizedStatus}
+                    statuses={TASK_STATUSES}
+                    toneMap={TASK_STATUS_TONE}
+                    disabled={!canEdit}
+                    onSelect={(newStatus) =>
+                      onUpdateStatus?.(task._id, newStatus)
+                    }
+                  />
+                </div>
+              </TableCell>
+
+              {/* 7. PRIORITY DROPDOWN */}
+              <TableCell>
+                <div
+                  onClick={(event) => event.stopPropagation()}
+                  onMouseDown={(event) => event.stopPropagation()}
+                  onPointerDown={(event) => event.stopPropagation()}
+                >
+                  <StatusDropdown
+                    status={task.priority || "Medium"}
+                    statuses={TASK_PRIORITIES}
+                    toneMap={TASK_PRIORITY_TONE}
+                    disabled={!canEdit}
+                    onSelect={(newPriority) =>
+                      onUpdatePriority?.(task._id, newPriority)
+                    }
+                  />
+                </div>
+              </TableCell>
+
+              {/* 8. ACTIONS BUTTON */}
               {canEdit && (
                 <TableCell
                   title={!canEditCurrentTask ? editDisabledReason : ""}

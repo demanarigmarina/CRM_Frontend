@@ -1,4 +1,4 @@
-import { Edit2, Phone, Trash2 } from "lucide-react";
+import { Edit2, Phone, FileX } from "lucide-react";
 
 import {
   BaseTable,
@@ -139,7 +139,7 @@ export default function ProspectTable({
                   className="text-gray-400 hover:text-red-600"
                   title="Delete prospect"
                 >
-                  <Trash2 size={16} />
+                  <FileX size={16} />
                 </button>
               </div>
             </TableCell>
