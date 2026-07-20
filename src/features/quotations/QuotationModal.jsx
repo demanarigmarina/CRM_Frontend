@@ -64,7 +64,6 @@ export default function QuotationModal({
   onChange,
   onSelectChange,
   onSwitchToEdit,
-  // onSwitchToView,
   onSubmit,
   onDelete,
   onClose,
@@ -447,17 +446,6 @@ export default function QuotationModal({
                 required
               />
             </div>
-            {/* <div>
-              <FormLabel>Probability</FormLabel>
-              <FormInput
-                type="number"
-                name="probability"
-                min="0"
-                max="100"
-                value={formData.probability}
-                onChange={onChange}
-              />
-            </div> */}
           </div>
 
           {/* Stage */}
@@ -549,7 +537,6 @@ export default function QuotationModal({
       formId="quotation-form"
       loading={loading}
       onClose={onClose}
-      onCancel={onClose}
       footer={isView ? renderViewFooter() : null}
     >
       {renderForm()}

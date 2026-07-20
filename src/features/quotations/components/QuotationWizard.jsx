@@ -72,7 +72,6 @@ function WizardHeader({ onClose }) {
 function WizardFooter({
   loading,
   onBack,
-  onCancel,
   onContinue,
   onSaveDraft,
   onSubmit,
@@ -83,13 +82,6 @@ function WizardFooter({
 
   return (
     <div className="flex shrink-0 items-center justify-between border-t border-slate-200 bg-white px-6 py-4">
-      <button
-        type="button"
-        onClick={onCancel}
-        className="rounded-md border border-slate-200 px-5 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
-      >
-        Cancel
-      </button>
 
       {/* RESTORED TEMPLATE TEXT */}
       <div className="hidden items-center gap-2 md:flex">
@@ -469,7 +461,6 @@ export default function QuotationWizard({
               setError("");
               setStep((curr) => Math.max(1, curr - 1));
             }}
-            onCancel={onClose}
             onContinue={continueToNextStep}
             onSaveDraft={() => submitQuotation("Draft")}
             onSubmit={() => submitQuotation()}
