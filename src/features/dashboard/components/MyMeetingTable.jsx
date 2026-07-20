@@ -1,165 +1,251 @@
-import {
-  TablePagination,
-  useTablePagination,
-} from "../../../components/table";
+import{useLayoutEffect,useMemo,useRef,useState}from"react";
+import{CalendarDays,Clock,ChevronLeft,ChevronRight}from"lucide-react";
 
-import { CalendarDays } from "lucide-react";
+const VISIBLE_CARDS=4;
+const CLONE_COUNT=4;
+const GAP=12;
+const PEEK=22;
 
-function formatDate(date) {
-  if (!date) return "—";
+export default function MyMeetingsTable({meetings=[]}){
+const viewportRef=useRef(null);
+const movingRef=useRef(false);
 
-  return new Date(date).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+const[index,setIndex]=useState(CLONE_COUNT);
+const[cardWidth,setCardWidth]=useState(0);
+const[animated,setAnimated]=useState(false);
+const[showArrows,setShowArrows]=useState(false);
+
+const items=useMemo(()=>{
+if(!meetings.length)return[];
+
+const count=Math.max(meetings.length,VISIBLE_CARDS);
+
+return Array.from(
+{length:count},
+(_,itemIndex)=>meetings[itemIndex%meetings.length]
+);
+},[meetings]);
+
+const cards=useMemo(()=>{
+if(!items.length)return[];
+
+return[
+...items.slice(-CLONE_COUNT),
+...items,
+...items.slice(0,CLONE_COUNT)
+];
+},[items]);
+
+useLayoutEffect(()=>{
+const viewport=viewportRef.current;
+
+if(!viewport)return;
+
+const measure=()=>{
+const available=viewport.clientWidth-(PEEK*2);
+const gaps=GAP*(VISIBLE_CARDS-1);
+
+setCardWidth(
+Math.max(0,(available-gaps)/VISIBLE_CARDS)
+);
+};
+
+measure();
+
+const observer=new ResizeObserver(measure);
+observer.observe(viewport);
+
+return()=>observer.disconnect();
+},[]);
+
+useLayoutEffect(()=>{
+movingRef.current=false;
+setAnimated(false);
+setIndex(CLONE_COUNT);
+
+let secondFrame;
+
+const firstFrame=requestAnimationFrame(()=>{
+secondFrame=requestAnimationFrame(()=>{
+setAnimated(true);
+});
+});
+
+return()=>{
+cancelAnimationFrame(firstFrame);
+
+if(secondFrame){
+cancelAnimationFrame(secondFrame);
+}
+};
+},[items.length]);
+
+const move=direction=>{
+if(!items.length||!cardWidth||movingRef.current)return;
+
+movingRef.current=true;
+setAnimated(true);
+setIndex(current=>current+direction);
+};
+
+const finishMove=()=>{
+if(!items.length)return;
+
+if(index>=CLONE_COUNT+items.length){
+setAnimated(false);
+setIndex(index-items.length);
+}else if(index<CLONE_COUNT){
+setAnimated(false);
+setIndex(index+items.length);
 }
 
-export default function MyMeetingsTable({ meetings = [] }) {
-  const now = new Date();
+movingRef.current=false;
+};
 
-  const todayStart = new Date(
-    now.getFullYear(),
-    now.getMonth(),
-    now.getDate()
-  );
+if(!meetings.length){
+return(
+<div className="flex h-[140px] w-full items-center justify-center rounded-xl border border-black/10 bg-white text-xs text-black/40">
+No meetings available
+</div>
+);
+}
 
-  // Upcoming meetings only
-  const relevantMeetings = meetings
-    .filter((meeting) => {
-      if (!meeting.date) return false;
+const step=cardWidth+GAP;
+const translate=(index*step)-PEEK;
 
-      return new Date(meeting.date) >= todayStart;
-    })
-    .sort((a, b) => new Date(a.date) - new Date(b.date));
+return(
+<div
+className="group relative w-full min-w-0"
+onMouseEnter={()=>setShowArrows(true)}
+onMouseLeave={()=>setShowArrows(false)}
+>
 
-  const {
-    currentPage,
-    rowsPerPage,
-    totalRows,
-    totalPages,
-    paginatedItems,
-    pageWindow,
-    from,
-    to,
-    goTo,
-    setRowsPerPage,
-  } = useTablePagination(relevantMeetings, 5);
+<button
+type="button"
+aria-label="Previous meeting"
+onClick={()=>move(-1)}
+className={`absolute left-0 top-1/2 z-20 flex -translate-y-1/2 items-center justify-center text-black/60 transition-all hover:scale-110 hover:text-red-600 ${
+showArrows
+?"opacity-100"
+:"pointer-events-none opacity-0"
+}`}
+>
+<ChevronLeft size={44} strokeWidth={2.7}/>
+</button>
 
-  const tableHeight =
-    rowsPerPage === 5
-      ? ""
-      : "max-h-[280px] overflow-y-auto";
+<button
+type="button"
+aria-label="Next meeting"
+onClick={()=>move(1)}
+className={`absolute right-0 top-1/2 z-20 flex -translate-y-1/2 items-center justify-center text-black/60 transition-all hover:scale-110 hover:text-red-600 ${
+showArrows
+?"opacity-100"
+:"pointer-events-none opacity-0"
+}`}
+>
+<ChevronRight size={44} strokeWidth={2.7}/>
+</button>
 
-  return (
-    <div className="h-[500px] overflow-hidden rounded-xl border border-gray-200 bg-white flex flex-col">
-      {/* Header */}
-      <div className="p-5 pb-3">
+<div
+ref={viewportRef}
+className="w-full min-w-0 overflow-hidden py-2"
+>
 
-        <div className="mb-5 flex items-start gap-3">
+<div
+className="flex"
+onTransitionEnd={event=>{
+if(event.target===event.currentTarget){
+finishMove();
+}
+}}
+style={{
+gap:`${GAP}px`,
+transform:`translate3d(-${translate}px,0,0)`,
+transition:animated?"transform 380ms ease":"none",
+visibility:cardWidth>0?"visible":"hidden"
+}}
+>
 
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-50 text-red-500">
-            <CalendarDays size={18} />
-          </div>
+{cards.map((meeting,itemIndex)=>(
 
-          <div>
-            <h2 className="text-md font-semibold text-gray-700">
-              My Meetings
-            </h2>
+<div
+key={`${meeting._id||"meeting"}-${itemIndex}`}
+className="
+relative
+box-border
+h-[140px]
+min-w-0
+shrink-0
+overflow-hidden
+rounded-xl
+border
+border-black/[0.09]
+bg-white
+p-4
+shadow-[0_3px_7px_rgba(0,0,0,0.11)]
+transition
+duration-300
+hover:-translate-y-0.5
+hover:border-red-200
+hover:shadow-[0_5px_10px_rgba(0,0,0,0.14)]
+"
+style={{width:`${cardWidth}px`}}
+>
 
-            <p className="text-xs text-gray-400">
-              Upcoming schedules and appointments.
-            </p>
-          </div>
-        </div>
+<div className="absolute inset-x-0 top-0 h-[3px] bg-red-600"/>
 
-        {/* Table */}
-        <div className="rounded-md">
-          <table className="min-w-full table-fixed text-left text-xs">
-            <thead className="border-b border-gray-200 bg-white">
-              <tr>
-                <th className="w-[38%] px-4 py-3 font-semibold uppercase text-gray-500">
-                  Title
-                </th>
+<div className="relative z-10">
 
-                <th className="w-[22%] px-4 py-3 font-semibold uppercase text-gray-500">
-                  Date
-                </th>
+<h3 className="truncate text-[12px] font-bold text-black/80">
+{meeting.meetingTitle||"Untitled Meeting"}
+</h3>
 
-                <th className="w-[20%] px-4 py-3 font-semibold uppercase text-gray-500">
-                  From
-                </th>
+<div className="mt-4 space-y-3 text-[10px] font-medium text-black/60">
 
-                <th className="w-[20%] px-4 py-3 font-semibold uppercase text-gray-500">
-                  To
-                </th>
+<div className="flex min-w-0 items-center gap-2">
 
-              </tr>
-            </thead>
-          </table>
+<span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-red-50 text-red-600">
+<CalendarDays size={12}/>
+</span>
 
-          {/* Table Body */}
-          <div className={tableHeight}>
-            <table className="min-w-full table-fixed text-left text-xs">
-              <tbody>
-                {paginatedItems.length > 0 ? (
-                  paginatedItems.map((meeting) => (
-                    <tr
-                      key={meeting._id}
-                      className="border-b border-gray-100 hover:bg-gray-50 transition"
-                    >
-                      <td className="w-[38%] truncate px-4 py-3 font-medium text-gray-700">
-                        {meeting.meetingTitle}
-                      </td>
+<span className="truncate">
+{meeting.date
+?new Date(meeting.date).toLocaleDateString(
+"en-US",
+{
+month:"short",
+day:"numeric"
+}
+)
+:"No date"}
+</span>
 
-                      <td className="w-[22%] whitespace-nowrap px-4 py-3 text-gray-600">
-                        {formatDate(meeting.date)}
-                      </td>
+</div>
 
-                      <td className="w-[20%] whitespace-nowrap px-4 py-3 text-gray-600">
-                        {meeting.startTime || "—"}
-                      </td>
+<div className="flex min-w-0 items-center gap-2">
 
-                      <td className="w-[20%] whitespace-nowrap px-4 py-3 text-gray-600">
-                        {meeting.endTime || "—"}
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td
-                      colSpan="4"
-                      className="py-35 text-center text-sm text-gray-400"
-                    >
-                      No upcoming meetings scheduled.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
+<span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-black/[0.05] text-black/70">
+<Clock size={12}/>
+</span>
 
-      {/* Pagination */}
-      <div className="mt-auto border-t border-gray-200 bg-gray-50/50 px-3 py-2">
+<span className="truncate">
+{meeting.startTime||"--"} - {meeting.endTime||"--"}
+</span>
 
-        <TablePagination
-          rowsOptions={[5, 10]}
-          currentPage={currentPage}
-          totalPages={totalPages}
-          totalRows={totalRows}
-          rowsPerPage={rowsPerPage}
-          from={from}
-          to={to}
-          pageWindow={pageWindow}
-          onGoTo={goTo}
-          onRowsPerPageChange={setRowsPerPage}
-          marginTop="mt-0"
-        />
+</div>
 
-      </div>
+</div>
 
-    </div>
-  );
+</div>
+
+</div>
+
+))}
+
+</div>
+
+</div>
+
+</div>
+);
 }

@@ -1,15 +1,20 @@
-export default function PageBase({ children, className = "" }) {
-  return (
-    <div
-      className={`
-        border bg-white border-gray-200
-        rounded-md p-6 mt-4
-        flex flex-col
-        h-[calc(100vh-120px)]
-        ${className}
-      `}
-    >
-      {children}
-    </div>
-  );
+export default function PageBase({children,className=""}){
+
+return(
+<div
+className={`
+border border-gray-200
+bg-white
+rounded-md
+p-5
+mt-3
+flex flex-col
+h-[calc(100vh-110px)]
+overflow-hidden
+${className}
+`}
+>
+{children}
+</div>
+);
 }
