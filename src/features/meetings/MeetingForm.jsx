@@ -64,9 +64,8 @@ function MeetingFormContent({ meeting, onSubmit }) {
   };
 
   return (
-    <form id="meeting-form" onSubmit={handleSubmit} className="flex flex-col h-full min-h-0">
-      <div className="flex-1 overflow-y-auto min-h-0 space-y-6 px-1">
-        
+    <form id="meeting-form" onSubmit={handleSubmit} className="space-y-6">
+
         {/* Section 1: Meeting Information */}
         <FormSection title="Meeting Information">
           <div className="space-y-4">
@@ -113,7 +112,7 @@ function MeetingFormContent({ meeting, onSubmit }) {
 
             <div className="grid gap-3">
               <div>
-                <FormLabel>Location</FormLabel>
+                <FormLabel required>Location</FormLabel>
                 <FormInput
                   type="text"
                   required
@@ -134,7 +133,7 @@ function MeetingFormContent({ meeting, onSubmit }) {
                       onChange={(e) => setLocationScope(e.target.value)}
                       className="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
                     />
-                    Inside the PH
+                    Inside the Philippines
                   </label>
                   <label className="flex items-center gap-2 text-sm font-medium text-gray-600 cursor-pointer select-none">
                     <input
@@ -145,7 +144,7 @@ function MeetingFormContent({ meeting, onSubmit }) {
                       onChange={(e) => setLocationScope(e.target.value)}
                       className="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
                     />
-                    Outside the PH
+                    Outside the Philippines
                   </label>
                 </div>
               </div>
@@ -275,7 +274,6 @@ function MeetingFormContent({ meeting, onSubmit }) {
           </div>
         </FormSection>
 
-      </div>
     </form>
   );
 }

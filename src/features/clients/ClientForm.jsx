@@ -55,7 +55,7 @@ export default function ClientForm({
         {!editingClient && permissions.canAssign && (
           <FormSection title="Assignment">
             <div>
-              <FormLabel>Account owner (optional)</FormLabel>
+              <FormLabel>Assign to Agent (optional)</FormLabel>
               <Select
                 {...getSelectProps({ isClearable: true })}
                 options={agentOptions}

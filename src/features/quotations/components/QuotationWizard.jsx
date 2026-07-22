@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { ArrowLeft, ArrowRight, Check, CheckCircle2, Expand, X } from "lucide-react";
+import { useMemo, useState, useEffect } from "react";
+import { ArrowLeft, ArrowRight, Check, CheckCircle2, Expand, Minimize2, X } from "lucide-react";
 
 import BaseModal from "../../../components/modal/BaseModal";
 import TemplateBuilder from "../Builder/TemplateBuilder";
@@ -8,7 +8,6 @@ import { buildFullAddress } from "../../../utils/buildFullAddress";
 import { getDisplayName } from "../../../utils/name";
 
 import {
-  // addDays,
   calculateQuotationTotals,
   createQuotationNumber,
   toDateInput,
@@ -53,15 +52,30 @@ function Stepper({ step }) {
   );
 }
 
-function WizardHeader({ onClose }) {
+function WizardHeader({ mode, onClose, isExpanded, onToggleExpand }) {
   return (
     <div className="flex shrink-0 items-center justify-between border-b border-slate-200 px-8 py-5">
-      <h2 className="text-xl font-semibold text-slate-900">Add New Quotation</h2>
+      <h2 className="text-xl font-semibold text-slate-900">
+        {mode === "create"
+          ? "Add New Quotation"
+          : mode === "edit"
+          ? "Edit Quotation"
+          : "Quotation Details"}
+      </h2>
       <div className="flex items-center gap-2">
-        <button type="button" className="rounded-md p-2 text-slate-500 hover:bg-slate-100">
-          <Expand size={18} />
+        <button
+          type="button"
+          onClick={onToggleExpand}
+          className="rounded-md p-2 text-slate-500 hover:bg-slate-100 transition-colors"
+          title={isExpanded ? "Restore Size" : "Expand Window"}
+        >
+          {isExpanded ? <Minimize2 size={18} /> : <Expand size={18} />}
         </button>
-        <button type="button" onClick={onClose} className="rounded-md p-2 text-slate-500 hover:bg-slate-100">
+        <button 
+          type="button" 
+          onClick={onClose} 
+          className="rounded-md p-2 text-slate-500 hover:bg-slate-100 transition-colors"
+        >
           <X size={20} />
         </button>
       </div>
@@ -77,13 +91,13 @@ function WizardFooter({
   onSubmit,
   selectedTemplate,
   step,
+  mode,
 }) {
   const TemplateIcon = selectedTemplate?.icon;
 
   return (
     <div className="flex shrink-0 items-center justify-between border-t border-slate-200 bg-white px-6 py-4">
-
-      {/* RESTORED TEMPLATE TEXT */}
+      {/* TEMPLATE TEXT */}
       <div className="hidden items-center gap-2 md:flex">
         {step === 1 && selectedTemplate && (
           <div className="flex items-center gap-2 rounded-full bg-slate-50 px-4 py-1.5 border border-slate-100">
@@ -105,7 +119,7 @@ function WizardFooter({
             type="button"
             onClick={onBack}
             disabled={loading}
-            className="flex items-center gap-2 rounded-md border border-slate-200 px-5 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+            className="flex items-center gap-2 rounded-md border border-slate-200 px-5 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 transition-colors"
           >
             <ArrowLeft size={14} /> Back
           </button>
@@ -115,7 +129,7 @@ function WizardFooter({
             type="button"
             onClick={onSaveDraft}
             disabled={loading}
-            className="rounded-md border border-slate-200 px-6 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+            className="rounded-md border border-slate-200 px-6 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 transition-colors"
           >
             Save Draft
           </button>
@@ -125,7 +139,7 @@ function WizardFooter({
             type="button"
             onClick={onContinue}
             disabled={loading}
-            className="flex items-center gap-4 rounded-md bg-red-500 px-6 py-2.5 text-xs font-medium text-white hover:bg-red-600"
+            className="flex items-center gap-4 rounded-md bg-red-500 px-6 py-2.5 text-xs font-medium text-white hover:bg-red-600 transition-colors"
           >
             {step === 1 ? "Continue" : "Next: Review & Preview"} <ArrowRight size={14} />
           </button>
@@ -134,9 +148,16 @@ function WizardFooter({
             type="button"
             onClick={onSubmit}
             disabled={loading}
-            className="flex items-center gap-3 rounded-md bg-red-500 px-7 py-2.5 text-xs font-medium text-white hover:bg-red-600"
+            className="flex items-center gap-3 rounded-md bg-red-500 px-7 py-2.5 text-xs font-medium text-white hover:bg-red-600 transition-colors"
           >
-            {loading ? "Creating..." : "Create Quotation"} <CheckCircle2 size={15} />
+            {loading
+              ? mode === "edit"
+                ? "Saving..."
+                : "Creating..."
+              : mode === "edit"
+                ? "Save Changes"
+                : "Create Quotation"} 
+            <CheckCircle2 size={15} />
           </button>
         )}
       </div>
@@ -164,72 +185,77 @@ const getClientDetails = (client) => {
   };
 };
 
-const createInitialDetails = (formData, clients, currentUser) => {
+const createInitialDetails = (formData = {}, clients = [], currentUser = null, viewingQuotation = null) => {
+  const source = viewingQuotation || formData || {};
   const now = new Date();
-  const selectedClient = clients.find((c) => String(c._id) === String(formData.client || ""));
+  const selectedClient = clients.find((c) => String(c._id) === String(source.client || source.clientId || ""));
   const companyAddress = buildFullAddress(currentUser?.address);
+
+  const rawValidUntil = source.expectedCloseDate || source.validUntil;
 
   return {
     // Basic Info
-    quotationNumber: createQuotationNumber(),
-    quotationDate: toDateInput(now),
-    validUntil: formData.expectedCloseDate || "", 
-    quotationTitle: formData.title || "",
-    currency: formData.currency || "PHP",
+    quotationNumber: source.quotationNumber || createQuotationNumber(),
+    quotationDate: source.quotationDate ? toDateInput(source.quotationDate) : toDateInput(now),
+    validUntil: rawValidUntil ? toDateInput(rawValidUntil) : "", 
+    quotationTitle: source.title || source.quotationTitle || "",
+    currency: source.currency || "PHP",
 
-    // Company Info (Populates default details using active user session profile)
-    companyName: currentUser?.company || "",
-    companyEmail: currentUser?.email || "",
-    companyPhone: currentUser?.phone || "",
+    // Company Info
+    companyName: currentUser?.company || source.companyName || "",
+    companyEmail: currentUser?.email || source.companyEmail || "",
+    companyPhone: currentUser?.phone || source.companyPhone || "",
     companyAddress: companyAddress === "—" ? "" : companyAddress,
 
-    // Client Info (Blank, ready for dynamic selection)
-    clientId: formData.client || "",
+    // Client Info
+    clientId: source.client || source.clientId || "",
     ...getClientDetails(selectedClient),
 
-    // Sections (No pre-written mock summaries or filler texts)
-    introduction: "",
-    overviewProjectName: formData.title || "",
-    overviewObjectives: "",
-    overviewScope: "",
-    eventName: "",
-    eventVenue: "",
-    eventDate: "",
-    eventGuests: "",
+    // Sections
+    introduction: source.introduction || "",
+    overviewProjectName: source.title || source.overviewProjectName || "",
+    overviewObjectives: source.overviewObjectives || "",
+    overviewScope: source.overviewScope || "",
+    eventName: source.eventName || "",
+    eventVenue: source.eventVenue || "",
+    eventDate: source.eventDate ? toDateInput(source.eventDate) : "",
+    eventGuests: source.eventGuests || "",
 
-    // Empty Lists (Starts blank for adding rows cleanly)
-    items: [],
-    materials: [],
-    milestones: [],
+    // Itemized Lists
+    items: source.items || [],
+    materials: source.materials || [],
+    milestones: source.milestones || [],
 
     // Payment Info
-    paymentMethod: "",
-    downPayment: "0",
-    balance: "0",
-    paymentSchedule: "",
+    paymentMethod: source.paymentMethod || "",
+    downPayment: String(source.downPayment ?? "0"),
+    balance: String(source.balance ?? "0"),
+    paymentSchedule: source.paymentSchedule || "",
 
     // Pricing & Terms
-    discount: "0",
-    taxRate: "0",
-    terms: "",
-    notes: formData.notes || "",
+    discount: String(source.discount ?? "0"),
+    taxRate: String(source.taxRate ?? "0"),
+    terms: source.terms || "",
+    notes: source.notes || "",
 
-    // Signatures (Populates default values using user credentials)
-    preparedBy: getDisplayName(currentUser, { includeMiddleInitial: true, includeSuffix: true, fallback: "" }),
-    preparedByRole: currentUser?.role || "",
-    stage: formData.stage || "Draft",
-    assignedTo: formData.assignedTo || "",
+    // Signatures
+    preparedBy: source.preparedBy || getDisplayName(currentUser, { includeMiddleInitial: true, includeSuffix: true, fallback: "" }),
+    preparedByRole: source.preparedByRole || currentUser?.role || "",
+    stage: source.stage || "Draft",
+    assignedTo: source.assignedTo || "",
   };
 };
 
 export default function QuotationWizard({
   clients = [],
   currentUser,
-  formData,
+  formData = {},
   loading,
   onClose,
   onSubmit,
   open,
+  mode = "create",
+  viewingQuotation = null,
   permissions = {},
   salesAgents = [],
   stages = [],
@@ -237,14 +263,29 @@ export default function QuotationWizard({
   const [step, setStep] = useState(1);
   const [category, setCategory] = useState("All");
   const [search, setSearch] = useState("");
+  const [isExpanded, setIsExpanded] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState(
     QUOTATION_TEMPLATES.find((t) => t.id === "product"),
   );
-  const [quotationTitle, setQuotationTitle] = useState(formData.title || "");
-  const [details, setDetails] = useState(() => createInitialDetails(formData, clients, currentUser));
+  const [quotationTitle, setQuotationTitle] = useState(formData.title || viewingQuotation?.title || "");
+  const [details, setDetails] = useState(() => createInitialDetails(formData, clients, currentUser, viewingQuotation));
   const [activeTab, setActiveTab] = useState("preview");
   const [showBuilder, setShowBuilder] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!open) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setDetails (createInitialDetails(formData, clients, currentUser, viewingQuotation));
+    setQuotationTitle(formData.title || viewingQuotation?.title || "");
+    setStep(1);
+    setError("");
+    setIsExpanded(false);
+    setActiveTab("preview");
+    setSelectedTemplate(
+      QUOTATION_TEMPLATES.find((t) => t.id === "product")
+    );
+  }, [open, formData, viewingQuotation, clients, currentUser]);
 
   const filteredTemplates = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -298,21 +339,21 @@ export default function QuotationWizard({
   const addRow = (listKey, row) => {
     setDetails((curr) => ({
       ...curr,
-      [listKey]: [...curr[listKey], { ...row, id: `${listKey}-${Date.now()}` }],
+      [listKey]: [...(curr[listKey] || []), { ...row, id: `${listKey}-${Date.now()}` }],
     }));
   };
 
   const updateRow = (listKey, rowId, name, value) => {
     setDetails((curr) => ({
       ...curr,
-      [listKey]: curr[listKey].map((row) => (row.id === rowId ? { ...row, [name]: value } : row)),
+      [listKey]: (curr[listKey] || []).map((row) => (row.id === rowId ? { ...row, [name]: value } : row)),
     }));
   };
 
   const removeRow = (listKey, rowId) => {
     setDetails((curr) => ({
       ...curr,
-      [listKey]: curr[listKey].filter((row) => row.id !== rowId),
+      [listKey]: (curr[listKey] || []).filter((row) => row.id !== rowId),
     }));
   };
 
@@ -363,6 +404,7 @@ export default function QuotationWizard({
     expectedCloseDate: details.validUntil || null,
     assignedTo: details.assignedTo,
     notes: [details.notes, details.terms].filter(Boolean).join("\n\n"),
+    quotationDetails: details,
   });
 
   const submitQuotation = async (stage) => {
@@ -371,7 +413,12 @@ export default function QuotationWizard({
       if (step !== 2) setStep(2);
       return;
     }
-    await onSubmit({ preventDefault: () => undefined }, createPayload(stage));
+
+    try {
+      await onSubmit({ preventDefault: () => undefined }, createPayload(stage));
+    } catch (err) {
+      setError(err?.message || "An unexpected error occurred while saving the quotation.");
+    }
   };
 
   return (
@@ -380,8 +427,10 @@ export default function QuotationWizard({
       onClose={onClose}
       submitting={loading}
       closeOnBackdrop={false}
-      maxWidth="max-w-[1180px]"
-      className="!h-[94vh] !max-h-[94vh] !rounded-lg !p-0"
+      maxWidth={isExpanded ? "max-w-[100vw]" : "max-w-[1180px]"}
+      className={`${
+        isExpanded ? "h-screen max-h-screen w-screen rounded-none" : "h-[94vh] max-h-[94vh]"
+      } p-0 transition-all duration-200`}
     >
       {showBuilder ? (
         <TemplateBuilder
@@ -398,7 +447,12 @@ export default function QuotationWizard({
         />
       ) : (
         <div className="flex h-full min-h-0 flex-col overflow-hidden">
-          <WizardHeader onClose={onClose} />
+          <WizardHeader 
+            mode={mode} 
+            onClose={onClose}
+            isExpanded={isExpanded}
+            onToggleExpand={() => setIsExpanded((prev) => !prev)} 
+          />
           <Stepper step={step} />
 
           {step === 1 && (
@@ -466,6 +520,7 @@ export default function QuotationWizard({
             onSubmit={() => submitQuotation()}
             selectedTemplate={selectedTemplate}
             step={step}
+            mode={mode}
           />
         </div>
       )}
