@@ -207,13 +207,13 @@ tasks:defaultTasks,
 meetings:defaultMeetings
 });
 
-setError(
-err?.response?.data?.error||""
-);
-}finally{
-setLoading(false);
-}
-},[]);
+      setError(
+        err.response?.data?.error || ""
+      );
+
+    } finally {
+      setLoading(false);
+    }
 
 useEffect(()=>{
 fetchStats();
